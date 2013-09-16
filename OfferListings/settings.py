@@ -1,4 +1,6 @@
-# Django settings for OfferListings project.
+import os
+
+BASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -11,8 +13,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'offer_listings',                      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': os.path.join(BASE_PATH, 'database.sqlite'),   # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'root',
         'PASSWORD': '',
@@ -118,6 +120,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+
+    # Packages
+    'south',
+    'crispy_forms',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
