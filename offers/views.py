@@ -52,7 +52,7 @@ def list_offers(request, page_number=1):
 
 
 def provider_list(request):
-    providers = Provider.objects.all()
+    providers = Provider.objects.order_by('name')
 
     return render(request, 'offers/providers.html', {
         "providers": providers
