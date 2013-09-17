@@ -11,6 +11,7 @@
             <a href="{% url 'offer:view' comment.offer.pk %}#comment-{{ comment.pk }}">
               {{ comment.commenter.username }}
             </a>
+            <small>Commented on {{ comment.created_at }}</small>
           </h4>
           {{ comment.content }}
         </div>
