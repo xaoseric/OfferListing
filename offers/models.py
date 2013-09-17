@@ -31,7 +31,7 @@ class Provider(models.Model):
         if self.logo == '' or self.logo is None:
             return settings.STATIC_URL + 'img/no_logo.png'
 
-        options = {'size': (100, 100), 'crop': True}
+        options = {'size': (400, 400), 'crop': True}
         return get_thumbnailer(self.logo).get_thumbnail(options).url
 
 
