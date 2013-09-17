@@ -13,5 +13,9 @@
     <li class="list-group-item">
       Price range ${{ offer.min_cost|floatformat:2 }} - ${{ offer.max_cost|floatformat:2 }}
     </li>
+    <li class="list-group-item offer-time-since">
+      Offer released {{ offer.created_at|timesince }} ago.
+      <span class="pull-right">Last updated {{ offer.updated_at|timesince }} ago.</span>
+    </li>
   </ul>
 </div>
