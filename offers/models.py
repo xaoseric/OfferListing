@@ -3,7 +3,8 @@ from django.core.validators import URLValidator
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-import os, uuid
+import os
+import uuid
 
 
 def get_file_path(instance, filename):
