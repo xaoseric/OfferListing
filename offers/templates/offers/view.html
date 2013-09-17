@@ -2,8 +2,27 @@
 
 {% block title %}{{ offer.name }}{% endblock %}
 
-{% block page_title %}{{ offer.name }}{% endblock %}
+{% block page_title %}{{ offer.name }} <small>{{ offer.provider.name }}</small>{% endblock %}
 
 {% block content %}
-  {{ offer }}
+  {{ offer.content | safe }}
+  <hr>
+  <h2>Plans on offer:</h2>
+  <div class="row">
+    {% for plan in offer.plan_set.all %}
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Plan #{{ forloop.counter }}</h3>
+          </div>
+          <table class="table">
+            <tr>
+              <td>Memory</td>
+              <td>{{ plan.memory }} MB</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
 {% endblock %}
