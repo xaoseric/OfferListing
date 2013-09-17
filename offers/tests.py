@@ -19,6 +19,64 @@ class OfferMethodTests(TestCase):
             name = "{0} ({1})".format(offer.name, offer.provider.name)
             self.assertEqual(name, offer.__unicode__())
 
+    def test_plan_count(self):
+        """
+        Test that the plan count method returns the correct number of plans
+        """
+        for i, offer in enumerate(self.offers):
+            mommy.make(Plan, _quantity=i+1, offer=offer)
+            self.assertEqual(offer.plan_count(), i+1)
+
+    def test_min_cost(self):
+        """
+        Test that the minimum cost method gets the true minimum cost
+        """
+
+        for i, offer in enumerate(self.offers):
+            mommy.make(Plan, _quantity=20, offer=offer, cost=i+100)
+            mommy.make(Plan, offer=offer, cost=i)
+
+            self.assertEqual(i, offer.min_cost())
+
+    def test_min_cost_with_other(self):
+        """
+        Test that the minimum cost method gets the true minimum cost and not that of other offers
+        """
+
+        # Generate other plans with cheaper costs
+        mommy.make(Plan, _quantity=20, cost=0)
+
+        for i, offer in enumerate(self.offers):
+            mommy.make(Plan, _quantity=20, offer=offer, cost=i+100)
+            mommy.make(Plan, offer=offer, cost=i)
+
+            self.assertEqual(i, offer.min_cost())
+
+    def test_max_cost(self):
+        """
+        Test that the maximum cost method gets the true maximum cost
+        """
+
+        for i, offer in enumerate(self.offers):
+            mommy.make(Plan, _quantity=20, offer=offer, cost=i+100)
+            mommy.make(Plan, offer=offer, cost=i+1000)
+
+            self.assertEqual(i+1000, offer.max_cost())
+
+    def test_max_cost_with_other(self):
+        """
+        Test that the maximum cost method gets the true maximum cost and not that of other offers
+        """
+
+        # Generate other plans with more expensive costs
+        mommy.make(Plan, _quantity=20, cost=10000)
+
+        for i, offer in enumerate(self.offers):
+            mommy.make(Plan, _quantity=20, offer=offer, cost=i+100)
+            mommy.make(Plan, offer=offer, cost=i+1000)
+
+            self.assertEqual(i+1000, offer.max_cost())
+
 
 class OfferViewTests(TestCase):
     def setUp(self):
