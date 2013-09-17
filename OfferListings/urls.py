@@ -6,7 +6,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'OfferListings.views.home', name='home'),
-    # url(r'^OfferListings/', include('OfferListings.foo.urls')),
+    url(r'^offers/', include('offers.urls', namespace='offer')),
 
     url(r'^admin/', include(admin.site.urls)),
 )
