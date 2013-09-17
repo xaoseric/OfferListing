@@ -1,0 +1,15 @@
+{% for plan in plan_set %}
+  <div class="col-lg-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Plan #{{ forloop.counter }}</h3>
+      </div>
+      <table class="table">
+        <tr>
+          <td>Memory</td>
+          <td>{{ plan.memory }} MB</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+{% endfor %}
