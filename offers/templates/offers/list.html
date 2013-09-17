@@ -22,21 +22,6 @@
       </ul>
     </div>
   {% endfor %}
-  <div class="pagination">
-    <span class="step-links">
-        {% if offers.has_previous %}
-            <a href="#">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ offers.number }} of {{ offers.paginator.num_pages }}.
-        </span>
-
-        {% if offers.has_next %}
-            <a href="?page={{ offers.next_page_number }}">next</a>
-        {% endif %}
-    </span>
-</div>
   <ul class="pager">
     <li class="previous {% if not offers.has_next %}disabled{% endif %}">
       <a href="{% if offers.has_next %}{% url 'home_pagination' offers.next_page_number %}{% endif %}">&larr; Older</a>
