@@ -46,7 +46,7 @@ class Offer(models.Model):
         return reverse('offer:view', args=[self.pk])
 
     def get_comments(self):
-        return self.comment_set.filter(status=Comment.PUBLISHED)
+        return self.comment_set.filter(status=Comment.PUBLISHED).order_by('created_at')
 
 
 class Plan(models.Model):
