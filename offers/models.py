@@ -111,4 +111,19 @@ class Plan(models.Model):
         return return_string
 
     def get_memory(self):
-        pass
+        """
+        Get the pretty version of the system memory
+        """
+        return self.data_format(self.memory, 'megabytes')
+
+    def get_hdd(self):
+        """
+        Get the pretty version of the system hdd space
+        """
+        return self.data_format(self.disk_space, 'gigabytes')
+
+    def get_bandwidth(self):
+        """
+        Get the pretty version of the system bandwidth
+        """
+        return self.data_format(self.bandwidth, 'gigabytes')

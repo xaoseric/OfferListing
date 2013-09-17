@@ -128,3 +128,27 @@ class PlanMethodTests(TestCase):
             result = plan.data_format(value, 'gigabytes')
 
             self.assertEqual("{0} GB".format(value), result)
+
+    def test_get_memory(self):
+        """
+        Test that the get_memory method returns the correct result
+        """
+
+        for plan in self.plans:
+            self.assertEqual(plan.get_memory(), plan.data_format(plan.memory, 'megabytes'))
+
+    def test_get_bandwidth(self):
+        """
+        Test that the get_bandwidth method returns the correct result
+        """
+
+        for plan in self.plans:
+            self.assertEqual(plan.get_bandwidth(), plan.data_format(plan.bandwidth, 'gigabytes'))
+
+    def test_get_hdd(self):
+        """
+        Test that the get_hdd method returns the correct result
+        """
+
+        for plan in self.plans:
+            self.assertEqual(plan.get_hdd(), plan.data_format(plan.disk_space, 'gigabytes'))
