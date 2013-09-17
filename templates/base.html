@@ -23,7 +23,7 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
           <ul class="nav navbar-nav">
             <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="#">Other</a></li>
+            <li><a href="{% url 'offer:providers' %}">Providers</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if request.user.is_authenticated %}
