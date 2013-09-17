@@ -38,7 +38,7 @@ class OfferViewTests(TestCase):
         for offer in self.offers:
             offer.status = offer.PUBLISHED
             offer.save()
-            response = self.client.get(reverse('offer:view', args=[offer.pk]))
+            response = self.client.get(offer.get_absolute_url())
 
             self.assertEqual(response.status_code, 200)
 
@@ -49,7 +49,7 @@ class OfferViewTests(TestCase):
         for offer in self.offers:
             offer.status = offer.UNPUBLISHED
             offer.save()
-            response = self.client.get(reverse('offer:view', args=[offer.pk]))
+            response = self.client.get(offer.get_absolute_url())
 
             self.assertEqual(response.status_code, 404)
 
@@ -60,7 +60,7 @@ class OfferViewTests(TestCase):
         for offer in self.offers:
             offer.status = offer.DRAFT
             offer.save()
-            response = self.client.get(reverse('offer:view', args=[offer.pk]))
+            response = self.client.get(offer.get_absolute_url())
 
             self.assertEqual(response.status_code, 404)
 

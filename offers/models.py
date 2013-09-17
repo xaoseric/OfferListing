@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import URLValidator
 from django.utils.text import slugify
+from django.core.urlresolvers import reverse
 
 
 class Provider(models.Model):
@@ -39,6 +40,9 @@ class Offer(models.Model):
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
+
+    def get_absolute_url(self):
+        return reverse('offer:view', args=[self.pk])
 
 
 class Plan(models.Model):
