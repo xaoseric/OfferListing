@@ -143,6 +143,8 @@ INSTALLED_APPS = (
     'offers',
 )
 
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 # A sample logging configuration. The only tangible logging
