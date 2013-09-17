@@ -8,7 +8,5 @@
   {{ offer.content | safe }}
   <hr>
   <h2>Plans on offer:</h2>
-  <div class="row">
-    {% include 'offers/plan_set.html' with plan_set=offer.plan_set.all %}
-  </div>
+  {% include 'offers/plan_set.html' with plan_set=offer.plan_set.all %}
 {% endblock %}
