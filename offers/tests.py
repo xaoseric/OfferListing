@@ -3,6 +3,7 @@ from offers.models import Offer, Provider, Plan
 from model_mommy import mommy
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 
 class OfferMethodTests(TestCase):
@@ -67,6 +68,37 @@ class ProviderMethodTests(TestCase):
         """
         for provider in self.providers:
             self.assertEqual(provider.name, provider.__unicode__())
+
+    def test_image_url_without_url(self):
+        """
+        Test that the static image url is provided when there is no provider image
+        """
+        for provider in self.providers:
+            self.assertEqual(provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
+
+    def test_offer_count_with_published(self):
+        """
+        Test that the number of published offers for a provider is correctly shown
+        """
+        for i, provider in enumerate(self.providers):
+            mommy.make(Offer, _quantity=i+1, provider=provider, status=Offer.PUBLISHED)
+            self.assertEqual(provider.offer_count(), i+1)
+
+    def test_offer_count_with_unpublished(self):
+        """
+        Test that the number of published offers for a provider is correctly shown
+        """
+        for i, provider in enumerate(self.providers):
+            mommy.make(Offer, _quantity=i, provider=provider, status=Offer.UNPUBLISHED)
+            self.assertEqual(provider.offer_count(), 0)
+
+    def test_offer_count_with_draft(self):
+        """
+        Test that the number of published offers for a provider is correctly shown
+        """
+        for i, provider in enumerate(self.providers):
+            mommy.make(Offer, _quantity=i, provider=provider, status=Offer.DRAFT)
+            self.assertEqual(provider.offer_count(), 0)
 
 
 class PlanMethodTests(TestCase):
