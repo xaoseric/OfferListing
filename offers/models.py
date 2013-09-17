@@ -1,6 +1,5 @@
 from django.db import models
 from django.core.validators import URLValidator
-from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -28,6 +27,12 @@ class Provider(models.Model):
         return self.name
 
     def get_image_url(self):
+        """
+        Get the url of the providers logo. This defaults to a no_logo.png static image if the logo for the provider
+        is not set.
+
+        The dimensions of the image are 400 by 400.
+        """
         if self.logo == '' or self.logo is None:
             return settings.STATIC_URL + 'img/no_logo.png'
 
@@ -35,9 +40,17 @@ class Provider(models.Model):
         return get_thumbnailer(self.logo).get_thumbnail(options).url
 
     def offer_count(self):
+        """
+        Gets the total count of all the offers related to this provider. It only returns the number of published
+        offers (Offers with the status of PUBLISHED).
+        """
         return self.offer_set.filter(status=Offer.PUBLISHED).count()
 
     def plan_count(self):
+        """
+        Returns the number of plans this provider has associated. It only returns plans related to a published article
+        (and article with the status PUBLISHED).
+        """
         return Plan.objects.filter(offer__provider=self, offer__status=Offer.PUBLISHED).count()
 
 
@@ -60,25 +73,38 @@ class Offer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def slug(self):
-        return "{0}-{1}".format(self.pk, slugify(self.name))
-
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
 
     def get_absolute_url(self):
+        """
+        Returns the absolute url of the offer. This is a link to the page about the offer.
+        """
         return reverse('offer:view', args=[self.pk])
 
     def get_comments(self):
+        """
+        Returns a queryset of all the **PUBLISHED** comments related to this offer. The queryset is ordered by when
+        it was first created.
+        """
         return self.comment_set.filter(status=Comment.PUBLISHED).order_by('created_at')
 
     def plan_count(self):
+        """
+        Returns the number of plans that this offer has.
+        """
         return self.plan_set.count()
 
     def min_cost(self):
+        """
+        Returns the cost of the cheapest plan related to this offer. The return is a Decimal object.
+        """
         return self.plan_set.all().aggregate(cost=models.Min('cost'))["cost"]
 
     def max_cost(self):
+        """
+        Returns the cost of the most expensive plan related to this offer. The return is a Decimal object.
+        """
         return self.plan_set.all().aggregate(cost=models.Max('cost'))["cost"]
 
 
