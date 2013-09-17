@@ -1,5 +1,18 @@
+{% load gravatar %}
 {% if comments %}
-
+  <ul class="media-list">
+    {% for comment in comments %}
+      <li class="media">
+        <a class="pull-left" href="#">
+          <img class="media-object" src="{% gravatar_url comment.commenter.email 64 %}">
+        </a>
+        <div class="media-body">
+          <h4 class="media-heading">{{ comment.commenter.username }}</h4>
+          {{ comment.content }}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
 {% else %}
 No comments of this offer!
 {% endif %}

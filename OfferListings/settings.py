@@ -137,6 +137,7 @@ INSTALLED_APPS = (
     # Packages
     'south',
     'crispy_forms',
+    'django_gravatar',
 
     # Custom applications
     'offers',
