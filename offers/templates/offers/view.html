@@ -3,7 +3,10 @@
 
 {% block title %}{{ offer.name }}{% endblock %}
 
-{% block page_title %}{{ offer.name }} <small>{{ offer.provider.name }}</small>{% endblock %}
+{% block page_title %}
+  {{ offer.name }}
+  <a href="{% url 'offer:provider' offer.provider.pk %}"><small>{{ offer.provider.name }}</small></a>
+{% endblock %}
 
 {% block content %}
   {{ offer.content | safe }}
