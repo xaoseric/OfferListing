@@ -25,7 +25,7 @@
   <div class="pagination">
     <span class="step-links">
         {% if offers.has_previous %}
-            <a href="?page={{ offers.previous_page_number }}">previous</a>
+            <a href="#">previous</a>
         {% endif %}
 
         <span class="current">
@@ -38,7 +38,13 @@
     </span>
 </div>
   <ul class="pager">
-    <li class="previous {% if not offers.has_next %}disabled{% endif %}"><a href="#">&larr; Older</a></li>
-    <li class="next {% if not offers.has_previous %}disabled{% endif %}"><a href="#">Newer &rarr;</a></li>
+    <li class="previous {% if not offers.has_next %}disabled{% endif %}">
+      <a href="{% if offers.has_next %}{% url 'home_pagination' offers.next_page_number %}{% endif %}">&larr; Older</a>
+    </li>
+    <li class="next {% if not offers.has_previous %}disabled{% endif %}">
+      <a href="{% if offers.has_previous %}{% url 'home_pagination' offers.previous_page_number %}{% endif %}">
+        Newer &rarr;
+      </a>
+    </li>
   </ul>
 {% endblock %}
