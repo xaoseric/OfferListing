@@ -2,12 +2,16 @@
 {% if comments %}
   <ul class="media-list">
     {% for comment in comments %}
-      <li class="media">
+      <li class="media" id="comment-{{ comment.pk }}">
         <a class="pull-left" href="#">
           <img class="media-object" src="{% gravatar_url comment.commenter.email 64 %}">
         </a>
         <div class="media-body">
-          <h4 class="media-heading">{{ comment.commenter.username }}</h4>
+          <h4 class="media-heading">
+            <a href="{% url 'offer:view' comment.offer.pk %}#comment-{{ comment.pk }}">
+              {{ comment.commenter.username }}
+            </a>
+          </h4>
           {{ comment.content }}
         </div>
       </li>
