@@ -9,5 +9,16 @@
   {% for offer in offers %}
     {% include 'offers/short_offer.html' with offer=offer %}
   {% endfor %}
-  {% include 'offers/offer_list_pagination.html' with offers=offers %}
+  <ul class="pager">
+    <li class="previous {% if not offers.has_next %}disabled{% endif %}">
+      <a href="{% if offers.has_next %}{% url 'offer:provider_pagination' provider.pk offers.next_page_number %}{% endif %}">
+        &larr; Older
+      </a>
+    </li>
+    <li class="next {% if not offers.has_previous %}disabled{% endif %}">
+      <a href="{% if offers.has_previous %}{% url 'offer:provider_pagination' provider.pk offers.previous_page_number %}{% endif %}">
+        Newer &rarr;
+      </a>
+    </li>
+  </ul>
 {% endblock %}

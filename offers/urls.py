@@ -6,4 +6,5 @@ urlpatterns = patterns('offers.views',
 
     url(r'^providers/$', 'provider_list', name='providers'),
     url(r'^provider/(?P<provider_pk>\d+)/$', 'provider_profile', name='provider'),
+    url(r'^provider/(?P<provider_pk>\d+)/p(?P<page_number>\d+)/$', 'provider_profile', name='provider_pagination'),
 )
