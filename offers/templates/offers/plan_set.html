@@ -36,12 +36,20 @@
             <td>Virtualization</td>
             <td>{{ plan.get_virtualization_display }}</td>
           </tr>
+          <tr>
+            <td>Payment Period</td>
+            <td>{{ plan.get_billing_time_display }}</td>
+          </tr>
           {% if plan.promo_code != '' %}
             <tr>
               <td>Use coupon</td>
               <td class="text-success">{{ plan.promo_code }}</td>
             </tr>
           {% endif %}
+          <tr>
+            <td>Cost</td>
+            <td>${{ plan.cost|floatformat:2 }}</td>
+          </tr>
         </table>
         <div class="panel-body">
           <a href="{{ plan.url }}" class="btn btn-success">Order link</a>
