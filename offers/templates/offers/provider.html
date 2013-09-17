@@ -13,6 +13,15 @@
       </div>
       <div class="col-lg-8 col-md-6">
         <h1>{{ provider.name }}</h1>
+        <ul class="list-group">
+          <li class="list-group-item">
+            {{ provider.name }} opened their doors {{ provider.start_date|timesince }} ago.
+          </li>
+          <li class="list-group-item">They have {{ provider.offer_count }} offers.</li>
+          <li class="list-group-item">
+            In total, they provide {{ provider.plan_count }} plans accross all their offers.
+          </li>
+        </ul>
       </div>
     </div>
 

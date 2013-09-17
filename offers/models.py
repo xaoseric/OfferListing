@@ -34,6 +34,12 @@ class Provider(models.Model):
         options = {'size': (400, 400), 'crop': True}
         return get_thumbnailer(self.logo).get_thumbnail(options).url
 
+    def offer_count(self):
+        return self.offer_set.filter(status=Offer.PUBLISHED).count()
+
+    def plan_count(self):
+        return Plan.objects.filter(offer__provider=self, offer__status=Offer.PUBLISHED).count()
+
 
 class Offer(models.Model):
     PUBLISHED = 'p'
