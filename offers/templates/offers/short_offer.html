@@ -1,0 +1,17 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      <a href="{% url 'offer:view' offer.pk %}">{{ offer.name }}</a>
+      <small>{{ offer.provider.name }}</small>
+    </h3>
+  </div>
+  <div class="panel-body">
+    {{ offer.content|truncatewords_html:100|safe }}
+  </div>
+  <ul class="list-group">
+    <li class="list-group-item">{{ offer.plan_count }} Plans listed</li>
+    <li class="list-group-item">
+      Price range ${{ offer.min_cost|floatformat:2 }} - ${{ offer.max_cost|floatformat:2 }}
+    </li>
+  </ul>
+</div>
