@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Providers{% endblock %}
+
+{% block page_title %}Provider list{% endblock %}
+
+{% block content %}
+  <div class="list-group">
+    {% for provider in providers %}
+      <a class="list-group-item" href="#">
+        <span class="badge">{{ provider.offer_set.count }} offers</span>
+        <h4 class="list-group-item-heading">{{ provider.name }}</h4>
+        <p class="list-group-item-text">
+          In business for over {{ provider.start_date|timesince }}.
+        </p>
+      </a>
+    {% endfor %}
+  </div>
+{% endblock %}

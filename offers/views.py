@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from offers.models import Offer, Comment
+from offers.models import Offer, Comment, Provider
 from offers.forms import CommentForm
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -49,3 +49,11 @@ def list_offers(request, page_number=1):
         offers = paginator.page(paginator.num_pages)
 
     return render(request, 'offers/list.html', {"offers": offers})
+
+
+def provider_list(request):
+    providers = Provider.objects.all()
+
+    return render(request, 'offers/providers.html', {
+        "providers": providers
+    })
