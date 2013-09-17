@@ -7,7 +7,29 @@
       <table class="table provider-plans">
         <tr>
           <td>Memory</td>
-          <td>{{ plan.memory }} MB</td>
+          <td>{{ plan.get_memory }}</td>
+        </tr>
+        <tr>
+          <td>Disk space</td>
+          <td>{{ plan.get_hdd }}</td>
+        </tr>
+        <tr>
+          <td>Bandwidth</td>
+          <td>{{ plan.get_bandwidth }}</td>
+        </tr>
+        <tr>
+          <td>IPv4 Addresses</td>
+          <td>{{ plan.ipv4_space }}</td>
+        </tr>
+        {% if plan.ipv6_space %}
+          <tr>
+            <td>IPv6 Addresses</td>
+            <td>{{ plan.ipv6_space }}</td>
+          </tr>
+        {% endif %}
+        <tr>
+          <td>Virtualization</td>
+          <td>{{ plan.get_virtualization_display }}</td>
         </tr>
       </table>
     </div>
