@@ -83,3 +83,32 @@ class Plan(models.Model):
     url = models.TextField(validators=[URLValidator()])
     promo_code = models.CharField(blank=True, default='', max_length=255)
     cost = models.DecimalField(max_digits=20, decimal_places=2)
+
+    def data_format(self, value, format_type):
+        """
+        Format data such as MB or GB into better format. This means that:
+
+        1024 MB -> 1 GB
+        1024 GB -> 1 TB
+        2048 GB -> 2 GB
+
+        It will also only format perfect values
+
+        2050 GB -> 2050 GB
+
+        """
+        return_string = ''
+        if format_type == 'megabytes':
+            if value % 1024 == 0:
+                return_string = str(value / 1024) + " GB"
+            else:
+                return_string = str(value) + " MB"
+        elif format_type == 'gigabytes':
+            if value % 1024 == 0:
+                return_string = str(value / 1024) + " TB"
+            else:
+                return_string = str(value) + " GB"
+        return return_string
+
+    def get_memory(self):
+        pass

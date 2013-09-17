@@ -75,3 +75,56 @@ class ProviderMethodTests(TestCase):
         """
         for provider in self.providers:
             self.assertEqual(provider.name, provider.__unicode__())
+
+
+class PlanMethodTests(TestCase):
+    def setUp(self):
+        self.plans = mommy.make(Plan, _quantity=20)
+
+    def test_data_format_from_MB_to_GB(self):
+        """
+        Test the data_format method converts correct MB values to GB
+        """
+
+        for i in range(100):
+            value = i*1024
+            plan = mommy.make(Plan)
+            result = plan.data_format(value, 'megabytes')
+
+            self.assertEqual("{0} GB".format(i), result)
+
+    def test_data_format_from_GB_to_TB(self):
+        """
+        Test the data_format method converts correct GB values to TB
+        """
+
+        for i in range(100):
+            value = i*1024
+            plan = mommy.make(Plan)
+            result = plan.data_format(value, 'gigabytes')
+
+            self.assertEqual("{0} TB".format(i), result)
+
+    def test_data_format_from_MB_to_MB(self):
+        """
+        Test the data_format method does not convert invalid MB values to GB
+        """
+
+        for i in range(100):
+            value = (i*1024) + 1
+            plan = mommy.make(Plan)
+            result = plan.data_format(value, 'megabytes')
+
+            self.assertEqual("{0} MB".format(value), result)
+
+    def test_data_format_from_GB_to_GB(self):
+        """
+        Test the data_format method does not convert invalid GB values to TB
+        """
+
+        for i in range(100):
+            value = (i*1024) + 1
+            plan = mommy.make(Plan)
+            result = plan.data_format(value, 'gigabytes')
+
+            self.assertEqual("{0} GB".format(value), result)
