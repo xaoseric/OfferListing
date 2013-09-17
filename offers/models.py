@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import URLValidator
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 
 class Provider(models.Model):
@@ -84,6 +85,9 @@ class Plan(models.Model):
     promo_code = models.CharField(blank=True, default='', max_length=255)
     cost = models.DecimalField(max_digits=20, decimal_places=2)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def data_format(self, value, format_type):
         """
         Format data such as MB or GB into better format. This means that:
@@ -127,3 +131,24 @@ class Plan(models.Model):
         Get the pretty version of the system bandwidth
         """
         return self.data_format(self.bandwidth, 'gigabytes')
+
+
+class Comment(models.Model):
+    PUBLISHED = 'p'
+    UNPUBLISHED = 'u'
+    DELETED = 'd'
+
+    STATE_CHOICES = (
+        (PUBLISHED, 'Published'),
+        (UNPUBLISHED, 'Unpublished'),
+        (DELETED, 'Deleted'),
+    )
+
+    commenter = models.ForeignKey(User)
+    offer = models.ForeignKey(Plan)
+
+    content = models.TextField()
+    status = models.CharField(max_length=1, choices=STATE_CHOICES, default=PUBLISHED)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
