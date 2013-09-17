@@ -9,7 +9,10 @@
   {% for offer in offers %}
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">{{ offer.name }} <small>{{ offer.provider.name }}</small></h3>
+        <h3 class="panel-title">
+          <a href="{% url 'offer:view' offer.pk %}">{{ offer.name }}</a>
+          <small>{{ offer.provider.name }}</small>
+        </h3>
       </div>
       <div class="panel-body">
         {{ offer.content|truncatewords_html:100|safe }}
