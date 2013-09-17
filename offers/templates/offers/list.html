@@ -37,4 +37,8 @@
         {% endif %}
     </span>
 </div>
+  <ul class="pager">
+    <li class="previous {% if not offers.has_next %}disabled{% endif %}"><a href="#">&larr; Older</a></li>
+    <li class="next {% if not offers.has_previous %}disabled{% endif %}"><a href="#">Newer &rarr;</a></li>
+  </ul>
 {% endblock %}
