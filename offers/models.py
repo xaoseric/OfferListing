@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import URLValidator
+from django.utils.text import slugify
 
 
 class Provider(models.Model):
@@ -29,6 +30,9 @@ class Offer(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def slug(self):
+        return "{0}-{1}".format(self.pk, slugify(self.name))
 
 
 class Plan(models.Model):
