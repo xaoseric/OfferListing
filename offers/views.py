@@ -57,3 +57,11 @@ def provider_list(request):
     return render(request, 'offers/providers.html', {
         "providers": providers
     })
+
+
+def provider_profile(request, provider_pk):
+    provider = get_object_or_404(Provider, pk=provider_pk)
+
+    return render(request, "offers/provider.html", {
+        "provider": provider,
+    })
