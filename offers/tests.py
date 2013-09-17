@@ -160,7 +160,7 @@ class OfferViewTests(TestCase):
 
 class OfferAuthenticatedViewTests(OfferViewTests):
     def setUp(self):
-        self.offers = mommy.make(Offer, _quantity=10)
+        self.offers = mommy.make(Offer, _quantity=10, status=Offer.PUBLISHED)
         self.user = User.objects.create_user(username='user', email='example@example.com', password='password')
         self.client.login(username='user', password='password')
 
@@ -175,6 +175,56 @@ class OfferAuthenticatedViewTests(OfferViewTests):
         for offer in self.offers:
             # Assert initial values
             self.assertEqual(offer.get_comments().count(), 0)
+            response = self.client.post(offer.get_absolute_url(), post_data)
+            self.assertEqual(offer.get_comments().count(), 0)
+            self.assertEqual(response.status_code, 200)
+
+    def test_user_cannot_post_comment_when_logged_out(self):
+        """
+        Test that the user can not post a comment when they are not logged in
+        """
+        post_data = {
+            "comment": 'Some content',
+        }
+        self.client.logout()
+        for offer in self.offers:
+            # Assert initial values
+            self.assertEqual(offer.get_comments().count(), 0)
+            response = self.client.post(offer.get_absolute_url(), post_data)
+            self.assertEqual(offer.get_comments().count(), 0)
+            self.assertEqual(response.status_code, 200)
+
+    def test_user_can_post_comment(self):
+        """
+        Test that the user can post comments on offers
+        """
+        post_data = {
+            "comment": 'Some content',
+        }
+
+        for offer in self.offers:
+            # Assert initial values
+            self.assertEqual(offer.get_comments().count(), 0)
+            response = self.client.post(offer.get_absolute_url(), post_data)
+            self.assertEqual(offer.get_comments().count(), 1)
+            self.assertEqual(response.status_code, 200)
+
+    def test_user_can_post_multiple_comments(self):
+        """
+        Test that the user can post multiple comments on the same offers
+        """
+        post_data = {
+            "comment": 'Some content',
+        }
+
+        for i, offer in enumerate(self.offers):
+            # Assert initial values
+            self.assertEqual(offer.get_comments().count(), 0)
+
+            for x in range(i):
+                response = self.client.post(offer.get_absolute_url(), post_data)
+                self.assertEqual(offer.get_comments().count(), x+1)
+                self.assertEqual(response.status_code, 200)
 
 
 class ProviderMethodTests(TestCase):
