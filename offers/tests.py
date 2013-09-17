@@ -100,6 +100,30 @@ class ProviderMethodTests(TestCase):
             mommy.make(Offer, _quantity=i, provider=provider, status=Offer.DRAFT)
             self.assertEqual(provider.offer_count(), 0)
 
+    def test_plan_count_with_published(self):
+        """
+        Test the correct amount of plans are shown with the plan_count method
+        """
+        for i, provider in enumerate(self.providers):
+            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.PUBLISHED)
+            self.assertEqual(provider.plan_count(), i+1)
+
+    def test_plan_count_with_unpublished(self):
+        """
+        Test the correct amount of plans are shown with the plan_count method
+        """
+        for i, provider in enumerate(self.providers):
+            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.UNPUBLISHED)
+            self.assertEqual(provider.plan_count(), 0)
+
+    def test_plan_count_with_draft(self):
+        """
+        Test the correct amount of plans are shown with the plan_count method
+        """
+        for i, provider in enumerate(self.providers):
+            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.DRAFT)
+            self.assertEqual(provider.plan_count(), 0)
+
 
 class PlanMethodTests(TestCase):
     def setUp(self):
