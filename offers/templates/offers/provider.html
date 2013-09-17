@@ -7,7 +7,15 @@
 
 {% block content %}
   <div class="well">
-    <img src="{{ provider.get_image_url }}" width="400" height="400">
+    <div class="row">
+      <div class="col-lg-4 col-md-6">
+        <img src="{{ provider.get_image_url }}" width="100%">
+      </div>
+      <div class="col-lg-8 col-md-6">
+        <h1>{{ provider.name }}</h1>
+      </div>
+    </div>
+
   </div>
   {% for offer in offers %}
     {% include 'offers/short_offer.html' with offer=offer %}
