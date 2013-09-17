@@ -1,9 +1,11 @@
 from django.db import models
+from django.core.validators import URLValidator
 
 
 class Provider(models.Model):
     name = models.CharField(max_length=255)
     start_date = models.DateField()
+    website = models.URLField(max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -64,5 +66,6 @@ class Plan(models.Model):
 
     # Billing details
     billing_time = models.CharField(max_length=1, choices=BILLING_CHOICES, default=MONTHLY)
+    url = models.TextField(validators=[URLValidator()])
     promo_code = models.CharField(blank=True, default='', max_length=255)
     cost = models.DecimalField(max_digits=20, decimal_places=2)
