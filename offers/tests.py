@@ -24,3 +24,15 @@ class OfferMethodTests(TestCase):
         for offer in self.offers:
             name = "{0} ({1})".format(offer.name, offer.provider.name)
             self.assertEqual(name, offer.__unicode__())
+
+
+class ProviderMethodTests(TestCase):
+    def setUp(self):
+        self.providers = mommy.make(Provider, _quantity=10)
+
+    def test_unicode_string(self):
+        """
+        Test that the unicode string of the provider is their name
+        """
+        for provider in self.providers:
+            self.assertEqual(provider.name, provider.__unicode__())
