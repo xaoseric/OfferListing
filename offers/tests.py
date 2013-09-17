@@ -1,9 +1,10 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan
+from offers.models import Offer, Provider, Plan, Comment
 from model_mommy import mommy
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.contrib.auth.models import User
 
 
 class OfferMethodTests(TestCase):
@@ -77,6 +78,47 @@ class OfferMethodTests(TestCase):
 
             self.assertEqual(i+1000, offer.max_cost())
 
+    def test_get_comments_published(self):
+        """
+        Test the get comments method only gets published comments relating to the current offer
+        """
+
+        # Generate random comments as well
+        mommy.make(Comment, _quantity=20)
+
+        for i, offer in enumerate(self.offers):
+            i += 1
+            comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.PUBLISHED)
+            self.assertEqual(len(comments), offer.get_comments().count())
+            for comment in comments:
+                self.assertIn(comment, offer.get_comments())
+
+    def test_get_comments_unpublished(self):
+        """
+        Test the get comments method only gets published comments relating to the current offer
+        """
+
+        # Generate random comments as well
+        mommy.make(Comment, _quantity=20)
+
+        for i, offer in enumerate(self.offers):
+            i += 1
+            comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.UNPUBLISHED)
+            self.assertEqual(offer.get_comments().count(), 0)
+
+    def test_get_comments_deleted(self):
+        """
+        Test the get comments method only gets published comments relating to the current offer
+        """
+
+        # Generate random comments as well
+        mommy.make(Comment, _quantity=20)
+
+        for i, offer in enumerate(self.offers):
+            i += 1
+            comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.DELETED)
+            self.assertEqual(offer.get_comments().count(), 0)
+
 
 class OfferViewTests(TestCase):
     def setUp(self):
@@ -114,6 +156,25 @@ class OfferViewTests(TestCase):
             response = self.client.get(offer.get_absolute_url())
 
             self.assertEqual(response.status_code, 404)
+
+
+class OfferAuthenticatedViewTests(OfferViewTests):
+    def setUp(self):
+        self.offers = mommy.make(Offer, _quantity=10)
+        self.user = User.objects.create_user(username='user', email='example@example.com', password='password')
+        self.client.login(username='user', password='password')
+
+    def test_user_cannot_post_invalid_comment(self):
+        """
+        Test that the user can not post an invalid comment
+        """
+        post_data = {
+            "comment": '',
+        }
+
+        for offer in self.offers:
+            # Assert initial values
+            self.assertEqual(offer.get_comments().count(), 0)
 
 
 class ProviderMethodTests(TestCase):
