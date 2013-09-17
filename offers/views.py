@@ -59,9 +59,21 @@ def provider_list(request):
     })
 
 
-def provider_profile(request, provider_pk):
+def provider_profile(request, provider_pk, page_number=1):
     provider = get_object_or_404(Provider, pk=provider_pk)
+    offer_list = provider.offer_set.filter(status=Offer.PUBLISHED).order_by('-created_at')
+
+    paginator = Paginator(offer_list, 5)
+    try:
+        offers = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        offers = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        offers = paginator.page(paginator.num_pages)
 
     return render(request, "offers/provider.html", {
         "provider": provider,
+        "offers": offers,
     })

@@ -6,5 +6,8 @@
 {% block page_title %}{{ provider.name }} profile{% endblock %}
 
 {% block content %}
-  {{ provider }}
+  {% for offer in offers %}
+    {% include 'offers/short_offer.html' with offer=offer %}
+  {% endfor %}
+  {% include 'offers/offer_list_pagination.html' with offers=offers %}
 {% endblock %}
