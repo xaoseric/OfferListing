@@ -36,7 +36,7 @@ def view_offer(request, offer_pk):
 
 
 def list_offers(request, page_number=1):
-    offer_list = Offer.objects.filter(status=Offer.PUBLISHED)
+    offer_list = Offer.objects.filter(status=Offer.PUBLISHED).order_by('-created_at')
     paginator = Paginator(offer_list, 5)
 
     try:
