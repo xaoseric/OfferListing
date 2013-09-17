@@ -3,13 +3,20 @@ from django.core.validators import URLValidator
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+import os, uuid
+
+
+def get_file_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    return os.path.join('provider_logos', filename)
 
 
 class Provider(models.Model):
     name = models.CharField(max_length=255)
     start_date = models.DateField()
     website = models.URLField(max_length=255)
-    logo = models.ImageField(upload_to='provider_logos', blank=True, null=True)
+    logo = models.ImageField(upload_to=get_file_path, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
