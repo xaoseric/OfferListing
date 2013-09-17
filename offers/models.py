@@ -48,6 +48,15 @@ class Offer(models.Model):
     def get_comments(self):
         return self.comment_set.filter(status=Comment.PUBLISHED).order_by('created_at')
 
+    def plan_count(self):
+        return self.plan_set.count()
+
+    def min_cost(self):
+        return self.plan_set.all().aggregate(cost=models.Min('cost'))["cost"]
+
+    def max_cost(self):
+        return self.plan_set.all().aggregate(cost=models.Max('cost'))["cost"]
+
 
 class Plan(models.Model):
     KVM = 'k'

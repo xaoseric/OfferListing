@@ -6,5 +6,35 @@
 {% block page_title %}All offers{% endblock %}
 
 {% block content %}
-  list!!!
+  {% for offer in offers %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{{ offer.name }} <small>{{ offer.provider.name }}</small></h3>
+      </div>
+      <div class="panel-body">
+        {{ offer.content|safe }}
+      </div>
+      <ul class="list-group">
+        <li class="list-group-item">{{ offer.plan_count }} Plans listed</li>
+        <li class="list-group-item">
+          Price range ${{ offer.min_cost|floatformat:2 }} - ${{ offer.max_cost|floatformat:2 }}
+        </li>
+      </ul>
+    </div>
+  {% endfor %}
+  <div class="pagination">
+    <span class="step-links">
+        {% if offers.has_previous %}
+            <a href="?page={{ offers.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ offers.number }} of {{ offers.paginator.num_pages }}.
+        </span>
+
+        {% if offers.has_next %}
+            <a href="?page={{ offers.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
 {% endblock %}
