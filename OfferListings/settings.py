@@ -138,6 +138,7 @@ INSTALLED_APPS = (
     'south',
     'crispy_forms',
     'django_gravatar',
+    'easy_thumbnails',
 
     # Custom applications
     'offers',

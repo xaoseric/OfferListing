@@ -5,3 +5,4 @@ pytz==2013d
 model_mommy
 django-gravatar2
 PIL
+easy-thumbnails
