@@ -137,6 +137,9 @@ INSTALLED_APPS = (
     # Packages
     'south',
     'crispy_forms',
+
+    # Custom applications
+    'offers',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
