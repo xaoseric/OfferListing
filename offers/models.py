@@ -34,6 +34,9 @@ class Offer(models.Model):
     def slug(self):
         return "{0}-{1}".format(self.pk, slugify(self.name))
 
+    def __unicode__(self):
+        return "{0} ({1})".format(self.name, self.provider.name)
+
 
 class Plan(models.Model):
     KVM = 'k'

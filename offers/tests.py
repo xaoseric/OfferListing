@@ -10,6 +10,17 @@ class OfferMethodTests(TestCase):
         self.offers = mommy.make(Offer, _quantity=10)
 
     def test_slug_is_correct(self):
+        """
+        Test that the slug returns the correct string
+        """
         for offer in self.offers:
             slug = "{0}-{1}".format(offer.pk, slugify(offer.name))
             self.assertEqual(slug, offer.slug())
+
+    def test_unicode_string(self):
+        """
+        Test that the string version of the offer is correct
+        """
+        for offer in self.offers:
+            name = "{0} ({1})".format(offer.name, offer.provider.name)
+            self.assertEqual(name, offer.__unicode__())
