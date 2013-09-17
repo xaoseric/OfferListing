@@ -45,6 +45,9 @@ class Offer(models.Model):
     def get_absolute_url(self):
         return reverse('offer:view', args=[self.pk])
 
+    def get_comments(self):
+        return self.comment_set.filter(status=Comment.PUBLISHED)
+
 
 class Plan(models.Model):
     KVM = 'k'
@@ -145,7 +148,7 @@ class Comment(models.Model):
     )
 
     commenter = models.ForeignKey(User)
-    offer = models.ForeignKey(Plan)
+    offer = models.ForeignKey(Offer)
 
     content = models.TextField()
     status = models.CharField(max_length=1, choices=STATE_CHOICES, default=PUBLISHED)

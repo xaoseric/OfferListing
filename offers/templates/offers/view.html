@@ -9,4 +9,7 @@
   <hr>
   <h2>Plans on offer:</h2>
   {% include 'offers/plan_set.html' with plan_set=offer.plan_set.all %}
+  <hr>
+  <h2>Comments:</h2>
+  {% include 'offers/comments.html' with comments=offer.get_comments %}
 {% endblock %}
