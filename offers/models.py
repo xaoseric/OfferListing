@@ -30,4 +30,22 @@ class Offer(models.Model):
 
 
 class Plan(models.Model):
+    KVM = 'k'
+    OPENVZ = 'o'
+
+    VIRT_CHOICES = (
+        (KVM, 'KVM'),
+        (OPENVZ, 'OpenVZ'),
+    )
+
     offer = models.ForeignKey(Offer)
+    virtualization = models.CharField(max_length=1, choices=VIRT_CHOICES, default=OPENVZ)
+
+    # Data attributes
+    bandwidth = models.BigIntegerField()  # In gigabytes
+    disk_space = models.BigIntegerField()  # In gigabytes
+    memory = models.BigIntegerField()  # In megabytes
+    
+
+
+
