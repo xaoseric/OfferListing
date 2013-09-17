@@ -3,8 +3,10 @@ from django.core.validators import URLValidator
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.conf import settings
 import os
 import uuid
+from easy_thumbnails.files import get_thumbnailer
 
 
 def get_file_path(instance, filename):
@@ -24,6 +26,13 @@ class Provider(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def get_image_url(self):
+        if self.logo == '' or self.logo is None:
+            return settings.STATIC_URL + 'img/no_logo.png'
+
+        options = {'size': (100, 100), 'crop': True}
+        return get_thumbnailer(self.logo).get_thumbnail(options).url
 
 
 class Offer(models.Model):
