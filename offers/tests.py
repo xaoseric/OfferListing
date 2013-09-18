@@ -3,6 +3,7 @@ from offers.models import Offer, Provider, Plan, Comment
 from model_mommy import mommy
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
+from django.core.files import File
 from django.conf import settings
 from django.contrib.auth.models import User
 import os
@@ -290,6 +291,14 @@ class ProviderMethodTests(TestCase):
         Test that the real image url is provided when there is a provider image
         """
         image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_data', 'test_image.png')
+        for provider in self.providers:
+            provider.logo.save(
+                image_path,
+                File(open(image_path)),
+            )
+            provider.save()
+            self.assertNotEqual(provider.get_image_url(), '')
+            self.assertNotEqual(provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
 
     def test_offer_count_with_published(self):
         """
