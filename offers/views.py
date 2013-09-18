@@ -63,9 +63,6 @@ def provider_profile(request, provider_pk, page_number=1):
     paginator = Paginator(offer_list, 5)
     try:
         offers = paginator.page(page_number)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        offers = paginator.page(1)
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         offers = paginator.page(paginator.num_pages)
