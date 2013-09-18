@@ -41,9 +41,6 @@ def list_offers(request, page_number=1):
 
     try:
         offers = paginator.page(page_number)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        offers = paginator.page(1)
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         offers = paginator.page(paginator.num_pages)
