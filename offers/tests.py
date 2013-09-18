@@ -231,7 +231,7 @@ class OfferListViewTests(TestCase):
     def setUp(self):
         self.offers = mommy.make(Offer, _quantity=20, status=Offer.PUBLISHED)
 
-    def test_view_without_pagination(self):
+    def test_offer_list_view_without_pagination(self):
         """
         Test that the offers page is viewable without any pagination
         """
@@ -239,6 +239,31 @@ class OfferListViewTests(TestCase):
         offers = Offer.objects.order_by('-created_at')[0:5]
         for offer in offers:
             self.assertContains(response, offer.name)
+
+    def test_offer_list_view_with_correct_pagination(self):
+        """
+        Test that the offers page is viewable with the correct pagination
+        """
+
+        # There are 4 pages (with 5 on each)
+        for page_num in range(4):
+            response = self.client.get(reverse('home_pagination', args=[page_num+1]))
+            offers = Offer.objects.order_by('-created_at')[page_num*5:(page_num*5)+5]
+            for offer in offers:
+                self.assertContains(response, offer.name)
+
+    def test_offer_list_view_with_incorrect_pagination(self):
+        """
+        Test that the offers page gets the last page if the pagination number is out of the range
+        """
+
+        # Get a range of incorrect pages
+        for page_number in range(20):
+            page_number += 5
+            response = self.client.get(reverse('home_pagination', args=[page_number]))
+            offers = Offer.objects.order_by('-created_at')[15:20]
+            for offer in offers:
+                self.assertContains(response, offer.name)
 
 
 class ProviderMethodTests(TestCase):
