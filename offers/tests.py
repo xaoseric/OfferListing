@@ -5,6 +5,7 @@ from django.utils.text import slugify
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
+import os
 
 
 class OfferMethodTests(TestCase):
@@ -119,16 +120,6 @@ class OfferMethodTests(TestCase):
             comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.DELETED)
             self.assertEqual(offer.get_comments().count(), 0)
 
-    def test_file_path_naming(self):
-        """
-        Test that the get_file_path() method returns a file with the correct extension
-        """
-        from models import get_file_path
-        filename = 'some_file.png'
-        extension = 'png'
-
-        resulting_filename = get_file_path(None, filename)
-        self.assertTrue(resulting_filename.endswith(extension))
 
 class OfferViewTests(TestCase):
     def setUp(self):
@@ -294,6 +285,12 @@ class ProviderMethodTests(TestCase):
         for provider in self.providers:
             self.assertEqual(provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
 
+    def test_image_with_url(self):
+        """
+        Test that the real image url is provided when there is a provider image
+        """
+        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_data', 'test_image.png')
+
     def test_offer_count_with_published(self):
         """
         Test that the number of published offers for a provider is correctly shown
@@ -341,6 +338,17 @@ class ProviderMethodTests(TestCase):
         for i, provider in enumerate(self.providers):
             mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.DRAFT)
             self.assertEqual(provider.plan_count(), 0)
+
+    def test_file_path_naming(self):
+        """
+        Test that the get_file_path() method returns a file with the correct extension
+        """
+        from models import get_file_path
+        filename = 'some_file.png'
+        extension = 'png'
+
+        resulting_filename = get_file_path(None, filename)
+        self.assertTrue(resulting_filename.endswith(extension))
 
 
 class PlanMethodTests(TestCase):
