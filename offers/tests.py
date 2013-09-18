@@ -415,9 +415,70 @@ class PlanListViewTests(TestCase):
         self.providers = mommy.make(Provider, _quantity=30)
 
     def test_user_can_view_providers(self):
+        """
+        Test that a user can view the list of providers
+        """
         response = self.client.get(reverse('offer:providers'))
 
         self.assertEqual(response.status_code, 200)
 
         for provider in self.providers:
             self.assertContains(response, provider.name)
+
+
+class ProviderProfileViewTests(TestCase):
+    def setUp(self):
+        self.provider = mommy.make(Provider)
+
+    def test_provider_profile_can_be_accessed(self):
+        """
+        Test that the provider page returns a successful status code
+        """
+        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_provider_profile_shows_info(self):
+        """
+        Test that the provider profile shows the correct info about the provider
+        """
+        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+        self.assertContains(response, self.provider.name)
+        self.assertContains(response, self.provider.get_image_url())
+
+    def test_provider_profile_shows_offers(self):
+        """
+        Test that the provider profile shows the latest offers the provider has
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
+        offers = Offer.objects.order_by('-created_at')[0:5]
+
+        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+
+        for offer in offers:
+            self.assertContains(response, offer.name)
+
+    def test_provider_profile_shows_offers_paginated(self):
+        """
+        Test that the provider profile shows the latest offers the provider has using pagination
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
+
+        for page_num in range(4):
+            response = self.client.get(reverse('offer:provider_pagination', args=[self.provider.pk, page_num+1]))
+            offers = Offer.objects.order_by('-created_at')[page_num*5:(page_num*5) + 5]
+
+            for offer in offers:
+                self.assertContains(response, offer.name)
+
+    def test_provider_profile_shows_offers_bad_paginated(self):
+        """
+        Test that the provider profile shows the latest offers the provider has using pagination even if the page
+        is out of the range of pages. The last page should be shown if this happens.
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
+
+        response = self.client.get(reverse('offer:provider_pagination', args=[self.provider.pk, 5]))
+        offers = Offer.objects.order_by('-created_at')[15:20]
+
+        for offer in offers:
+            self.assertContains(response, offer.name)
