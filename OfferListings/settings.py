@@ -152,6 +152,7 @@ if os.getenv('JENKINS_URL', False):
         'django_jenkins.tasks.with_coverage',
         'django_jenkins.tasks.run_pyflakes',
         'django_jenkins.tasks.run_pep8',
+        'django_jenkins.tasks.run_csslint',
     )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
