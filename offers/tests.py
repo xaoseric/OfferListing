@@ -408,3 +408,16 @@ class PlanMethodTests(TestCase):
 
         for plan in self.plans:
             self.assertEqual(plan.get_hdd(), plan.data_format(plan.disk_space, 'gigabytes'))
+
+
+class PlanListViewTests(TestCase):
+    def setUp(self):
+        self.providers = mommy.make(Provider, _quantity=30)
+
+    def test_user_can_view_providers(self):
+        response = self.client.get(reverse('offer:providers'))
+
+        self.assertEqual(response.status_code, 200)
+
+        for provider in self.providers:
+            self.assertContains(response, provider.name)
