@@ -119,6 +119,16 @@ class OfferMethodTests(TestCase):
             comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.DELETED)
             self.assertEqual(offer.get_comments().count(), 0)
 
+    def test_file_path_naming(self):
+        """
+        Test that the get_file_path() method returns a file with the correct extension
+        """
+        from models import get_file_path
+        filename = 'some_file.png'
+        extension = 'png'
+
+        resulting_filename = get_file_path(None, filename)
+        self.assertTrue(resulting_filename.endswith(extension))
 
 class OfferViewTests(TestCase):
     def setUp(self):
