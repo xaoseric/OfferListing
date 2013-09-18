@@ -227,6 +227,20 @@ class OfferAuthenticatedViewTests(OfferViewTests):
                 self.assertEqual(response.status_code, 200)
 
 
+class OfferListViewTests(TestCase):
+    def setUp(self):
+        self.offers = mommy.make(Offer, _quantity=20, status=Offer.PUBLISHED)
+
+    def test_view_without_pagination(self):
+        """
+        Test that the offers page is viewable without any pagination
+        """
+        response = self.client.get(reverse('home'))
+        offers = Offer.objects.order_by('-created_at')[0:5]
+        for offer in offers:
+            self.assertContains(response, offer.name)
+
+
 class ProviderMethodTests(TestCase):
     def setUp(self):
         self.providers = mommy.make(Provider, _quantity=10)
