@@ -8,7 +8,7 @@
         </a>
         <div class="media-body">
           <h4 class="media-heading">
-              {{ comment.commenter.username }}
+            {{ comment.commenter.username }}
             <a href="{% url 'offer:view' comment.offer.pk %}#comment-{{ comment.pk }}">
               <small>Commented on {{ comment.created_at }}</small>
             </a>
