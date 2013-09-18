@@ -144,6 +144,16 @@ INSTALLED_APPS = (
     'offers',
 )
 
+if os.getenv('JENKINS_URL', False):
+    INSTALLED_APPS += ('django_jenkins',)
+
+    JENKINS_TASKS = (
+        'django_jenkins.tasks.django_tests',
+        'django_jenkins.tasks.with_coverage',
+        'django_jenkins.tasks.run_pyflakes',
+        'django_jenkins.tasks.run_pep8',
+    )
+
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

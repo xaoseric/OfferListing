@@ -7,3 +7,6 @@ django-gravatar2
 PIL
 easy-thumbnails
 coverage
+django-jenkins
+pyflakes
+pep8
