@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 
 
 urlpatterns = patterns('accounts.views',
-    # url(r'^$', '', name=''),
+    url(r'^login/$', 'login', name='login'),
 )
 
 urlpatterns += patterns('django.contrib.auth.views',
