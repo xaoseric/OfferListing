@@ -10,3 +10,4 @@ coverage
 django-jenkins
 pyflakes
 pep8
+selenium
