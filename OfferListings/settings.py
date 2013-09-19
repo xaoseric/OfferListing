@@ -142,8 +142,10 @@ INSTALLED_APPS = (
 
     # Custom applications
     'offers',
+    'accounts',
 )
 
+# Settings for testing
 if os.getenv('JENKINS_URL', False):
     INSTALLED_APPS += ('django_jenkins',)
 
