@@ -280,3 +280,40 @@ class DeactivateAccountTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(user.is_active)
+
+    def test_user_can_not_deactivate_with_incorrect_credentials(self):
+        """
+        Test that a user can not deactivate their account when they have the wrong username or password
+        """
+        self.assertTrue(self.user.is_active)
+
+        data = {
+            "username": 'some_user',
+            "password": "password_wrong",
+        }
+        response = self.client.post(reverse('deactivate_account'), data)
+
+        user = User.objects.get(pk=self.user.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Invalid username or password!')
+        self.assertTrue(user.is_active)
+
+    def test_user_can_not_deactivate_with_other_credentials(self):
+        """
+        Test that a user can not deactivate their account (or someone else's) with the incorrect user credentials
+        """
+        other_user = User.objects.create_user('some_user2', 'test@example.com', 'password')
+
+        data = {
+            "username": 'some_user2',
+            "password": "password",
+        }
+        response = self.client.post(reverse('deactivate_account'), data)
+
+        user = User.objects.get(pk=self.user.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Invalid username or password!')
+        self.assertTrue(user.is_active)
+        self.assertTrue(other_user.is_active)
