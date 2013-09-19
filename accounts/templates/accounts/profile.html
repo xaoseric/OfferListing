@@ -1,10 +1,22 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load gravatar %}
 
 {% block title %}My Profile{% endblock %}
 
 {% block page_title %}My Profile{% endblock %}
 
 {% block content %}
-  Hello {{ user.firstname }}!
+  <div class="well">
+    <div class="row">
+      <div class="col-sm-4">
+        <img class="img-thumbnail img-responsive" src="{% gravatar_url user.email 512 %}" alt="{{ user.username }} email">
+      </div>
+      <div class="col-sm-8">
+        <div class="panel">
+          Hello {{ user.firstname }}!
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
