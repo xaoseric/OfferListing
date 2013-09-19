@@ -13,9 +13,9 @@
         <img class="img-thumbnail img-responsive" src="{% gravatar_url user.email 512 %}" alt="{{ user.username }} email">
       </div>
       <div class="col-sm-8">
-        <div class="panel">
-          Hello {{ user.firstname }}!
-        </div>
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        <p>You last logged in {{ user.last_login |timesince }} ago.</p>
+        <p>You registered {{ user.date_joined |timesince }} ago, on {{ user.date_joined }}</p>
       </div>
     </div>
   </div>
