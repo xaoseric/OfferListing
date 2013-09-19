@@ -1,6 +1,6 @@
 <div class="list-group">
 
-  <a href="{% url 'edit_account' %}" class="list-group-item">
+  <a href="{% url 'edit_account' %}" class="list-group-item {% if edit_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-edit"></span> Edit my account
     </h4>
@@ -9,17 +9,17 @@
     </p>
   </a>
 
-  <a href="#" class="list-group-item">
+  <a href="#" class="list-group-item {% if pass_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-lock"></span> Change my password
     </h4>
     <p class="list-group-item-text">
-      Change the password you have on account. The change is immediate, but users logged into your account will
+      Change the password you have on record. The change is immediate, but users logged into your account will
       <strong>not</strong> be required to login again.
     </p>
   </a>
 
-  <a href="#" class="list-group-item">
+  <a href="#" class="list-group-item {% if comments_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-list"></span> View my comments
     </h4>
@@ -28,7 +28,7 @@
     </p>
   </a>
 
-  <a href="#" class="list-group-item">
+  <a href="#" class="list-group-item {% if delete_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-trash"></span> Delete my account
     </h4>
