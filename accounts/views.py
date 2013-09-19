@@ -1,7 +1,10 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render
 from accounts.forms import UserEditForm
 from django.contrib import messages
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
 
 
 @login_required
@@ -28,3 +31,23 @@ def edit_account(request):
             "email": request.user.email,
         })
     return render(request, 'accounts/edit.html', {"form": form})
+
+
+@login_required
+def change_password(request):
+    helper = FormHelper()
+    helper.add_input(Submit('save', 'Change Password'))
+
+    if request.method == "POST":
+        form = PasswordChangeForm(
+            request.user,
+            request.POST
+        )
+        if form.is_valid():
+            messages.success(request, "You password has been changed!")
+            form.save()
+    else:
+        form = PasswordChangeForm(request.user)
+
+    form.helper = helper
+    return render(request, 'accounts/change_password.html', {"form": form})
