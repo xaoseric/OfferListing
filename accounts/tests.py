@@ -257,3 +257,26 @@ class DeactivateAccountTests(TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertTrue(reverse('login') in response.redirect_chain[0][0])
         self.assertEqual(response.redirect_chain[0][1], 302)
+
+    def test_user_can_deactivate_their_own_account(self):
+        """
+        Test that a user can deactivate their own account with the correct account data
+        """
+
+        self.assertTrue(self.user.is_active)
+
+        data = {
+            "username": 'some_user',
+            "password": "password",
+        }
+        response = self.client.post(reverse('deactivate_account'), data, follow=True)
+
+        user = User.objects.get(pk=self.user.pk)
+
+        # Make sure the user was redirected home
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertIn(reverse('home'), response.redirect_chain[0][0])
+        self.assertEqual(302, response.redirect_chain[0][1])
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(user.is_active)
