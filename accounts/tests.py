@@ -227,3 +227,33 @@ class ChangePasswordTests(TestCase):
             'The two password fields didn\'t match.',
         )
         self.assertEqual(user.password, self.user.password)
+
+
+class DeactivateAccountTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.user.save()
+        self.client.login(username='some_user', password='password')
+
+    def test_can_view_deactivate_account_form(self):
+        """
+        Test that a user can view their own deactivate account page
+        """
+        response = self.client.get(reverse('deactivate_account'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_logged_out_user_can_not_view_deactivate_account_form(self):
+        """
+        Test that a logged out user can not view the deactivate account page
+        """
+        self.client.logout()
+
+        response = self.client.get(reverse('deactivate_account'), follow=True)
+
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertTrue(reverse('login') in response.redirect_chain[0][0])
+        self.assertEqual(response.redirect_chain[0][1], 302)
