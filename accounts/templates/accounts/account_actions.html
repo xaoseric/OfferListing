@@ -4,37 +4,45 @@
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-edit"></span> Edit my account
     </h4>
-    <p class="list-group-item-text">
-      Edit your account details such as name and email address.
-    </p>
+    {% if long %}
+      <p class="list-group-item-text">
+        Edit your account details such as name and email address.
+      </p>
+    {% endif %}
   </a>
 
-  <a href="#" class="list-group-item {% if pass_active %}active{% endif %}">
+  <a href="{% url 'change_password' %}" class="list-group-item {% if pass_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-lock"></span> Change my password
     </h4>
-    <p class="list-group-item-text">
-      Change the password you have on record. The change is immediate, but users logged into your account will
-      <strong>not</strong> be required to login again.
-    </p>
+    {% if long %}
+      <p class="list-group-item-text">
+        Change the password you have on record. The change is immediate, but users logged into your account will
+        <strong>not</strong> be required to login again.
+      </p>
+    {% endif %}
   </a>
 
   <a href="#" class="list-group-item {% if comments_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-list"></span> View my comments
     </h4>
-    <p class="list-group-item-text">
-      View all comments you have made on offers. This included disabled or pending comments as well.
-    </p>
+    {% if long %}
+      <p class="list-group-item-text">
+        View all comments you have made on offers. This included disabled or pending comments as well.
+      </p>
+    {% endif %}
   </a>
 
   <a href="#" class="list-group-item {% if delete_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-trash"></span> Delete my account
     </h4>
-    <p class="list-group-item-text">
-      Delete your account. This will only disable your account to prevent further sign in. All your content will
-      still remain visible.
-    </p>
+    {% if long %}
+      <p class="list-group-item-text">
+        Delete your account. This will only disable your account to prevent further sign in. All your content will
+        still remain visible.
+      </p>
+    {% endif %}
   </a>
 </div>
