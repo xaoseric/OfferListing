@@ -94,7 +94,7 @@ class EditAccountViewTests(TestCase):
 
     def test_form_updates_user_correctly(self):
         """
-        Test that posting the form data correctly updates the form
+        Test that posting the form data correctly updates the user
         """
         data = {
             "first_name": "New_name",
@@ -109,3 +109,29 @@ class EditAccountViewTests(TestCase):
         self.assertEqual(user.first_name, data["first_name"])
         self.assertEqual(user.last_name, data["last_name"])
         self.assertEqual(user.email, data["email"])
+
+        self.assertContains(response, 'You account has been successfully updated!')
+
+    def test_form_incorrect_does_not_update_user(self):
+        """
+        Test that posting incorrect form data will not update the user
+        """
+        data = {
+            "first_name": "",  # Empty name
+            "last_name": "Last_name",
+            "email": "test2@example",  # Invalid email
+        }
+        response = self.client.post(reverse('edit_account'), data)
+
+        user = User.objects.get(pk=self.user.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(user.first_name, data["first_name"])
+        self.assertNotEqual(user.last_name, data["last_name"])
+        self.assertNotEqual(user.email, data["email"])
+
+        self.assertEqual(user.first_name, self.user.first_name)
+        self.assertEqual(user.last_name, self.user.last_name)
+        self.assertEqual(user.email, self.user.email)
+
+        self.assertContains(response, 'The form had errors. Please correct them and submit again.')
