@@ -3,7 +3,7 @@ from accounts.forms import BetterAuthenticationForm
 
 
 urlpatterns = patterns('accounts.views',
-    #url(r'^login/$', 'login', name='login'),
+    url(r'^profile/$', 'profile', name='profile'),
 )
 
 urlpatterns += patterns('django.contrib.auth.views',
