@@ -1,10 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import authenticate
 from django.shortcuts import render
-from accounts.forms import UserEditForm
+from accounts.forms import UserEditForm, UserConfirmDeletionForm
 from django.contrib import messages
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from django.contrib.auth import logout as logout_user
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 
 @login_required
@@ -51,3 +55,25 @@ def change_password(request):
 
     form.helper = helper
     return render(request, 'accounts/change_password.html', {"form": form})
+
+
+@login_required
+def deactivate_account(request):
+    if request.method == "POST":
+        form = UserConfirmDeletionForm(request.POST)
+        if form.is_valid():
+            user = authenticate(username=form.cleaned_data["username"], password=form.cleaned_data["password"])
+            if user is None or user != request.user:
+                messages.error(request, "Invalid username or password!")
+            else:
+                request.user.is_active = False
+                request.user.save()
+                logout_user(request)
+                messages.success(
+                    request,
+                    "Your account has been deactivated! Please contact a staff member to reactivate your account!"
+                )
+                return HttpResponseRedirect(reverse("home"))
+    else:
+        form = UserConfirmDeletionForm()
+    return render(request, 'accounts/deactivate.html', {"form": form})

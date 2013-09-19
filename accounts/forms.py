@@ -20,3 +20,18 @@ class UserEditForm(forms.Form):
         super(UserEditForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit('update', 'Update Account'))
+
+
+class UserConfirmDeletionForm(forms.Form):
+
+    username = forms.CharField(max_length=254)
+    password = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput,
+        max_length=4096,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(UserConfirmDeletionForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.add_input(Submit('confirm', 'Confirm Deletion'))

@@ -34,7 +34,7 @@
     {% endif %}
   </a>
 
-  <a href="#" class="list-group-item {% if delete_active %}active{% endif %}">
+  <a href="{% url 'deactivate_account' %}" class="list-group-item {% if delete_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-trash"></span> Delete my account
     </h4>
