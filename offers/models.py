@@ -104,7 +104,7 @@ class Offer(models.Model):
         """
         Returns the number of plans that this offer has.
         """
-        return self.plan_set.count()
+        return self.plan_set.filter(is_active=True).count()
 
     def min_cost(self):
         """
