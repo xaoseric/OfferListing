@@ -131,14 +131,13 @@ class Offer(models.Model):
         """
         Returns the number of active plans that this offer has.
         """
-        return self.plan_set.filter(is_active=True).count()
+        return Plan.active_plans.for_offer(self).count()
 
     def plan_count(self):
         """
         Returns the number of plans that this offer has.
         """
         return self.plan_set.count()
-
 
     def min_cost(self):
         """
@@ -173,6 +172,12 @@ class ActivePlanManager(models.Manager):
         active and the plan is active)
         """
         return self.get_query_set().filter(offer__provider=provider)
+
+    def for_offer(self, offer):
+        """
+        Get all the active plans for an offer
+        """
+        return self.get_query_set().filter(offer=offer)
 
 
 class Plan(models.Model):
