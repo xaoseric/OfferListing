@@ -1,3 +1,4 @@
+{% load humanize %}
 <div class="panel panel-default {% if not offer.offer_active %}panel-warning{% endif %}">
   <div class="panel-heading">
     <h3 class="panel-title">
@@ -19,8 +20,8 @@
       </li>
     {% endif %}
     <li class="list-group-item offer-time-since">
-      Offer released {{ offer.created_at|timesince }} ago.
-      <span class="pull-right">Last updated {{ offer.updated_at|timesince }} ago.</span>
+      Offer released {{ offer.created_at|naturaltime }}.
+      <span class="pull-right">Last updated {{ offer.updated_at|naturaltime }}.</span>
     </li>
   </ul>
 </div>

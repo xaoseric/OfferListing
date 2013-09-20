@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load humanize %}
 
 {% block title %}{{ provider.name }}{% endblock %}
 
@@ -16,7 +17,7 @@
         <br />
         <ul class="list-group">
           <li class="list-group-item">
-            {{ provider.name }} opened their doors {{ provider.start_date|timesince }} ago.
+            {{ provider.name }} opened their doors {{ provider.start_date|naturalday }}.
           </li>
           <li class="list-group-item">
             They have listed {{ provider.offer_count }} offers, {{ provider.active_offer_count }} of which are
