@@ -99,18 +99,117 @@ class ProviderMethodTests(TestCase):
         mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=False)
         self.assertEqual(self.provider.active_offer_count(), 0)
 
-    def test_plan_count_with_published(self):
-        """
-        Test the correct amount of plans are shown with the plan_count method
-        """
-        mommy.make(Plan, _quantity=20, offer__provider=self.provider, offer__status=Offer.PUBLISHED)
-        self.assertEqual(self.provider.plan_count(), 20)
-
     def test_plan_count_with_active_offer_active_plan_published_offer(self):
         """
         Test that the total plan count is correct when the following conditions are met
 
         (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       T      |      T      |        T        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=True,
+            is_active=True,
+            offer__status=Offer.PUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 20)
+
+    def test_plan_count_with_inactive_offer_active_plan_published_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       F      |      T      |        T        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=False,
+            is_active=True,
+            offer__status=Offer.PUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 0)
+
+    def test_plan_count_with_active_offer_inactive_plan_published_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       T      |      F      |        T        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=True,
+            is_active=False,
+            offer__status=Offer.PUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 0)
+
+    def test_plan_count_with_active_offer_active_plan_unpublished_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       T      |      T      |        F        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=True,
+            is_active=True,
+            offer__status=Offer.UNPUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 0)
+
+    def test_plan_count_with_inactive_offer_inactive_plan_unpublished_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
 
         +--------------+-------------+-----------------+
         | Active Offer | Active Plan | Published Offer |
@@ -118,13 +217,16 @@ class ProviderMethodTests(TestCase):
         |       F      |      F      |        F        |
         +--------------+-------------+-----------------+
         """
-        pass
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
 
-    def test_plan_count_with_unpublished(self):
-        """
-        Test the correct amount of plans are shown with the plan_count method
-        """
-        mommy.make(Plan, _quantity=20, offer__provider=self.provider, offer__status=Offer.UNPUBLISHED)
+            # Variables
+            offer__is_active=False,
+            is_active=False,
+            offer__status=Offer.UNPUBLISHED,
+        )
         self.assertEqual(self.provider.plan_count(), 0)
 
     def test_file_path_naming(self):
