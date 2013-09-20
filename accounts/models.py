@@ -5,7 +5,7 @@ from django.db import models
 
 class UserProfile(models.Model):
     birthday = models.DateField(blank=True, null=True)
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, related_name='profile')
 
     def __unicode__(self):
         return "{0} profile".format(self.user.username)
