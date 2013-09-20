@@ -6,15 +6,30 @@
         <a class="pull-left" href="#">
           <img class="media-object" src="{% gravatar_url comment.commenter.email 64 %}" width="64">
         </a>
+        {% spaceless %}
         <div class="media-body">
           <h4 class="media-heading">
-            <strong>{{ comment.commenter.username }}</strong> <br />
+            {{ comment.commenter.username }}
+            {% if comment.commenter.is_staff or comment.commenter.is_superuser %}
+
+              <a
+                      class="tooltipify text-danger"
+                      href="#" data-toggle="tooltip"
+                      title="This user is an admin. Don't mess with them!"
+                      style="text-decoration: none"
+              >
+                <span class="glyphicon glyphicon-flash"></span>
+              </a>
+
+            {% endif %}
+            <br />
             <a href="{% url 'offer:view' comment.offer.pk %}#comment-{{ comment.pk }}">
               <small>Commented on {{ comment.created_at }}</small>
             </a>
           </h4>
           {{ comment.content }}
         </div>
+        {% endspaceless %}
       </li>
     {% endfor %}
   </ul>
