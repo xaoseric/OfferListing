@@ -3,8 +3,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from offers.models import Offer, Comment, Provider
 from offers.forms import CommentForm
+from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
 
 
 def view_offer(request, offer_pk):
@@ -71,3 +73,9 @@ def provider_profile(request, provider_pk, page_number=1):
         "provider": provider,
         "offers": offers,
     })
+
+
+@user_is_provider
+@login_required
+def admin_provider_home(request):
+    return HttpResponse("provider admin page")
