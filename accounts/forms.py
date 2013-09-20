@@ -40,6 +40,10 @@ class UserConfirmDeletionForm(forms.Form):
 
 class UserRegisterForm(forms.ModelForm):
 
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    email = forms.EmailField()
+
     def __init__(self, *args, **kwargs):
         super(UserRegisterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
