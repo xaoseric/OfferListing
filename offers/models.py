@@ -127,11 +127,18 @@ class Offer(models.Model):
         """
         return self.comment_set.filter(status=Comment.PUBLISHED).order_by('created_at')
 
+    def active_plan_count(self):
+        """
+        Returns the number of active plans that this offer has.
+        """
+        return self.plan_set.filter(is_active=True).count()
+
     def plan_count(self):
         """
         Returns the number of plans that this offer has.
         """
-        return self.plan_set.filter(is_active=True).count()
+        return self.plan_set.count()
+
 
     def min_cost(self):
         """
