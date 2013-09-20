@@ -5,7 +5,7 @@
     <div class="row">
   {% endif %}
     <div class="col-lg-6">
-      <div class="panel panel-default">
+      <div class="panel panel-default {% if not plan.plan_is_active %}panel-warning{% endif %}">
         <div class="panel-heading">
           <h3 class="panel-title">Plan #{{ forloop.counter }}</h3>
         </div>
