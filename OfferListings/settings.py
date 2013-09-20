@@ -145,6 +145,8 @@ INSTALLED_APPS = (
     'accounts',
 )
 
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
+
 # Settings for testing
 if os.getenv('JENKINS_URL', False):
     INSTALLED_APPS += ('django_jenkins',)

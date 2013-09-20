@@ -9,6 +9,296 @@ from django.contrib.auth.models import User
 import os
 
 
+class ProviderMethodTests(TestCase):
+    def setUp(self):
+        self.provider = mommy.make(Provider)
+
+    def test_unicode_string(self):
+        """
+        Test that the unicode string of the provider is their name
+        """
+        self.assertEqual(self.provider.name, self.provider.__unicode__())
+
+    def test_image_url_without_url(self):
+        """
+        Test that the static image url is provided when there is no provider image
+        """
+        self.assertEqual(self.provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
+
+    def test_image_with_url(self):
+        """
+        Test that the real image url is provided when there is a provider image
+        """
+        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_data', 'test_image.png')
+        self.provider.logo.save(
+            image_path,
+            File(open(image_path)),
+        )
+        self.provider.save()
+        self.assertNotEqual(self.provider.get_image_url(), '')
+        self.assertNotEqual(self.provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
+        try:
+            os.remove(self.provider.logo.path)
+            os.remove(self.provider.logo.path + '.400x400_q85_crop.jpg')
+        except OSError:
+            pass
+
+    def test_offer_count_with_published_active(self):
+        """
+        Test that the number of published offers for a provider is correctly shown even if the offer is not active
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED, is_active=True)
+        self.assertEqual(self.provider.offer_count(), 20)
+
+    def test_offer_count_with_unpublished_active(self):
+        """
+        Test that the number of published offers for a provider is correctly shown even if the offer is not active
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=True)
+        self.assertEqual(self.provider.offer_count(), 0)
+
+    def test_offer_count_with_published_inactive(self):
+        """
+        Test that the number of published offers for a provider is correctly shown even if the offer is not active
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED, is_active=False)
+        self.assertEqual(self.provider.offer_count(), 20)
+
+    def test_offer_count_with_unpublished_inactive(self):
+        """
+        Test that the number of published offers for a provider is correctly shown even if the offer is not active
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=False)
+        self.assertEqual(self.provider.offer_count(), 0)
+
+    def test_active_offer_count_with_published_active(self):
+        """
+        Test that the number of published and active offers of a provider are correctly shown
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED, is_active=True)
+        self.assertEqual(self.provider.active_offer_count(), 20)
+
+    def test_active_offer_count_with_unpublished_active(self):
+        """
+        Test that the number of published and active offers of a provider are correctly shown
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=True)
+        self.assertEqual(self.provider.active_offer_count(), 0)
+
+    def test_active_offer_count_with_published_inactive(self):
+        """
+        Test that the number of published and active offers of a provider are correctly shown
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED, is_active=False)
+        self.assertEqual(self.provider.active_offer_count(), 0)
+
+    def test_active_offer_count_with_unpublished_inactive(self):
+        """
+        Test that the number of published and active offers of a provider are correctly shown
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=False)
+        self.assertEqual(self.provider.active_offer_count(), 0)
+
+    def test_plan_count_with_active_offer_active_plan_published_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       T      |      T      |        T        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=True,
+            is_active=True,
+            offer__status=Offer.PUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 20)
+
+    def test_plan_count_with_inactive_offer_active_plan_published_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       F      |      T      |        T        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=False,
+            is_active=True,
+            offer__status=Offer.PUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 0)
+
+    def test_plan_count_with_active_offer_inactive_plan_published_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       T      |      F      |        T        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=True,
+            is_active=False,
+            offer__status=Offer.PUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 0)
+
+    def test_plan_count_with_active_offer_active_plan_unpublished_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       T      |      T      |        F        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=True,
+            is_active=True,
+            offer__status=Offer.UNPUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 0)
+
+    def test_plan_count_with_inactive_offer_inactive_plan_unpublished_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        If all is T, then the plan is part of the count else it is not
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       F      |      F      |        F        |
+        +--------------+-------------+-----------------+
+        """
+        mommy.make(
+            Plan,
+            _quantity=20,
+            offer__provider=self.provider,
+
+            # Variables
+            offer__is_active=False,
+            is_active=False,
+            offer__status=Offer.UNPUBLISHED,
+        )
+        self.assertEqual(self.provider.plan_count(), 0)
+
+    def test_file_path_naming(self):
+        """
+        Test that the get_file_path() method returns a file with the correct extension
+        """
+        from models import get_file_path
+        filename = 'some_file.png'
+        extension = 'png'
+
+        resulting_filename = get_file_path(None, filename)
+        self.assertTrue(resulting_filename.endswith(extension))
+
+
+class ProviderProfileViewTests(TestCase):
+    def setUp(self):
+        self.provider = mommy.make(Provider)
+
+    def test_provider_profile_can_be_accessed(self):
+        """
+        Test that the provider page returns a successful status code
+        """
+        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_provider_profile_shows_info(self):
+        """
+        Test that the provider profile shows the correct info about the provider
+        """
+        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+        self.assertContains(response, self.provider.name)
+        self.assertContains(response, self.provider.get_image_url())
+
+    def test_provider_profile_shows_offers(self):
+        """
+        Test that the provider profile shows the latest offers the provider has
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
+        offers = Offer.objects.order_by('-created_at')[0:5]
+
+        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+
+        for offer in offers:
+            self.assertContains(response, offer.name)
+
+    def test_provider_profile_shows_offers_paginated(self):
+        """
+        Test that the provider profile shows the latest offers the provider has using pagination
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
+
+        for page_num in range(4):
+            response = self.client.get(reverse('offer:provider_pagination', args=[self.provider.pk, page_num+1]))
+            offers = Offer.objects.order_by('-created_at')[page_num*5:(page_num*5) + 5]
+
+            for offer in offers:
+                self.assertContains(response, offer.name)
+
+    def test_provider_profile_shows_offers_bad_paginated(self):
+        """
+        Test that the provider profile shows the latest offers the provider has using pagination even if the page
+        is out of the range of pages. The last page should be shown if this happens.
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
+
+        response = self.client.get(reverse('offer:provider_pagination', args=[self.provider.pk, 5]))
+        offers = Offer.objects.order_by('-created_at')[15:20]
+
+        for offer in offers:
+            self.assertContains(response, offer.name)
+
+
 class OfferMethodTests(TestCase):
 
     def setUp(self):
@@ -148,17 +438,6 @@ class OfferViewTests(TestCase):
 
             self.assertEqual(response.status_code, 404)
 
-    def test_can_not_view_draft_offers(self):
-        """
-        Test that you can not view an offer that is a draft
-        """
-        for offer in self.offers:
-            offer.status = offer.DRAFT
-            offer.save()
-            response = self.client.get(offer.get_absolute_url())
-
-            self.assertEqual(response.status_code, 404)
-
 
 class OfferAuthenticatedViewTests(OfferViewTests):
     def setUp(self):
@@ -268,98 +547,6 @@ class OfferListViewTests(TestCase):
                 self.assertContains(response, offer.name)
 
 
-class ProviderMethodTests(TestCase):
-    def setUp(self):
-        self.providers = mommy.make(Provider, _quantity=10)
-
-    def test_unicode_string(self):
-        """
-        Test that the unicode string of the provider is their name
-        """
-        for provider in self.providers:
-            self.assertEqual(provider.name, provider.__unicode__())
-
-    def test_image_url_without_url(self):
-        """
-        Test that the static image url is provided when there is no provider image
-        """
-        for provider in self.providers:
-            self.assertEqual(provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
-
-    def test_image_with_url(self):
-        """
-        Test that the real image url is provided when there is a provider image
-        """
-        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_data', 'test_image.png')
-        for provider in self.providers:
-            provider.logo.save(
-                image_path,
-                File(open(image_path)),
-            )
-            provider.save()
-            self.assertNotEqual(provider.get_image_url(), '')
-            self.assertNotEqual(provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
-
-    def test_offer_count_with_published(self):
-        """
-        Test that the number of published offers for a provider is correctly shown
-        """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Offer, _quantity=i+1, provider=provider, status=Offer.PUBLISHED)
-            self.assertEqual(provider.offer_count(), i+1)
-
-    def test_offer_count_with_unpublished(self):
-        """
-        Test that the number of published offers for a provider is correctly shown
-        """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Offer, _quantity=i, provider=provider, status=Offer.UNPUBLISHED)
-            self.assertEqual(provider.offer_count(), 0)
-
-    def test_offer_count_with_draft(self):
-        """
-        Test that the number of published offers for a provider is correctly shown
-        """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Offer, _quantity=i, provider=provider, status=Offer.DRAFT)
-            self.assertEqual(provider.offer_count(), 0)
-
-    def test_plan_count_with_published(self):
-        """
-        Test the correct amount of plans are shown with the plan_count method
-        """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.PUBLISHED)
-            self.assertEqual(provider.plan_count(), i+1)
-
-    def test_plan_count_with_unpublished(self):
-        """
-        Test the correct amount of plans are shown with the plan_count method
-        """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.UNPUBLISHED)
-            self.assertEqual(provider.plan_count(), 0)
-
-    def test_plan_count_with_draft(self):
-        """
-        Test the correct amount of plans are shown with the plan_count method
-        """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.DRAFT)
-            self.assertEqual(provider.plan_count(), 0)
-
-    def test_file_path_naming(self):
-        """
-        Test that the get_file_path() method returns a file with the correct extension
-        """
-        from models import get_file_path
-        filename = 'some_file.png'
-        extension = 'png'
-
-        resulting_filename = get_file_path(None, filename)
-        self.assertTrue(resulting_filename.endswith(extension))
-
-
 class PlanMethodTests(TestCase):
     def setUp(self):
         self.plans = mommy.make(Plan, _quantity=20)
@@ -451,61 +638,3 @@ class PlanListViewTests(TestCase):
 
         for provider in self.providers:
             self.assertContains(response, provider.name)
-
-
-class ProviderProfileViewTests(TestCase):
-    def setUp(self):
-        self.provider = mommy.make(Provider)
-
-    def test_provider_profile_can_be_accessed(self):
-        """
-        Test that the provider page returns a successful status code
-        """
-        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
-        self.assertEqual(response.status_code, 200)
-
-    def test_provider_profile_shows_info(self):
-        """
-        Test that the provider profile shows the correct info about the provider
-        """
-        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
-        self.assertContains(response, self.provider.name)
-        self.assertContains(response, self.provider.get_image_url())
-
-    def test_provider_profile_shows_offers(self):
-        """
-        Test that the provider profile shows the latest offers the provider has
-        """
-        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
-        offers = Offer.objects.order_by('-created_at')[0:5]
-
-        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
-
-        for offer in offers:
-            self.assertContains(response, offer.name)
-
-    def test_provider_profile_shows_offers_paginated(self):
-        """
-        Test that the provider profile shows the latest offers the provider has using pagination
-        """
-        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
-
-        for page_num in range(4):
-            response = self.client.get(reverse('offer:provider_pagination', args=[self.provider.pk, page_num+1]))
-            offers = Offer.objects.order_by('-created_at')[page_num*5:(page_num*5) + 5]
-
-            for offer in offers:
-                self.assertContains(response, offer.name)
-
-    def test_provider_profile_shows_offers_bad_paginated(self):
-        """
-        Test that the provider profile shows the latest offers the provider has using pagination even if the page
-        is out of the range of pages. The last page should be shown if this happens.
-        """
-        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
-
-        response = self.client.get(reverse('offer:provider_pagination', args=[self.provider.pk, 5]))
-        offers = Offer.objects.order_by('-created_at')[15:20]
-
-        for offer in offers:
-            self.assertContains(response, offer.name)

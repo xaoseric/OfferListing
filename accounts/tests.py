@@ -332,7 +332,7 @@ class UserProfileModelTests(TestCase):
         """
         Test that the post_save signal creates a new UserProfile account on creation of a user
         """
-        self.assertNotEqual(self.user.profile, None)
+        self.assertNotEqual(self.user.user_profile, None)
         self.assertEqual(UserProfile.objects.count(), 1)
         self.assertEqual(User.objects.count(), 1)
 
@@ -340,14 +340,14 @@ class UserProfileModelTests(TestCase):
         """
         Test that saving a user does not create a new profile
         """
-        self.assertNotEqual(self.user.profile, None)
+        self.assertNotEqual(self.user.user_profile, None)
         self.assertEqual(UserProfile.objects.count(), 1)
         self.assertEqual(User.objects.count(), 1)
 
         self.user.first_name = "new name"
         self.user.save()
 
-        self.assertNotEqual(self.user.profile, None)
+        self.assertNotEqual(self.user.user_profile, None)
         self.assertEqual(UserProfile.objects.count(), 1)
         self.assertEqual(User.objects.count(), 1)
 
@@ -355,4 +355,4 @@ class UserProfileModelTests(TestCase):
         """
         Test the unicode name of the profile contains the username
         """
-        self.assertIn(self.user.username, self.user.profile.__unicode__())
+        self.assertIn(self.user.username, self.user.user_profile.__unicode__())

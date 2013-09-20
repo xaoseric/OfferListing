@@ -36,7 +36,7 @@ def view_offer(request, offer_pk):
 
 
 def list_offers(request, page_number=1):
-    offer_list = Offer.objects.filter(status=Offer.PUBLISHED).order_by('-created_at')
+    offer_list = Offer.visible_offers.all()
     paginator = Paginator(offer_list, 5)
 
     try:
@@ -58,7 +58,7 @@ def provider_list(request):
 
 def provider_profile(request, provider_pk, page_number=1):
     provider = get_object_or_404(Provider, pk=provider_pk)
-    offer_list = provider.offer_set.filter(status=Offer.PUBLISHED).order_by('-created_at')
+    offer_list = Offer.visible_offers.for_provider(provider)
 
     paginator = Paginator(offer_list, 5)
     try:

@@ -44,34 +44,72 @@ class Provider(models.Model):
         Gets the total count of all the offers related to this provider. It only returns the number of published
         offers (Offers with the status of PUBLISHED).
         """
-        return self.offer_set.filter(status=Offer.PUBLISHED).count()
+        return Offer.visible_offers.for_provider(self).count()
+
+    def active_offer_count(self):
+        """
+        Gets the total count of all the offers related to this provider. It only returns the number of published
+        offers (Offers with the status of PUBLISHED) that are active.
+        """
+        return Offer.active_offers.for_provider(self).count()
 
     def plan_count(self):
         """
         Returns the number of plans this provider has associated. It only returns plans related to a published article
         (and article with the status PUBLISHED).
         """
-        return Plan.objects.filter(offer__provider=self, offer__status=Offer.PUBLISHED).count()
+        return Plan.active_plans.for_provider(self).count()
+
+
+class OfferVisibleManager(models.Manager):
+    """
+    Only gets the visible offers (offers which are published)
+    """
+    def get_query_set(self):
+        return super(OfferVisibleManager, self).get_query_set().filter(status=Offer.PUBLISHED)
+
+    def for_provider(self, provider):
+        """
+        Returns all visible offers for a provider
+        """
+        return self.get_query_set().filter(provider=provider)
+
+
+class OfferActiveManager(models.Manager):
+    """
+    Only gets the active offers (offers which are published and have the active status)
+    """
+    def get_query_set(self):
+        return super(OfferActiveManager, self).get_query_set().filter(status=Offer.PUBLISHED, is_active=True)
+
+    def for_provider(self, provider):
+        """
+        Returns all visible offers for a provider
+        """
+        return self.get_query_set().filter(provider=provider)
 
 
 class Offer(models.Model):
     PUBLISHED = 'p'
     UNPUBLISHED = 'u'
-    DRAFT = 'd'
 
     STATUS_CHOICES = (
         (PUBLISHED, 'Published'),
         (UNPUBLISHED, 'Unpublished'),
-        (DRAFT, 'Draft'),
     )
 
     name = models.CharField(max_length=255)
     content = models.TextField()
     provider = models.ForeignKey(Provider)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=DRAFT)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=PUBLISHED)
+    is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
+    visible_offers = OfferVisibleManager()
+    active_offers = OfferActiveManager()
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
@@ -88,6 +126,12 @@ class Offer(models.Model):
         it was first created.
         """
         return self.comment_set.filter(status=Comment.PUBLISHED).order_by('created_at')
+
+    def active_plan_count(self):
+        """
+        Returns the number of active plans that this offer has.
+        """
+        return Plan.active_plans.for_offer(self).count()
 
     def plan_count(self):
         """
@@ -106,6 +150,42 @@ class Offer(models.Model):
         Returns the cost of the most expensive plan related to this offer. The return is a Decimal object.
         """
         return self.plan_set.all().aggregate(cost=models.Max('cost'))["cost"]
+
+    def offer_active(self):
+        """
+        Returns if the offer is active
+        """
+        if self.is_active and self.status == self.PUBLISHED:
+            return True
+        return False
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class ActivePlanManager(models.Manager):
+    """
+    A plan manager that only gets active plans
+    """
+    def get_query_set(self):
+        return super(ActivePlanManager, self).get_query_set().filter(
+            offer__status=Offer.PUBLISHED,
+            offer__is_active=True,
+            is_active=True
+        )
+
+    def for_provider(self, provider):
+        """
+        Get all the active plans (The ones that match the conditions that the offer is published, the offer is
+        active and the plan is active)
+        """
+        return self.get_query_set().filter(offer__provider=provider)
+
+    def for_offer(self, offer):
+        """
+        Get all the active plans for an offer
+        """
+        return self.get_query_set().filter(offer=offer)
 
 
 class Plan(models.Model):
@@ -146,9 +226,13 @@ class Plan(models.Model):
     url = models.TextField(validators=[URLValidator()])
     promo_code = models.CharField(blank=True, default='', max_length=255)
     cost = models.DecimalField(max_digits=20, decimal_places=2)
+    is_active = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
+    active_plans = ActivePlanManager()
 
     def data_format(self, value, format_type):
         """
@@ -193,6 +277,14 @@ class Plan(models.Model):
         Get the pretty version of the system bandwidth
         """
         return self.data_format(self.bandwidth, 'gigabytes')
+
+    def plan_active(self):
+        """
+        Check if the current plan is active
+        """
+        if self.offer.offer_active() and self.is_active:
+            return True
+        return False
 
 
 class Comment(models.Model):
