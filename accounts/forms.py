@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Submit, Layout, Fieldset
 from django import forms
 
 
@@ -43,7 +43,20 @@ class UserRegisterForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UserRegisterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(Submit('register', 'Register'))
+        self.helper.layout = Layout(
+            Fieldset(
+                'Credentials',
+                'username',
+                'password'
+            ),
+            Fieldset(
+                'General Details',
+                'first_name',
+                'last_name',
+                'email',
+            ),
+            Submit('register', 'Register')
+        )
 
     class Meta:
         model = User
