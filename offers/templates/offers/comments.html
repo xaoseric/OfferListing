@@ -4,7 +4,7 @@
     {% for comment in comments %}
       <li class="media" id="comment-{{ comment.pk }}">
         <a class="pull-left" href="#">
-          <img class="media-object" src="{% gravatar_url comment.commenter.email 64 %}">
+          <img class="media-object" src="{% gravatar_url comment.commenter.email 64 %}" width="64">
         </a>
         <div class="media-body">
           <h4 class="media-heading">
