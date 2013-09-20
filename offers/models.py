@@ -54,6 +54,14 @@ class Provider(models.Model):
         return Plan.objects.filter(offer__provider=self, offer__status=Offer.PUBLISHED).count()
 
 
+class OfferActiveManager(models.Manager):
+    """
+    Only gets the active offers (offers which are published)
+    """
+    def get_query_set(self):
+        return super(OfferActiveManager, self).get_query_set().filter(status=Offer.PUBLISHED)
+
+
 class Offer(models.Model):
     PUBLISHED = 'p'
     UNPUBLISHED = 'u'
@@ -72,6 +80,9 @@ class Offer(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
+    active_offers = OfferActiveManager()
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
