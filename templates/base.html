@@ -1,4 +1,5 @@
 {% load static %}
+{% load navigation_helpers %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -22,8 +23,8 @@
 
         <div class="collapse navbar-collapse navbar-ex1-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="{% url 'offer:providers' %}">Providers</a></li>
+            {% navigation_link request 'home' 'Home' %}
+            {% navigation_link request 'offer:providers' 'Providers' %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if request.user.is_authenticated %}
