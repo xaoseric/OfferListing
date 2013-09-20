@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset
@@ -38,7 +38,7 @@ class UserConfirmDeletionForm(forms.Form):
         self.helper.add_input(Submit('confirm', 'Confirm Deletion'))
 
 
-class UserRegisterForm(forms.ModelForm):
+class UserRegisterForm(UserCreationForm):
 
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
@@ -51,7 +51,8 @@ class UserRegisterForm(forms.ModelForm):
             Fieldset(
                 'Credentials',
                 'username',
-                'password'
+                'password1',
+                'password2',
             ),
             Fieldset(
                 'General Details',
@@ -64,4 +65,12 @@ class UserRegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password')
+        fields = ('username', 'email', 'first_name', 'last_name')
+
+    def save(self, commit=True):
+        user = super(UserRegisterForm, self).save(commit)
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        user.email = self.cleaned_data["email"]
+        user.save()
+        return user
