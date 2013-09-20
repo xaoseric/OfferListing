@@ -122,6 +122,14 @@ class Offer(models.Model):
         ordering = ['-created_at']
 
 
+class ActivePlanManager(models.Manager):
+    """
+    A plan manager that only gets active plans
+    """
+    def get_query_set(self):
+        return super(ActivePlanManager, self).get_query_set().filter(offer__status=Offer.PUBLISHED)
+
+
 class Plan(models.Model):
     KVM = 'k'
     OPENVZ = 'o'
@@ -163,6 +171,9 @@ class Plan(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
+    active_plans = ActivePlanManager()
 
     def data_format(self, value, format_type):
         """
