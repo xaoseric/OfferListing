@@ -27,7 +27,7 @@
             {% navigation_link request 'offer:providers' 'Providers' %}
             {% if request.user.is_authenticated %}
               {% if request.user.user_profile.is_provider %}
-                <li><a href="{% url 'offer:admin_home' %}">Manage My Provider</a></li>
+                {% navigation_link request 'offer:admin_home' 'Manage My Provider' %}
               {% endif %}
             {% endif %}
           </ul>
