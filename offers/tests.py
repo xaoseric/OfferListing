@@ -288,8 +288,11 @@ class ProviderMethodTests(TestCase):
             provider.save()
             self.assertNotEqual(provider.get_image_url(), '')
             self.assertNotEqual(provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
-            os.remove(provider.logo.path)
-            os.remove(provider.logo.path + '.400x400_q85_crop.jpg')
+            try:
+                os.remove(provider.logo.path)
+                os.remove(provider.logo.path + '.400x400_q85_crop.jpg')
+            except OSError:
+                pass
 
     def test_offer_count_with_published(self):
         """
