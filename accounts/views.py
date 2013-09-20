@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render
-from accounts.forms import UserEditForm, UserConfirmDeletionForm
+from accounts.forms import UserEditForm, UserConfirmDeletionForm, UserRegisterForm
 from django.contrib import messages
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
@@ -84,3 +85,22 @@ def deactivate_account(request):
 def comment_list(request):
     comments = Comment.objects.filter(commenter=request.user)
     return render(request, 'accounts/comments.html', {"comments": comments})
+
+
+def register(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == "POST":
+        user = User(is_staff=False, is_superuser=False)
+        form = UserRegisterForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            user = authenticate(username=form.cleaned_data["username"], password=form.cleaned_data["password1"])
+            login(request, user)
+            messages.success(request, "Thank you for registering!")
+            return HttpResponseRedirect(reverse('home'))
+        else:
+            messages.error(request, "You had errors in your details. Please fix them and submit again.")
+    else:
+        form = UserRegisterForm()
+    return render(request, 'accounts/register.html', {"form": form})
