@@ -78,4 +78,4 @@ def provider_profile(request, provider_pk, page_number=1):
 @user_is_provider
 @login_required
 def admin_provider_home(request):
-    return HttpResponse("provider admin page")
+    return render(request, 'offers/manage/home.html', {"provider": request.user.user_profile.provider})

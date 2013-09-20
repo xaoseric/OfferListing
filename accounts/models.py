@@ -12,6 +12,9 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return "{0} profile".format(self.user.username)
 
+    def is_provider(self):
+        return self.provider is not None
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
