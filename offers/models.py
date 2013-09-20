@@ -118,6 +118,9 @@ class Offer(models.Model):
         """
         return self.plan_set.all().aggregate(cost=models.Max('cost'))["cost"]
 
+    class Meta:
+        ordering = ['-created_at']
+
 
 class Plan(models.Model):
     KVM = 'k'
