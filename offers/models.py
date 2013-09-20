@@ -46,6 +46,13 @@ class Provider(models.Model):
         """
         return Offer.visible_offers.for_provider(self).count()
 
+    def active_offer_count(self):
+        """
+        Gets the total count of all the offers related to this provider. It only returns the number of published
+        offers (Offers with the status of PUBLISHED) that are active.
+        """
+        return Offer.active_offers.for_provider(self).count()
+
     def plan_count(self):
         """
         Returns the number of plans this provider has associated. It only returns plans related to a published article
