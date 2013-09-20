@@ -54,12 +54,12 @@ class Provider(models.Model):
         return Plan.active_plans.for_provider(self).count()
 
 
-class OfferActiveManager(models.Manager):
+class OfferVisibleManager(models.Manager):
     """
     Only gets the active offers (offers which are published)
     """
     def get_query_set(self):
-        return super(OfferActiveManager, self).get_query_set().filter(status=Offer.PUBLISHED)
+        return super(OfferVisibleManager, self).get_query_set().filter(status=Offer.PUBLISHED)
 
     def for_provider(self, provider):
         """
@@ -87,7 +87,7 @@ class Offer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = models.Manager()
-    visible_offers = OfferActiveManager()
+    visible_offers = OfferVisibleManager()
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
