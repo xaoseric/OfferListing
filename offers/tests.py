@@ -11,72 +11,121 @@ import os
 
 class ProviderMethodTests(TestCase):
     def setUp(self):
-        self.providers = mommy.make(Provider, _quantity=10)
+        self.provider = mommy.make(Provider)
 
     def test_unicode_string(self):
         """
         Test that the unicode string of the provider is their name
         """
-        for provider in self.providers:
-            self.assertEqual(provider.name, provider.__unicode__())
+        self.assertEqual(self.provider.name, self.provider.__unicode__())
 
     def test_image_url_without_url(self):
         """
         Test that the static image url is provided when there is no provider image
         """
-        for provider in self.providers:
-            self.assertEqual(provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
+        self.assertEqual(self.provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
 
     def test_image_with_url(self):
         """
         Test that the real image url is provided when there is a provider image
         """
         image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_data', 'test_image.png')
-        for provider in self.providers:
-            provider.logo.save(
-                image_path,
-                File(open(image_path)),
-            )
-            provider.save()
-            self.assertNotEqual(provider.get_image_url(), '')
-            self.assertNotEqual(provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
-            try:
-                os.remove(provider.logo.path)
-                os.remove(provider.logo.path + '.400x400_q85_crop.jpg')
-            except OSError:
-                pass
+        self.provider.logo.save(
+            image_path,
+            File(open(image_path)),
+        )
+        self.provider.save()
+        self.assertNotEqual(self.provider.get_image_url(), '')
+        self.assertNotEqual(self.provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
+        try:
+            os.remove(self.provider.logo.path)
+            os.remove(self.provider.logo.path + '.400x400_q85_crop.jpg')
+        except OSError:
+            pass
 
-    def test_offer_count_with_published(self):
+    def test_offer_count_with_published_active(self):
         """
-        Test that the number of published offers for a provider is correctly shown
+        Test that the number of published offers for a provider is correctly shown even if the offer is not active
         """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Offer, _quantity=i+1, provider=provider, status=Offer.PUBLISHED)
-            self.assertEqual(provider.offer_count(), i+1)
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED, is_active=True)
+        self.assertEqual(self.provider.offer_count(), 20)
 
-    def test_offer_count_with_unpublished(self):
+    def test_offer_count_with_unpublished_active(self):
         """
-        Test that the number of published offers for a provider is correctly shown
+        Test that the number of published offers for a provider is correctly shown even if the offer is not active
         """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Offer, _quantity=i, provider=provider, status=Offer.UNPUBLISHED)
-            self.assertEqual(provider.offer_count(), 0)
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=True)
+        self.assertEqual(self.provider.offer_count(), 0)
+
+    def test_offer_count_with_published_inactive(self):
+        """
+        Test that the number of published offers for a provider is correctly shown even if the offer is not active
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED, is_active=False)
+        self.assertEqual(self.provider.offer_count(), 20)
+
+    def test_offer_count_with_unpublished_inactive(self):
+        """
+        Test that the number of published offers for a provider is correctly shown even if the offer is not active
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=False)
+        self.assertEqual(self.provider.offer_count(), 0)
+
+    def test_active_offer_count_with_published_active(self):
+        """
+        Test that the number of published and active offers of a provider are correctly shown
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED, is_active=True)
+        self.assertEqual(self.provider.active_offer_count(), 20)
+
+    def test_active_offer_count_with_unpublished_active(self):
+        """
+        Test that the number of published and active offers of a provider are correctly shown
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=True)
+        self.assertEqual(self.provider.active_offer_count(), 0)
+
+    def test_active_offer_count_with_published_inactive(self):
+        """
+        Test that the number of published and active offers of a provider are correctly shown
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED, is_active=False)
+        self.assertEqual(self.provider.active_offer_count(), 0)
+
+    def test_active_offer_count_with_unpublished_inactive(self):
+        """
+        Test that the number of published and active offers of a provider are correctly shown
+        """
+        mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.UNPUBLISHED, is_active=False)
+        self.assertEqual(self.provider.active_offer_count(), 0)
 
     def test_plan_count_with_published(self):
         """
         Test the correct amount of plans are shown with the plan_count method
         """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.PUBLISHED)
-            self.assertEqual(provider.plan_count(), i+1)
+        mommy.make(Plan, _quantity=20, offer__provider=self.provider, offer__status=Offer.PUBLISHED)
+        self.assertEqual(self.provider.plan_count(), 20)
+
+    def test_plan_count_with_active_offer_active_plan_published_offer(self):
+        """
+        Test that the total plan count is correct when the following conditions are met
+
+        (F is False, T is true)
+
+        +--------------+-------------+-----------------+
+        | Active Offer | Active Plan | Published Offer |
+        +==============+=============+=================+
+        |       F      |      F      |        F        |
+        +--------------+-------------+-----------------+
+        """
+        pass
 
     def test_plan_count_with_unpublished(self):
         """
         Test the correct amount of plans are shown with the plan_count method
         """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.UNPUBLISHED)
-            self.assertEqual(provider.plan_count(), 0)
+        mommy.make(Plan, _quantity=20, offer__provider=self.provider, offer__status=Offer.UNPUBLISHED)
+        self.assertEqual(self.provider.plan_count(), 0)
 
     def test_file_path_naming(self):
         """
