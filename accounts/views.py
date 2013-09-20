@@ -9,6 +9,7 @@ from crispy_forms.layout import Submit
 from django.contrib.auth import logout as logout_user
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from offers.models import Comment
 
 
 @login_required
@@ -77,3 +78,9 @@ def deactivate_account(request):
     else:
         form = UserConfirmDeletionForm()
     return render(request, 'accounts/deactivate.html', {"form": form})
+
+
+@login_required
+def comment_list(request):
+    comments = Comment.objects.filter(commenter=request.user)
+    return render(request, 'accounts/comments.html', {"comments": comments})

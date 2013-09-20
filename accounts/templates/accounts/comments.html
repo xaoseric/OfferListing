@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load gravatar %}
+
+{% block title %}My Comments{% endblock %}
+
+{% block page_title %}My Comments{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-3">
+      {% include 'accounts/account_actions.html' with comments_active=True %}
+    </div>
+    <div class="col-md-9">
+      {% include 'offers/comments.html' with comments=comments %}
+    </div>
+  </div>
+{% endblock %}

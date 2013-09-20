@@ -23,7 +23,7 @@
     {% endif %}
   </a>
 
-  <a href="#" class="list-group-item {% if comments_active %}active{% endif %}">
+  <a href="{% url 'my_comments' %}" class="list-group-item {% if comments_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-list"></span> View my comments
     </h4>

@@ -4,6 +4,7 @@ from accounts.forms import BetterAuthenticationForm
 
 urlpatterns = patterns('accounts.views',
     url(r'^profile/$', 'profile', name='profile'),
+    url(r'^profile/comments/$', 'comment_list', name='my_comments'),
     url(r'^update/$', 'edit_account', name='edit_account'),
     url(r'^update/password/$', 'change_password', name='change_password'),
     url(r'^deactivate/$', 'deactivate_account', name='deactivate_account'),
