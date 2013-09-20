@@ -56,10 +56,24 @@ class Provider(models.Model):
 
 class OfferVisibleManager(models.Manager):
     """
-    Only gets the active offers (offers which are published)
+    Only gets the visible offers (offers which are published)
     """
     def get_query_set(self):
         return super(OfferVisibleManager, self).get_query_set().filter(status=Offer.PUBLISHED)
+
+    def for_provider(self, provider):
+        """
+        Returns all visible offers for a provider
+        """
+        return self.get_query_set().filter(provider=provider)
+
+
+class OfferActiveManager(models.Manager):
+    """
+    Only gets the active offers (offers which are published and have the active status)
+    """
+    def get_query_set(self):
+        return super(OfferActiveManager, self).get_query_set().filter(status=Offer.PUBLISHED, is_active=True)
 
     def for_provider(self, provider):
         """
@@ -88,6 +102,7 @@ class Offer(models.Model):
 
     objects = models.Manager()
     visible_offers = OfferVisibleManager()
+    active_offers = OfferActiveManager()
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
