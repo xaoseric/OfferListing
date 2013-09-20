@@ -44,15 +44,14 @@ class Provider(models.Model):
         Gets the total count of all the offers related to this provider. It only returns the number of published
         offers (Offers with the status of PUBLISHED).
         """
-        return self.offer_set.filter(status=Offer.PUBLISHED).count()
+        return Offer.visible_offers.for_provider(self).count()
 
     def plan_count(self):
         """
         Returns the number of plans this provider has associated. It only returns plans related to a published article
         (and article with the status PUBLISHED).
         """
-        #return Plan.objects.filter(offer__provider=self, offer__status=Offer.PUBLISHED).count()
-        return Plan.active_plans.filter(offer__provider=self).count()
+        return Plan.active_plans.for_provider(self).count()
 
 
 class OfferActiveManager(models.Manager):
@@ -133,7 +132,18 @@ class ActivePlanManager(models.Manager):
     A plan manager that only gets active plans
     """
     def get_query_set(self):
-        return super(ActivePlanManager, self).get_query_set().filter(offer__status=Offer.PUBLISHED, is_active=True)
+        return super(ActivePlanManager, self).get_query_set().filter(
+            offer__status=Offer.PUBLISHED,
+            offer__is_active=True,
+            is_active=True
+        )
+
+    def for_provider(self, provider):
+        """
+        Get all the active plans (The ones that match the conditions that the offer is published, the offer is
+        active and the plan is active)
+        """
+        return self.get_query_set().filter(offer__provider=provider)
 
 
 class Plan(models.Model):
