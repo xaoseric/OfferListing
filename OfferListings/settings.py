@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     # Custom applications
     'offers',
     'accounts',
+    'template_helpers',
 )
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
