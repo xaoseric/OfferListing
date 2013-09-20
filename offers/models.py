@@ -265,6 +265,14 @@ class Plan(models.Model):
         """
         return self.data_format(self.bandwidth, 'gigabytes')
 
+    def is_active(self):
+        """
+        Check if the current plan is active
+        """
+        if Plan.active_plans.filter(pk=self.pk).exists():
+            return True
+        return False
+
 
 class Comment(models.Model):
     PUBLISHED = 'p'
