@@ -151,6 +151,14 @@ class Offer(models.Model):
         """
         return self.plan_set.all().aggregate(cost=models.Max('cost'))["cost"]
 
+    def offer_active(self):
+        """
+        Returns if the offer is active
+        """
+        if self.is_active and self.status == self.PUBLISHED:
+            return True
+        return False
+
     class Meta:
         ordering = ['-created_at']
 
@@ -274,7 +282,7 @@ class Plan(models.Model):
         """
         Check if the current plan is active
         """
-        if Plan.active_plans.filter(pk=self.pk).exists():
+        if self.offer.offer_active() and self.is_active:
             return True
         return False
 
