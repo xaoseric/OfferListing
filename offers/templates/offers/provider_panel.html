@@ -1,0 +1,25 @@
+{% load humanize %}
+
+<div class="well">
+  <div class="row">
+    <div class="col-lg-4 col-md-6">
+      <img src="{{ provider.get_image_url }}" class="img-responsive img-thumbnail">
+    </div>
+    <div class="col-lg-8 col-md-6">
+      <h1>{{ provider.name }}</h1>
+      <br />
+      <ul class="list-group">
+        <li class="list-group-item">
+          {{ provider.name }} opened their doors {{ provider.start_date|naturalday }}.
+        </li>
+        <li class="list-group-item">
+          They have listed {{ provider.offer_count }} offers, {{ provider.active_offer_count }} of which are
+          still active.
+        </li>
+        <li class="list-group-item">
+          In total, they provide {{ provider.plan_count }} plans accross all their offers.
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
