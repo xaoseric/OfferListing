@@ -148,17 +148,6 @@ class OfferViewTests(TestCase):
 
             self.assertEqual(response.status_code, 404)
 
-    def test_can_not_view_draft_offers(self):
-        """
-        Test that you can not view an offer that is a draft
-        """
-        for offer in self.offers:
-            offer.status = offer.DRAFT
-            offer.save()
-            response = self.client.get(offer.get_absolute_url())
-
-            self.assertEqual(response.status_code, 404)
-
 
 class OfferAuthenticatedViewTests(OfferViewTests):
     def setUp(self):
@@ -316,14 +305,6 @@ class ProviderMethodTests(TestCase):
             mommy.make(Offer, _quantity=i, provider=provider, status=Offer.UNPUBLISHED)
             self.assertEqual(provider.offer_count(), 0)
 
-    def test_offer_count_with_draft(self):
-        """
-        Test that the number of published offers for a provider is correctly shown
-        """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Offer, _quantity=i, provider=provider, status=Offer.DRAFT)
-            self.assertEqual(provider.offer_count(), 0)
-
     def test_plan_count_with_published(self):
         """
         Test the correct amount of plans are shown with the plan_count method
@@ -338,14 +319,6 @@ class ProviderMethodTests(TestCase):
         """
         for i, provider in enumerate(self.providers):
             mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.UNPUBLISHED)
-            self.assertEqual(provider.plan_count(), 0)
-
-    def test_plan_count_with_draft(self):
-        """
-        Test the correct amount of plans are shown with the plan_count method
-        """
-        for i, provider in enumerate(self.providers):
-            mommy.make(Plan, _quantity=i+1, offer__provider=provider, offer__status=Offer.DRAFT)
             self.assertEqual(provider.plan_count(), 0)
 
     def test_file_path_naming(self):
