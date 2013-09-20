@@ -278,7 +278,7 @@ class Plan(models.Model):
         """
         return self.data_format(self.bandwidth, 'gigabytes')
 
-    def plan_is_active(self):
+    def plan_active(self):
         """
         Check if the current plan is active
         """

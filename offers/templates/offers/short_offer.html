@@ -1,4 +1,4 @@
-<div class="panel panel-default {% if not offer.is_active %}panel-warning{% endif %}">
+<div class="panel panel-default {% if not offer.offer_active %}panel-warning{% endif %}">
   <div class="panel-heading">
     <h3 class="panel-title">
       <a href="{% url 'offer:view' offer.pk %}">{{ offer.name }}</a>
@@ -13,7 +13,7 @@
     <li class="list-group-item">
       Price range ${{ offer.min_cost|floatformat:2 }} - ${{ offer.max_cost|floatformat:2 }}
     </li>
-    {% if not offer.is_active %}
+    {% if not offer.offer_active %}
       <li class="list-group-item text-danger">
         Plan is no longer available!
       </li>
