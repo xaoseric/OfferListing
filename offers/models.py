@@ -127,7 +127,7 @@ class ActivePlanManager(models.Manager):
     A plan manager that only gets active plans
     """
     def get_query_set(self):
-        return super(ActivePlanManager, self).get_query_set().filter(offer__status=Offer.PUBLISHED)
+        return super(ActivePlanManager, self).get_query_set().filter(offer__status=Offer.PUBLISHED, is_active=True)
 
 
 class Plan(models.Model):
