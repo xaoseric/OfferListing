@@ -51,7 +51,8 @@ class Provider(models.Model):
         Returns the number of plans this provider has associated. It only returns plans related to a published article
         (and article with the status PUBLISHED).
         """
-        return Plan.objects.filter(offer__provider=self, offer__status=Offer.PUBLISHED).count()
+        #return Plan.objects.filter(offer__provider=self, offer__status=Offer.PUBLISHED).count()
+        return Plan.active_plans.filter(offer__provider=self).count()
 
 
 class OfferActiveManager(models.Manager):
