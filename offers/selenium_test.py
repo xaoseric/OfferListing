@@ -33,3 +33,6 @@ class SeleniumTestCase(LiveServerTestCase):
         except NoSuchElementException, e:
             return False
         return True
+
+    def assertUrlContains(self, url):
+        self.assertIn(url, self.driver.current_url)
