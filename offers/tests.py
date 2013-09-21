@@ -1332,3 +1332,59 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 3)
+
+    def test_plan_form_can_not_edit_other_plans(self):
+        """
+        Test that the user can not modify the form to edit plans with a different ID
+        """
+
+        another_plan = mommy.make(Plan, cost=400.00, url="http://example.com/offer")
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 2)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 3)
+        self.assertEqual(self.offer.plan_set.count(), 2)
+
+        # Update the hidden id field to that of the another_plan
+        self.driver.execute_script('$("#id_form-0-id").val({0})'.format(another_plan.pk))
+        self.assertEqual(self.driver.execute_script('return $("#id_form-0-id").val()'), str(another_plan.pk))
+
+        # Set the new values for form 1
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("1024")
+        self.driver.find_element_by_id("id_form-0-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv4_space").send_keys("1")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://example.com/")
+        self.driver.find_element_by_id("id_form-0-promo_code").clear()
+        self.driver.find_element_by_id("id_form-0-promo_code").send_keys("CHEAP")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("400.00")
+
+        # Submit the form
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Make sure there were no errors i.e. the form still exists
+        self.driver.find_element_by_id("id_form-0-bandwidth")
+
+        # Make sure that neither model was changed
+        updated_another_plan = Plan.objects.get(pk=another_plan.pk)
+
+        self.assertEqual(updated_another_plan.bandwidth, another_plan.bandwidth)
+        self.assertEqual(updated_another_plan.memory, another_plan.memory)
+        self.assertEqual(updated_another_plan.offer, another_plan.offer)
+        self.assertEqual(updated_another_plan.cost, another_plan.cost)
+
+        updated_plan_1 = Plan.objects.get(pk=self.plan1.pk)
+
+        self.assertEqual(updated_plan_1.bandwidth, 200)
+        self.assertEqual(updated_plan_1.memory, 1024)
+        self.assertEqual(updated_plan_1.offer, self.offer)
+        self.assertEqual(updated_plan_1.cost, 400.00)
