@@ -1130,6 +1130,12 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         """
         Test that a user can edit a request using the provided form
         """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
         # Submit the new values
         self.driver.find_element_by_id("id_name").clear()
         self.driver.find_element_by_id("id_name").send_keys("New title")
@@ -1144,10 +1150,20 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(self.offer.name, "New title")
         self.assertEqual(self.offer.content, "New content")
 
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
     def test_can_edit_plans_using_form(self):
         """
         Test that a user can edit the plans of an offer request using the provided forms
         """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
 
         # Submit the new values for form 1
         self.driver.find_element_by_id("id_form-0-bandwidth").clear()
@@ -1207,3 +1223,24 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(self.plan2.promo_code, "")
         self.assertEqual(self.plan2.cost, 800.00)
 
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+    def test_saving_does_not_duplicate_data(self):
+        """
+        Test that saving does not duplicate any database data
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
