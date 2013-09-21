@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from offers.models import Offer, Comment, Provider, OfferRequest, Plan
-from offers.forms import CommentForm, OfferForm, PlanFormset
+from offers.forms import CommentForm, OfferForm, PlanFormset, PlanFormsetHelper
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -111,5 +111,5 @@ def admin_submit_request(request):
                     plan.save()
     else:
         form = OfferForm()
-        formset = PlanFormset()
-    return render(request, 'offers/manage/new_request.html', {"form": form, "formset": formset})
+        formset = PlanFormset(queryset=Plan.objects.none())
+    return render(request, 'offers/manage/new_request.html', {"form": form, "formset": formset, "helper":PlanFormsetHelper})
