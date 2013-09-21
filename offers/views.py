@@ -110,6 +110,7 @@ def admin_submit_request(request):
                     plan.offer = offer
                     plan.is_active = True
                     plan.save()
+            return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer_request.pk]))
     else:
         form = OfferForm()
         formset = PlanFormset(queryset=Plan.objects.none())
