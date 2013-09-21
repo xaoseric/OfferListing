@@ -1143,3 +1143,67 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         # Make sure the new data is saved to the database
         self.assertEqual(self.offer.name, "New title")
         self.assertEqual(self.offer.content, "New content")
+
+    def test_can_edit_plans_using_form(self):
+        """
+        Test that a user can edit the plans of an offer request using the provided forms
+        """
+
+        # Submit the new values for form 1
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("1024")
+        self.driver.find_element_by_id("id_form-0-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv4_space").send_keys("1")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://example.com/")
+        self.driver.find_element_by_id("id_form-0-promo_code").clear()
+        self.driver.find_element_by_id("id_form-0-promo_code").send_keys("CHEAP")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("400.00")
+
+        # Submit the new values for form 2
+        self.driver.find_element_by_id("id_form-1-disk_space").clear()
+        self.driver.find_element_by_id("id_form-1-disk_space").send_keys("300")
+        self.driver.find_element_by_id("id_form-1-memory").clear()
+        self.driver.find_element_by_id("id_form-1-memory").send_keys("4096")
+        self.driver.find_element_by_id("id_form-1-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-1-ipv4_space").send_keys("2")
+        self.driver.find_element_by_id("id_form-1-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-1-ipv6_space").send_keys("32")
+        self.driver.find_element_by_id("id_form-1-url").clear()
+        self.driver.find_element_by_id("id_form-1-url").send_keys("http://example.com/special/")
+        self.driver.find_element_by_id("id_form-1-cost").clear()
+        self.driver.find_element_by_id("id_form-1-cost").send_keys("800.00")
+
+        # Submit the form
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Reload the local instances
+        self.plan1 = Plan.objects.get(pk=self.plan1.pk)
+        self.plan2 = Plan.objects.get(pk=self.plan2.pk)
+
+        # Assert the data for plan 1 is the same
+        self.assertEqual(self.plan1.bandwidth, 200)
+        self.assertEqual(self.plan1.disk_space, 100)
+        self.assertEqual(self.plan1.memory, 1024)
+        self.assertEqual(self.plan1.ipv4_space, 1)
+        self.assertEqual(self.plan1.ipv6_space, 16)
+        self.assertEqual(self.plan1.url, "http://example.com/")
+        self.assertEqual(self.plan1.promo_code, "CHEAP")
+        self.assertEqual(self.plan1.cost, 400.00)
+
+        # Assert the data for plan 2 is the same
+        self.assertEqual(self.plan2.disk_space, 300)
+        self.assertEqual(self.plan2.memory, 4096)
+        self.assertEqual(self.plan2.ipv4_space, 2)
+        self.assertEqual(self.plan2.ipv6_space, 32)
+        self.assertEqual(self.plan2.url, "http://example.com/special/")
+        self.assertEqual(self.plan2.promo_code, "")
+        self.assertEqual(self.plan2.cost, 800.00)
+
