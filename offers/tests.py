@@ -1042,8 +1042,8 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.user.user_profile.save()
 
         self.offer = mommy.make(Offer, status=Offer.UNPUBLISHED)
-        self.plan1 = mommy.make(Plan, offer=self.offer, cost=200.20)
-        self.plan2 = mommy.make(Plan, offer=self.offer, cost=3000.82)
+        self.plan1 = mommy.make(Plan, offer=self.offer, cost=200.20, url='http://example.com/first/')
+        self.plan2 = mommy.make(Plan, offer=self.offer, cost=3000.82, url='http://example.com/second/')
         self.offer_request = OfferRequest(offer=self.offer, user=self.user)
         self.offer_request.save()
 
@@ -1125,3 +1125,21 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
             str(self.plan2.cost),
             self.driver.find_element_by_id("id_form-1-cost").get_attribute("value")
         )
+
+    def test_can_edit_offer_using_form(self):
+        """
+        Test that a user can edit a request using the provided form
+        """
+        # Submit the new values
+        self.driver.find_element_by_id("id_name").clear()
+        self.driver.find_element_by_id("id_name").send_keys("New title")
+        self.driver.find_element_by_id("id_content").clear()
+        self.driver.find_element_by_id("id_content").send_keys("New content")
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Reload the local instance
+        self.offer = Offer.objects.get(pk=self.offer.pk)
+
+        # Make sure the new data is saved to the database
+        self.assertEqual(self.offer.name, "New title")
+        self.assertEqual(self.offer.content, "New content")
