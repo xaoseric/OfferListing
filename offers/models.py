@@ -61,10 +61,23 @@ class Provider(models.Model):
         return Plan.active_plans.for_provider(self).count()
 
 
+class OfferRequestActiveManager(models.Manager):
+    """
+    The offer requests that have not yet been published
+    """
+    def get_query_set(self):
+        return super(OfferRequestActiveManager, self).get_query_set().filter(offer__status=Offer.UNPUBLISHED)
+
+    def get_requests_for_provider(self, provider):
+        """
+        Get all the requests for a specific provider
+        """
+        return self.get_query_set().filter(offer__provider=provider)
+
+
 class OfferRequest(models.Model):
     offer = models.OneToOneField('Offer', related_name='request')
     user = models.ForeignKey(User)
-    provider = models.ForeignKey(Provider)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
