@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}Requests{% endblock %}
+
+{% block page_title %}Current offer requests{% endblock %}
+
+{% block content %}
+  <table class="table table-bordered">
+    <tr>
+      <th>Name</th>
+      <th>Plans</th>
+      <th>Submitted on</th>
+      <th>Submitted by</th>
+      <th>Manage</th>
+    </tr>
+    {% for offer_request in requests %}
+      <tr>
+        <td>{{ offer_request.offer.name }}</td>
+        <td>{{ offer_request.offer.plan_count }}</td>
+        <td>{{ offer_request.created_at }}</td>
+        <td>{{ offer_request.user.username }}</td>
+        <td>
+          <a href="{% url 'offer:admin_request_edit' offer_request.pk %}" class="btn btn-info">Edit request</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

@@ -144,3 +144,11 @@ def admin_edit_request(request, request_pk):
         "helper": PlanFormsetHelper,
         "offer_request": offer_request,
     })
+
+
+@user_is_provider
+@login_required
+def admin_provider_requests(request):
+    requests = OfferRequest.requests.get_requests_for_provider(request.user.user_profile.provider)
+
+    return render(request, 'offers/manage/offers.html', {"requests": requests})

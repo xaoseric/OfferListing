@@ -79,6 +79,9 @@ class OfferRequest(models.Model):
     offer = models.OneToOneField('Offer', related_name='request')
     user = models.ForeignKey(User)
 
+    objects = models.Manager()
+    requests = OfferRequestActiveManager()
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
