@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
-from offers.models import Offer, Comment, Provider
-from offers.forms import CommentForm, OfferForm
+from offers.models import Offer, Comment, Provider, OfferRequest, Plan
+from offers.forms import CommentForm, OfferForm, PlanFormset
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -93,7 +93,22 @@ def admin_provider_home(request):
 @login_required
 def admin_submit_request(request):
     if request.method == "POST":
-        form = OfferForm(request.POST)
+
+        offer = Offer(status=Offer.UNPUBLISHED, is_active=True, provider=request.user.user_profile.provider)
+
+        form = OfferForm(request.POST, instance=offer)
+        formset = PlanFormset(request.POST)
+
+        if form.is_valid() and formset.is_valid():
+            offer = form.save()
+            offer_request = OfferRequest(user=request.user, offer=offer)
+            offer_request.save()
+            for form in formset:
+                plan = form.save(commit=False)
+                plan.offer = offer
+                plan.is_active = True
+                plan.save()
     else:
         form = OfferForm()
-    return render(request, 'offers/manage/new_request.html', {"form": form})
+        formset = PlanFormset()
+    return render(request, 'offers/manage/new_request.html', {"form": form, "formset": formset})

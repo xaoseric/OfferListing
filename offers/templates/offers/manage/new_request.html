@@ -1,10 +1,26 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
 
 {% block title %}Offer Request{% endblock %}
 
 {% block page_title %}Request an offer <small>Submit an offer</small>{% endblock %}
 
 {% block content %}
-  {% crispy form %}
+  <form action="{% url 'offer:admin_request_new' %}" method="POST">
+    {% crispy form %}
+    {{ formset.management_form|crispy }}
+    <div class="row">
+      {% for form in formset %}
+          <div class="col-md-6">
+            <div class="well">
+              {% crispy form %}
+            </div>
+          </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <input type="submit" name="submit" value="Save" class="btn btn-primary" id="submit-save">
+    </div>
+  </form>
 {% endblock %}
