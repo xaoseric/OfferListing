@@ -1,5 +1,5 @@
 from django import forms
-from offers.models import Comment
+from offers.models import Comment, Offer
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
@@ -13,3 +13,8 @@ class CommentForm(forms.Form):
         self.helper = FormHelper()
 
         self.helper.add_input(Submit('submit', 'Comment!'))
+
+
+class OfferForm(forms.ModelForm):
+    class Meta:
+        model = Offer
