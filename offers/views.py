@@ -77,13 +77,6 @@ def provider_profile(request, provider_pk, page_number=1):
     })
 
 
-class ProviderView(View):
-    @user_is_provider
-    @login_required
-    def dispatch(self, request, *args, **kwargs):
-        return super(ProviderView, self).dispatch(request, *args, **kwargs)
-
-
 @user_is_provider
 @login_required
 def admin_provider_home(request):
