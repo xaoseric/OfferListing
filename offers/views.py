@@ -131,7 +131,12 @@ def admin_edit_request(request, request_pk):
 
         if form.is_valid() and formset.is_valid():
             form.save()
-            formset.save()
+            for plan_form in formset:
+                if plan_form.has_changed():
+                    plan = plan_form.save(commit=False)
+                    plan.offer = offer_request.offer
+                    plan.is_active = True
+                    plan.save()
     else:
         form = OfferForm(instance=offer_request.offer)
         formset = PlanFormset(queryset=Plan.objects.filter(offer=offer_request.offer))
