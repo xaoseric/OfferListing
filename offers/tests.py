@@ -1274,7 +1274,15 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.driver.find_element_by_id("id_form-2-cost").send_keys("15.00")
         self.driver.find_element_by_id("submit-save").click()
 
-        self.driver.save_screenshot('test.png')
+        new_plan = Plan.objects.latest('created_at')
+        self.assertEqual(new_plan.bandwidth, 600)
+        self.assertEqual(new_plan.disk_space, 200)
+        self.assertEqual(new_plan.memory, 256)
+        self.assertEqual(new_plan.ipv4_space, 4)
+        self.assertEqual(new_plan.ipv6_space, 256)
+        self.assertEqual(new_plan.url, "http://example.com/new_offer/")
+        self.assertEqual(new_plan.promo_code, "CHEAP_PROMO_CODE")
+        self.assertEqual(new_plan.cost, 15.00)
 
         # Assert the correct amount of records in the database
         self.assertEqual(Offer.objects.count(), 1)
