@@ -103,11 +103,12 @@ def admin_submit_request(request):
             offer = form.save()
             offer_request = OfferRequest(user=request.user, offer=offer)
             offer_request.save()
-            for form in formset:
-                plan = form.save(commit=False)
-                plan.offer = offer
-                plan.is_active = True
-                plan.save()
+            for plan_form in formset:
+                if plan_form.has_changed():
+                    plan = plan_form.save(commit=False)
+                    plan.offer = offer
+                    plan.is_active = True
+                    plan.save()
     else:
         form = OfferForm()
         formset = PlanFormset()
