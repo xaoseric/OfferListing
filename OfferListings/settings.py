@@ -140,6 +140,7 @@ INSTALLED_APPS = (
     'crispy_forms',
     'django_gravatar',
     'easy_thumbnails',
+    'django_extensions',
 
     # Custom applications
     'offers',
