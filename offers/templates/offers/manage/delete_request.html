@@ -16,4 +16,9 @@
       <li><strong>Plan #{{ forloop.counter }}</strong> - {{ plan.get_memory }} Memory</li>
     {% endfor %}
   {% endif %}
+  <div class="btn-group btn-group-justified">
+    <a href="{% url 'offer:admin_request_delete' offer_request.pk %}?delete=True" class="btn btn-danger">
+      Delete offer
+    </a>
+  </div>
 {% endblock %}

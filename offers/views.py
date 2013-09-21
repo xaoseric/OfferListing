@@ -169,6 +169,9 @@ def admin_provider_delete_confirm(request, request_pk):
     )
 
     if request.GET.get('delete', False):
-        pass
+        offer_request.offer.plan_set.all().delete()
+        offer_request.offer.delete()
+        messages.success(request, "The request was deleted!")
+        return HttpResponseRedirect(reverse('offer:admin_requests'))
 
     return render(request, 'offers/manage/delete_request.html', {"offer_request": offer_request})

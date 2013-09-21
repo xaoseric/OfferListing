@@ -24,7 +24,10 @@
         </td>
         <td>{{ offer_request.user.username }}</td>
         <td>
-          <a href="{% url 'offer:admin_request_edit' offer_request.pk %}" class="btn btn-info">Edit request</a>
+          <div class="btn-group">
+            <a href="{% url 'offer:admin_request_edit' offer_request.pk %}" class="btn btn-info">Edit request</a>
+            <a href="{% url 'offer:admin_request_delete' offer_request.pk %}" class="btn btn-danger">Delete request</a>
+          </div>
         </td>
       </tr>
     {% endfor %}
