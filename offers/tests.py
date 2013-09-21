@@ -1288,3 +1288,47 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 3)
+
+    def test_can_add_new_plans_out_of_order(self):
+        """
+        Test that the user can add new plans to an offer out of the order (with a different form field)
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        # Send in some new data
+        self.driver.find_element_by_id("id_form-3-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-3-bandwidth").send_keys("600")
+        self.driver.find_element_by_id("id_form-3-disk_space").clear()
+        self.driver.find_element_by_id("id_form-3-disk_space").send_keys("200")
+        self.driver.find_element_by_id("id_form-3-memory").clear()
+        self.driver.find_element_by_id("id_form-3-memory").send_keys("256")
+        self.driver.find_element_by_id("id_form-3-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-3-ipv4_space").send_keys("4")
+        self.driver.find_element_by_id("id_form-3-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-3-ipv6_space").send_keys("256")
+        self.driver.find_element_by_id("id_form-3-url").clear()
+        self.driver.find_element_by_id("id_form-3-url").send_keys("http://example.com/new_offer/")
+        self.driver.find_element_by_id("id_form-3-promo_code").clear()
+        self.driver.find_element_by_id("id_form-3-promo_code").send_keys("CHEAP_PROMO_CODE")
+        self.driver.find_element_by_id("id_form-3-cost").clear()
+        self.driver.find_element_by_id("id_form-3-cost").send_keys("15.00")
+        self.driver.find_element_by_id("submit-save").click()
+
+        new_plan = Plan.objects.latest('created_at')
+        self.assertEqual(new_plan.bandwidth, 600)
+        self.assertEqual(new_plan.disk_space, 200)
+        self.assertEqual(new_plan.memory, 256)
+        self.assertEqual(new_plan.ipv4_space, 4)
+        self.assertEqual(new_plan.ipv6_space, 256)
+        self.assertEqual(new_plan.url, "http://example.com/new_offer/")
+        self.assertEqual(new_plan.promo_code, "CHEAP_PROMO_CODE")
+        self.assertEqual(new_plan.cost, 15.00)
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 3)
