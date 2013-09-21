@@ -11,9 +11,9 @@ def set_test_environment():
 
 
 @task
-def test():
+def test(specific=''):
     set_test_environment()
-    run_django_command('test -v 2')
+    run_django_command('test {0} -v 2'.format(specific))
 
 
 @task
