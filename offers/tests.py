@@ -1032,3 +1032,93 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
+
+
+class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('user', 'test@example.com', 'password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer = mommy.make(Offer, status=Offer.UNPUBLISHED)
+        self.plan1 = mommy.make(Plan, offer=self.offer, cost=200.20)
+        self.plan2 = mommy.make(Plan, offer=self.offer, cost=3000.82)
+        self.offer_request = OfferRequest(offer=self.offer, user=self.user)
+        self.offer_request.save()
+
+        self.login()
+        self.open(reverse("offer:admin_request_edit", args=[self.offer_request.pk]))
+
+    def test_edit_request_form_has_correct_data(self):
+        # Assert offer values
+        self.assertEqual(self.offer.name, self.driver.find_element_by_id("id_name").get_attribute("value"))
+        self.assertEqual(self.offer.content, self.driver.find_element_by_id("id_content").text)
+
+        # Assert plan 1 values
+        self.assertEqual(
+            str(self.plan1.bandwidth),
+            self.driver.find_element_by_id("id_form-0-bandwidth").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.disk_space),
+            self.driver.find_element_by_id("id_form-0-disk_space").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.memory),
+            self.driver.find_element_by_id("id_form-0-memory").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.ipv4_space),
+            self.driver.find_element_by_id("id_form-0-ipv4_space").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.ipv6_space),
+            self.driver.find_element_by_id("id_form-0-ipv6_space").get_attribute("value")
+        )
+        self.assertEqual(
+            self.plan1.url,
+            self.driver.find_element_by_id("id_form-0-url").get_attribute("value")
+        )
+        self.assertEqual(
+            self.plan1.promo_code,
+            self.driver.find_element_by_id("id_form-0-promo_code").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.cost),
+            self.driver.find_element_by_id("id_form-0-cost").get_attribute("value")
+        )
+
+        # Assert plan 2 values
+        self.assertEqual(
+            str(self.plan2.bandwidth),
+            self.driver.find_element_by_id("id_form-1-bandwidth").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.disk_space),
+            self.driver.find_element_by_id("id_form-1-disk_space").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.memory),
+            self.driver.find_element_by_id("id_form-1-memory").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.ipv4_space),
+            self.driver.find_element_by_id("id_form-1-ipv4_space").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.ipv6_space),
+            self.driver.find_element_by_id("id_form-1-ipv6_space").get_attribute("value")
+        )
+        self.assertEqual(
+            self.plan2.url,
+            self.driver.find_element_by_id("id_form-1-url").get_attribute("value")
+        )
+        self.assertEqual(
+            self.plan2.promo_code,
+            self.driver.find_element_by_id("id_form-1-promo_code").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.cost),
+            self.driver.find_element_by_id("id_form-1-cost").get_attribute("value")
+        )
