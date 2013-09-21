@@ -1244,3 +1244,39 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
+
+    def test_can_add_new_plans(self):
+        """
+        Test that the user can add new plans to an offer
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        # Send in some new data
+        self.driver.find_element_by_id("id_form-2-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-2-bandwidth").send_keys("600")
+        self.driver.find_element_by_id("id_form-2-disk_space").clear()
+        self.driver.find_element_by_id("id_form-2-disk_space").send_keys("200")
+        self.driver.find_element_by_id("id_form-2-memory").clear()
+        self.driver.find_element_by_id("id_form-2-memory").send_keys("256")
+        self.driver.find_element_by_id("id_form-2-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-2-ipv4_space").send_keys("4")
+        self.driver.find_element_by_id("id_form-2-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-2-ipv6_space").send_keys("256")
+        self.driver.find_element_by_id("id_form-2-url").clear()
+        self.driver.find_element_by_id("id_form-2-url").send_keys("http://example.com/new_offer/")
+        self.driver.find_element_by_id("id_form-2-promo_code").clear()
+        self.driver.find_element_by_id("id_form-2-promo_code").send_keys("CHEAP_PROMO_CODE")
+        self.driver.find_element_by_id("id_form-2-cost").clear()
+        self.driver.find_element_by_id("id_form-2-cost").send_keys("15.00")
+        self.driver.find_element_by_id("submit-save").click()
+
+        self.driver.save_screenshot('test.png')
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 3)
