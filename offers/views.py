@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from offers.models import Offer, Comment, Provider, OfferRequest, Plan
 from offers.forms import CommentForm, OfferForm, PlanFormset, PlanFormsetHelper
 from offers.decorators import user_is_provider
@@ -124,7 +124,12 @@ def admin_submit_request(request):
 @user_is_provider
 @login_required
 def admin_edit_request(request, request_pk):
-    offer_request = get_object_or_404(OfferRequest, pk=request_pk, offer__status=Offer.UNPUBLISHED)
+    offer_request = get_object_or_404(
+        OfferRequest,
+        pk=request_pk,
+        offer__status=Offer.UNPUBLISHED,
+        offer__provider=request.user.user_profile.provider
+    )
     if request.method == "POST":
         form = OfferForm(request.POST, instance=offer_request.offer)
         formset = PlanFormset(request.POST, queryset=Plan.objects.filter(offer=offer_request.offer))

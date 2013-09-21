@@ -642,39 +642,6 @@ class PlanListViewTests(TestCase):
             self.assertContains(response, provider.name)
 
 
-class ProviderAdminProfileTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
-        self.provider = mommy.make(Provider)
-        self.user.user_profile.provider = self.provider
-        self.user.user_profile.save()
-
-        self.client.login(username='user', password='password')
-
-    def test_user_can_view_provider_admin_profile(self):
-        """
-        Test a user which manages a provider can view the provider manage page.
-        """
-        response = self.client.get(reverse('offer:admin_home'))
-        self.assertEqual(response.status_code, 200)
-
-        self.assertContains(response, self.provider.name)
-
-    def test_unauthorized_user_can_not_view_provider_admin_profile(self):
-        """
-        Test a user which can not manage a provider can not access the profile page
-        """
-        self.user.user_profile.provider = None
-        self.user.user_profile.save()
-        response = self.client.get(reverse('offer:admin_home'), follow=True)
-
-        self.assertIn(reverse('login'), response.redirect_chain[0][0])
-        self.assertEqual(response.redirect_chain[0][1], 302)
-        self.assertEqual(response.status_code, 200)
-
-        self.assertNotContains(response, self.provider.name)
-
-
 class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
     def setUp(self):
         self.user = User.objects.create_user('user', 'test@example.com', 'password')
@@ -1041,7 +1008,7 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
-        self.offer = mommy.make(Offer, status=Offer.UNPUBLISHED)
+        self.offer = mommy.make(Offer, status=Offer.UNPUBLISHED, provider=self.provider)
         self.plan1 = mommy.make(Plan, offer=self.offer, cost=200.20, url='http://example.com/first/')
         self.plan2 = mommy.make(Plan, offer=self.offer, cost=3000.82, url='http://example.com/second/')
         self.offer_request = OfferRequest(offer=self.offer, user=self.user)
@@ -1388,3 +1355,88 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(updated_plan_1.memory, 1024)
         self.assertEqual(updated_plan_1.offer, self.offer)
         self.assertEqual(updated_plan_1.cost, 400.00)
+
+
+class ProviderAdminViewTests(TestCase):
+    """
+    Tests that validate how the views work
+    """
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
+        self.offer_request = OfferRequest(offer=self.offer, user=self.user)
+        self.offer_request.save()
+
+        self.client.login(username='user', password='password')
+
+    def test_user_can_view_provider_admin_profile(self):
+        """
+        Test a user which manages a provider can view the provider manage page.
+        """
+        response = self.client.get(reverse('offer:admin_home'))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, self.provider.name)
+
+    def test_unauthorized_user_can_not_view_provider_admin_profile(self):
+        """
+        Test a user which can not manage a provider can not access the profile page
+        """
+        self.user.user_profile.provider = None
+        self.user.user_profile.save()
+        response = self.client.get(reverse('offer:admin_home'), follow=True)
+
+        self.assertIn(reverse('login'), response.redirect_chain[0][0])
+        self.assertEqual(response.redirect_chain[0][1], 302)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, self.provider.name)
+
+    def test_user_can_view_provider_admin_new_request(self):
+        """
+        Test a user which manages a provider can view the provider request offer page
+        """
+        response = self.client.get(reverse('offer:admin_request_new'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_unauthorized_user_can_not_view_provider_admin_new_request(self):
+        """
+        Test a user which can not manage a provider can not access the request offer page
+        """
+        self.user.user_profile.provider = None
+        self.user.user_profile.save()
+        response = self.client.get(reverse('offer:admin_request_new'), follow=True)
+
+        self.assertIn(reverse('login'), response.redirect_chain[0][0])
+        self.assertEqual(response.redirect_chain[0][1], 302)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, self.provider.name)
+
+    def test_user_can_view_provider_admin_edit_request(self):
+        """
+        Test a user which manages a provider can view the provider edit offer request page
+        """
+
+        response = self.client.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, self.offer.name)
+        self.assertContains(response, self.offer.content)
+
+    def test_user_can_not_view_other_provider_admin_edit_request(self):
+        """
+        Test a user which manages a provider can not view other providers requests
+        """
+
+        new_user = User.objects.create_user('user2', 'user2@example.com', 'password')
+        offer = mommy.make(Offer, status=Offer.UNPUBLISHED)
+        offer_request = OfferRequest(offer=offer, user=new_user)
+        offer_request.save()
+
+        response = self.client.get(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        self.assertEqual(response.status_code, 404)
