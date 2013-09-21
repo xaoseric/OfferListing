@@ -2,11 +2,12 @@ from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from offers.models import Offer, Comment, Provider
-from offers.forms import CommentForm
+from offers.forms import CommentForm, OfferForm
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
+from django.views.generic import View
 
 
 def view_offer(request, offer_pk):
@@ -75,7 +76,24 @@ def provider_profile(request, provider_pk, page_number=1):
     })
 
 
+class ProviderView(View):
+    @user_is_provider
+    @login_required
+    def dispatch(self, request, *args, **kwargs):
+        return super(ProviderView, self).dispatch(request, *args, **kwargs)
+
+
 @user_is_provider
 @login_required
 def admin_provider_home(request):
     return render(request, 'offers/manage/home.html', {"provider": request.user.user_profile.provider})
+
+
+@user_is_provider
+@login_required
+def admin_submit_request(request):
+    if request.method == "POST":
+        form = OfferForm(request.POST)
+    else:
+        form = OfferForm()
+    return render(request, 'offers/manage/new_request.html', {"form": form})
