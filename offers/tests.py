@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment
+from offers.models import Offer, Provider, Plan, Comment, OfferRequest
 from offers.selenium_test import SeleniumTestCase
 from selenium.webdriver.common.by import By
 from model_mommy import mommy
@@ -683,13 +683,12 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
         self.user.user_profile.save()
 
         self.login()
+        self.open(reverse("offer:admin_request_new"))
 
     def test_form_has_correct_fields(self):
         """
         Test that the form to submit a request has the correct fields
         """
-        self.open(reverse("offer:admin_request_new"))
-
         # Make sure the main offer info is available
         self.assertTrue(self.is_element_present(By.ID, "id_name"))
         self.assertTrue(self.is_element_present(By.ID, "id_content"))
@@ -708,4 +707,39 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
             self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-promo_code".format(i)))
             self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-cost".format(i)))
 
+    def test_form_submit_valid_with_no_plans(self):
+        """
+        Test that a user can submit the form with no plans attached and still have an offer request and an offer
+        """
 
+        # Make sure there are no offers and no plans
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        # Submit a new offer
+        self.driver.find_element_by_id("id_name").clear()
+        self.driver.find_element_by_id("id_name").send_keys("My new offer")
+        self.driver.find_element_by_id("id_content").clear()
+        self.driver.find_element_by_id("id_content").send_keys("Some content for the new offer")
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Make sure the new offer is saved
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 0)  # Make sure there are still no plans
+
+        offer_request = OfferRequest.objects.latest('created_at')
+
+        # Assert automatic values
+        self.assertEqual(offer_request.user, self.user)
+        self.assertEqual(offer_request.offer.provider, self.provider)
+        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer_request.offer.is_active, True)
+
+        # Assert user provided values
+        self.assertEqual(offer_request.offer.name, "My new offer")
+        self.assertEqual(offer_request.offer.content, "Some content for the new offer")
+
+        # Make sure the user is redirected
+        self.assertUrlContains(reverse('offer:admin_request_edit', args=[offer_request.pk]))
