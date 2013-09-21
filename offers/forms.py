@@ -66,4 +66,5 @@ PlanFormsetHelper.layout = Layout(
         'promo_code',
         'cost',
     ),
+    'id',
 )

@@ -9,5 +9,6 @@ urlpatterns = patterns('offers.views',
     url(r'^provider/(?P<provider_pk>\d+)/p(?P<page_number>\d+)/$', 'provider_profile', name='provider_pagination'),
 
     url(r'^manage/$', 'admin_provider_home', name="admin_home"),
-    url(r'^manage/request/$', 'admin_submit_request', name="admin_request_new")
+    url(r'^manage/request/$', 'admin_submit_request', name="admin_request_new"),
+    url(r'^manage/request/(?P<request_pk>\d+)/$', 'admin_edit_request', name="admin_request_edit"),
 )

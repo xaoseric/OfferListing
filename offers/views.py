@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.views.generic import View
+from crispy_forms.helper import FormHelper
 
 
 def view_offer(request, offer_pk):
@@ -121,7 +122,7 @@ def admin_submit_request(request):
 
 @user_is_provider
 @login_required
-def admin_submit_request(request, request_pk):
+def admin_edit_request(request, request_pk):
     offer_request = get_object_or_404(OfferRequest, pk=request_pk, offer__status=Offer.UNPUBLISHED)
     if request.method == "POST":
         form = OfferForm(request.POST, instance=offer_request.offer)
@@ -136,5 +137,6 @@ def admin_submit_request(request, request_pk):
     return render(request, 'offers/manage/edit_request.html', {
         "form": form,
         "formset": formset,
-        "helper": PlanFormsetHelper
+        "helper": PlanFormsetHelper,
+        "offer_request": offer_request,
     })
