@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Request{% endblock %}
+
+{% block page_title %}Delete request{% endblock %}
+
+{% block content %}
+  <div class="alert alert-danger">
+    This is permanent. Deleting an offer request can not be undone!
+  </div>
+  <h2>Will delete offer request <em>{{ offer_request.offer.name }}</em>!</h2>
+
+  {% if offer_request.offer.plan_set.all %}
+    <h3>The following plans will be deleted:</h3>
+    {% for plan in offer_request.offer.plan_set.all %}
+      <li><strong>Plan #{{ forloop.counter }}</strong> - {{ plan.get_memory }} Memory</li>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

@@ -156,3 +156,19 @@ def admin_provider_requests(request):
     )
 
     return render(request, 'offers/manage/offers.html', {"requests": requests})
+
+
+@user_is_provider
+@login_required
+def admin_provider_delete_confirm(request, request_pk):
+    offer_request = get_object_or_404(
+        OfferRequest,
+        pk=request_pk,
+        offer__status=Offer.UNPUBLISHED,
+        offer__provider=request.user.user_profile.provider
+    )
+
+    if request.GET.get('delete', False):
+        pass
+
+    return render(request, 'offers/manage/delete_request.html', {"offer_request": offer_request})
