@@ -17,9 +17,11 @@ class SeleniumTestCase(LiveServerTestCase):
         Login to the server and be authenticated
         """
         self.open(reverse(url))
+        self.driver.find_element_by_id("id_username").clear()
         self.driver.find_element_by_id("id_username").send_keys(username)
+        self.driver.find_element_by_id("id_password").clear()
         self.driver.find_element_by_id("id_password").send_keys(password)
-        self.driver.find_element_by_css_selector("button.btn.btn-default").click()
+        self.driver.find_element_by_id("submit-id-login").click()
 
     def open(self, url):
         self.driver.get("%s%s" %(self.live_server_url, url))
