@@ -1440,3 +1440,14 @@ class ProviderAdminViewTests(TestCase):
 
         response = self.client.get(reverse('offer:admin_request_edit', args=[offer_request.pk]))
         self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_view_published_admin_edit_request(self):
+        """
+        Test a user which manages a provider can not edit an offer of theirs which is published
+        """
+
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        response = self.client.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]))
+        self.assertEqual(response.status_code, 404)
