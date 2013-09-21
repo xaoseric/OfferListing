@@ -112,4 +112,29 @@ def admin_submit_request(request):
     else:
         form = OfferForm()
         formset = PlanFormset(queryset=Plan.objects.none())
-    return render(request, 'offers/manage/new_request.html', {"form": form, "formset": formset, "helper":PlanFormsetHelper})
+    return render(request, 'offers/manage/new_request.html', {
+        "form": form,
+        "formset": formset,
+        "helper": PlanFormsetHelper
+    })
+
+
+@user_is_provider
+@login_required
+def admin_submit_request(request, request_pk):
+    offer_request = get_object_or_404(OfferRequest, pk=request_pk, offer__status=Offer.UNPUBLISHED)
+    if request.method == "POST":
+        form = OfferForm(request.POST, instance=offer_request.offer)
+        formset = PlanFormset(request.POST, queryset=Plan.objects.filter(offer=offer_request.offer))
+
+        if form.is_valid() and formset.is_valid():
+            form.save()
+            formset.save()
+    else:
+        form = OfferForm(instance=offer_request.offer)
+        formset = PlanFormset(queryset=Plan.objects.filter(offer=offer_request.offer))
+    return render(request, 'offers/manage/edit_request.html', {
+        "form": form,
+        "formset": formset,
+        "helper": PlanFormsetHelper
+    })
