@@ -743,3 +743,107 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
 
         # Make sure the user is redirected
         self.assertUrlContains(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+
+    def test_form_submit_valid_with_plans(self):
+        """
+        Test that a user can submit the form with all valid details (offer and plans) and those are saved correctly
+        """
+
+        # Make sure there are no offers and no plans
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        ##  Submit a new offer ##
+        # General Details
+        self.driver.find_element_by_id("id_name").clear()
+        self.driver.find_element_by_id("id_name").send_keys("My new offer")
+        self.driver.find_element_by_id("id_content").clear()
+        self.driver.find_element_by_id("id_content").send_keys("Some content for the new offer")
+        # Form 1
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("1000")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("1024")
+        self.selectOptionBoxById("id_form-0-virtualization", "KVM")
+        self.selectOptionBoxById("id_form-0-billing_time", "Monthly")
+        self.driver.find_element_by_id("id_form-0-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv4_space").send_keys("2")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://example.com/offer/")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("20.00")
+        # Form 2
+        self.driver.find_element_by_id("id_form-1-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-1-bandwidth").send_keys("200")
+        self.driver.find_element_by_id("id_form-1-disk_space").clear()
+        self.driver.find_element_by_id("id_form-1-disk_space").send_keys("2000")
+        self.driver.find_element_by_id("id_form-1-memory").clear()
+        self.driver.find_element_by_id("id_form-1-memory").send_keys("2048")
+        self.selectOptionBoxById("id_form-1-virtualization", "OpenVZ")
+        self.selectOptionBoxById("id_form-1-billing_time", "Yearly")
+        self.driver.find_element_by_id("id_form-1-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-1-ipv4_space").send_keys("4")
+        self.driver.find_element_by_id("id_form-1-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-1-ipv6_space").send_keys("32")
+        self.driver.find_element_by_id("id_form-1-url").clear()
+        self.driver.find_element_by_id("id_form-1-url").send_keys("http://example.com/second_offer/segment/")
+        self.driver.find_element_by_id("id_form-1-promo_code").clear()
+        self.driver.find_element_by_id("id_form-1-promo_code").send_keys("BESTOFFER1")
+        self.driver.find_element_by_id("id_form-1-cost").clear()
+        self.driver.find_element_by_id("id_form-1-cost").send_keys("40.00")
+        # Submit the form
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Make sure the new offer is saved
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        offer_request = OfferRequest.objects.latest('created_at')
+        plan1 = Plan.objects.get(bandwidth=100)
+        plan2 = Plan.objects.get(bandwidth=200)
+
+        # Assert automatic values
+        self.assertEqual(offer_request.user, self.user)
+        self.assertEqual(offer_request.offer.provider, self.provider)
+        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer_request.offer.is_active, True)
+
+        self.assertEqual(plan1.is_active, True)
+        self.assertEqual(plan2.is_active, True)
+        self.assertEqual(plan1.offer, offer_request.offer)
+        self.assertEqual(plan2.offer, offer_request.offer)
+
+        # Assert user provided values
+        self.assertEqual(offer_request.offer.name, "My new offer")
+        self.assertEqual(offer_request.offer.content, "Some content for the new offer")
+
+        self.assertEqual(plan1.bandwidth, 100)
+        self.assertEqual(plan1.disk_space, 1000)
+        self.assertEqual(plan1.memory, 1024)
+        self.assertEqual(plan1.virtualization, Plan.KVM)
+        self.assertEqual(plan1.ipv4_space, 2)
+        self.assertEqual(plan1.ipv6_space, 16)
+        self.assertEqual(plan1.billing_time, Plan.MONTHLY)
+        self.assertEqual(plan1.cost, 20.00)
+        self.assertEqual(plan1.url, "http://example.com/offer/")
+        self.assertEqual(plan1.promo_code, '')
+
+        self.assertEqual(plan2.bandwidth, 200)
+        self.assertEqual(plan2.disk_space, 2000)
+        self.assertEqual(plan2.memory, 2048)
+        self.assertEqual(plan2.virtualization, Plan.OPENVZ)
+        self.assertEqual(plan2.ipv4_space, 4)
+        self.assertEqual(plan2.ipv6_space, 32)
+        self.assertEqual(plan2.billing_time, Plan.YEARLY)
+        self.assertEqual(plan2.cost, 40.00)
+        self.assertEqual(plan2.url, "http://example.com/second_offer/segment/")
+        self.assertEqual(plan2.promo_code, 'BESTOFFER1')
+
+        # Make sure the user is redirected
+        self.assertUrlContains(reverse('offer:admin_request_edit', args=[offer_request.pk]))

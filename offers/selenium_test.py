@@ -36,3 +36,9 @@ class SeleniumTestCase(LiveServerTestCase):
 
     def assertUrlContains(self, url):
         self.assertIn(url, self.driver.current_url)
+
+    def selectOptionBoxById(self, id_name, option_name):
+        element = self.driver.find_element_by_id(id_name)
+        for option in element.find_elements_by_tag_name('option'):
+            if option.text == option_name:
+                option.click()
