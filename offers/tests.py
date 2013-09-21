@@ -952,3 +952,40 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
 
         # Make sure the user is redirected
         self.assertUrlContains(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+
+    def test_form_submit_with_invalid_plan(self):
+        """
+        Test that the form does not submit with a missing field in a plan
+        """
+
+        # Make sure there are no offers and no plans
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        #  Submit a new offer
+        self.driver.find_element_by_id("id_name").clear()
+        self.driver.find_element_by_id("id_name").send_keys("Some title")
+        self.driver.find_element_by_id("id_content").clear()
+        self.driver.find_element_by_id("id_content").send_keys("Some content")
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://example.com")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("20.00")
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Make sure an error is displayed
+        self.assertEqual("This field is required.", self.driver.find_element_by_css_selector("strong").text)
+
+        # Make sure there are no offers and no plans
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
