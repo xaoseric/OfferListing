@@ -1,6 +1,7 @@
 from django.test import LiveServerTestCase
 from selenium.webdriver import PhantomJS
 from django.core.urlresolvers import reverse
+from selenium.common.exceptions import NoSuchElementException
 
 
 class SeleniumTestCase(LiveServerTestCase):
@@ -25,3 +26,10 @@ class SeleniumTestCase(LiveServerTestCase):
 
     def open(self, url):
         self.driver.get("%s%s" %(self.live_server_url, url))
+
+    def is_element_present(self, how, what):
+        try:
+            self.driver.find_element(by=how, value=what)
+        except NoSuchElementException, e:
+            return False
+        return True

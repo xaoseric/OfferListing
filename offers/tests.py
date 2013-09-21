@@ -1,5 +1,7 @@
 from django.test import TestCase
 from offers.models import Offer, Provider, Plan, Comment
+from offers.selenium_test import SeleniumTestCase
+from selenium.webdriver.common.by import By
 from model_mommy import mommy
 from django.utils.text import slugify
 from django.core.urlresolvers import reverse
@@ -671,3 +673,39 @@ class ProviderAdminProfileTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertNotContains(response, self.provider.name)
+
+
+class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('user', 'test@example.com', 'password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.login()
+
+    def test_form_has_correct_fields(self):
+        """
+        Test that the form to submit a request has the correct fields
+        """
+        self.open(reverse("offer:admin_request_new"))
+
+        # Make sure the main offer info is available
+        self.assertTrue(self.is_element_present(By.ID, "id_name"))
+        self.assertTrue(self.is_element_present(By.ID, "id_content"))
+
+        # Make sure there are four correct forms
+        for i in range(4):
+            self.assertTrue(self.is_element_present(By.XPATH, "//div[3]/div[{}]/div".format(i+1)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-bandwidth".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-disk_space".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-memory".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-virtualization".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-ipv4_space".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-ipv6_space".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-billing_time".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-url".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-promo_code".format(i)))
+            self.assertTrue(self.is_element_present(By.ID, "id_form-{0}-cost".format(i)))
+
+
