@@ -61,6 +61,15 @@ class Provider(models.Model):
         return Plan.active_plans.for_provider(self).count()
 
 
+class OfferRequest(models.Model):
+    offer = models.OneToOneField('Offer', related_name='request')
+    user = models.ForeignKey(User)
+    provider = models.ForeignKey(Provider)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class OfferVisibleManager(models.Manager):
     """
     Only gets the visible offers (offers which are published)
