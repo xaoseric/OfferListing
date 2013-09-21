@@ -140,7 +140,6 @@ INSTALLED_APPS = (
     'crispy_forms',
     'django_gravatar',
     'easy_thumbnails',
-    'django_extensions',
 
     # Custom applications
     'offers',
@@ -150,8 +149,9 @@ INSTALLED_APPS = (
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
+
 # Settings for testing
-if os.getenv('JENKINS_URL', False):
+if os.getenv('TEST_RUNNING', False):
     INSTALLED_APPS += ('django_jenkins',)
 
     JENKINS_TASKS = (
@@ -161,6 +161,9 @@ if os.getenv('JENKINS_URL', False):
         'django_jenkins.tasks.run_pep8',
         'django_jenkins.tasks.run_csslint',
     )
+else:
+    INSTALLED_APPS += ('django_extensions',)
+
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
