@@ -1051,6 +1051,9 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.open(reverse("offer:admin_request_edit", args=[self.offer_request.pk]))
 
     def test_edit_request_form_has_correct_data(self):
+        """
+        Test that the edit form contains all the correct data to edit a request
+        """
         # Assert offer values
         self.assertEqual(self.offer.name, self.driver.find_element_by_id("id_name").get_attribute("value"))
         self.assertEqual(self.offer.content, self.driver.find_element_by_id("id_content").text)
