@@ -1451,3 +1451,99 @@ class ProviderAdminViewTests(TestCase):
 
         response = self.client.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]))
         self.assertEqual(response.status_code, 404)
+
+    def test_user_can_view_offer_request_list(self):
+        """
+        Test that a user can view the offer requests page for their own provider
+        """
+
+        response = self.client.get(reverse('offer:admin_requests'))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, self.offer.name)
+        self.assertContains(response, self.offer_request.user.username)
+
+    def test_unauthorized_user_can_not_view_offer_request_list(self):
+        """
+        Test a user which can not manage a provider can not access the request offer list
+        """
+        self.user.user_profile.provider = None
+        self.user.user_profile.save()
+        response = self.client.get(reverse('offer:admin_request_new'), follow=True)
+
+        self.assertIn(reverse('login'), response.redirect_chain[0][0])
+        self.assertEqual(response.redirect_chain[0][1], 302)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, self.provider.name)
+
+    def test_user_can_view_offer_request_list_only_of_self(self):
+        """
+        Test that a user can view the offer requests page for their own provider, and no-one else
+        """
+
+        other_requests = mommy.make(OfferRequest, _quantity=10)
+
+        response = self.client.get(reverse('offer:admin_requests'))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, self.offer.name)
+        self.assertContains(response, self.offer_request.user.username)
+
+        for other_request in other_requests:
+            self.assertNotContains(response, other_request.offer.name)
+            self.assertNotContains(response, other_request.user.username)
+
+    def test_user_can_view_delete_request(self):
+        """
+        Test that a user can view the delete page for a request of their provider
+        """
+
+        plans = mommy.make(Plan, _quantity=4, offer=self.offer_request.offer)
+
+        response = self.client.get(reverse('offer:admin_request_delete', args=[self.offer_request.pk]))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, self.offer.name)
+
+        for plan in plans:
+            self.assertContains(response, plan.get_memory())
+
+    def test_user_can_perform_delete_request(self):
+        """
+        Test that a user can perform the delete of a request of their provider
+        """
+
+        plans = mommy.make(Plan, _quantity=4, offer=self.offer_request.offer)
+
+        response = self.client.get(
+            reverse('offer:admin_request_delete', args=[self.offer_request.pk]) + '?delete=True',
+            follow=True
+        )
+
+        self.assertIn(reverse('offer:admin_requests'), response.redirect_chain[0][0])
+        self.assertEqual(response.redirect_chain[0][1], 302)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, self.offer.name)
+
+        # Assert the plans, offer and offer request no longer exist
+        self.assertFalse(Offer.objects.filter(pk=self.offer.pk).exists())
+        self.assertFalse(OfferRequest.objects.filter(pk=self.offer_request.pk).exists())
+
+        for plan in plans:
+            self.assertFalse(Plan.objects.filter(pk=plan.pk).exists())
+
+    def test_unauthorized_user_can_not_view_delete_request(self):
+        """
+        Test a user which can not manage a provider can not access the request delete page
+        """
+        self.user.user_profile.provider = None
+        self.user.user_profile.save()
+        response = self.client.get(reverse('offer:admin_request_delete', args=[self.offer_request.pk]), follow=True)
+
+        self.assertIn(reverse('login'), response.redirect_chain[0][0])
+        self.assertEqual(response.redirect_chain[0][1], 302)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, self.provider.name)
