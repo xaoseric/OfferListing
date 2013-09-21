@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
-{% load crispy_forms_filters %}
+{% load humanize %}
 
 {% block title %}Requests{% endblock %}
 
@@ -19,7 +18,10 @@
       <tr>
         <td>{{ offer_request.offer.name }}</td>
         <td>{{ offer_request.offer.plan_count }}</td>
-        <td>{{ offer_request.created_at }}</td>
+        <td>
+          {{ offer_request.created_at }}
+          <span class="pull-right text-success">{{ offer_request.created_at | naturaltime }}</span>
+        </td>
         <td>{{ offer_request.user.username }}</td>
         <td>
           <a href="{% url 'offer:admin_request_edit' offer_request.pk %}" class="btn btn-info">Edit request</a>

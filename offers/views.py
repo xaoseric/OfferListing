@@ -149,6 +149,10 @@ def admin_edit_request(request, request_pk):
 @user_is_provider
 @login_required
 def admin_provider_requests(request):
-    requests = OfferRequest.requests.get_requests_for_provider(request.user.user_profile.provider)
+    requests = OfferRequest.requests.get_requests_for_provider(
+        request.user.user_profile.provider
+    ).order_by(
+        '-created_at'
+    )
 
     return render(request, 'offers/manage/offers.html', {"requests": requests})
