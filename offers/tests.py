@@ -985,6 +985,49 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
         # Make sure an error is displayed
         self.assertEqual("This field is required.", self.driver.find_element_by_css_selector("strong").text)
 
+        # Make sure the url is still on the new request page (won't actually check, __future__ plan)
+        self.assertUrlContains(reverse('offer:admin_request_new'))
+
+        # Make sure there are no offers and no plans
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+    def test_form_submit_with_invalid_offer(self):
+        """
+        Test that the form will not submit if the content is missing from the offer field
+        """
+
+        # Make sure there are no offers and no plans
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        #  Submit a new offer
+        self.driver.find_element_by_id("id_name").clear()
+        self.driver.find_element_by_id("id_name").send_keys("Some title")
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv4_space").send_keys("1")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://google.com")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("20.00")
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Make sure an error is displayed
+        self.assertEqual("This field is required.", self.driver.find_element_by_css_selector("strong").text)
+
+        # Make sure the url is still on the new request page (won't actually check, __future__ plan)
+        self.assertUrlContains(reverse('offer:admin_request_new'))
+
         # Make sure there are no offers and no plans
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(OfferRequest.objects.count(), 0)
