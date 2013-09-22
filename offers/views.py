@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from offers.models import Offer, Comment, Provider, OfferRequest, Plan
-from offers.forms import CommentForm, OfferForm, PlanFormset, PlanFormsetHelper
+from offers.forms import CommentForm, OfferForm, PlanFormset, PlanFormsetHelper, ProviderForm
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -80,7 +80,19 @@ def provider_profile(request, provider_pk, page_number=1):
 @user_is_provider
 @login_required
 def admin_provider_home(request):
-    return render(request, 'offers/manage/home.html', {"provider": request.user.user_profile.provider})
+    if request.method == "POST":
+        form = ProviderForm(request.POST, request.FILES, instance=request.user.user_profile.provider)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "The provider's profile has been updated!")
+        else:
+            messages.error(request, "There were errors in the updated profile. Please correct them and try again!")
+    else:
+        form = ProviderForm(instance=request.user.user_profile.provider)
+    return render(request, 'offers/manage/home.html', {
+        "provider": request.user.user_profile.provider,
+        "form": form,
+    })
 
 
 @user_is_provider

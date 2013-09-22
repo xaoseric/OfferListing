@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}Manage {{ provider }}{% endblock %}
 
@@ -6,4 +7,6 @@
 
 {% block content %}
   {% include 'offers/provider_panel.html' %}
+  <h2>Edit {{ provider.name }}</h2>
+  {% crispy form %}
 {% endblock %}
