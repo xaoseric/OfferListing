@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.signals import pre_save
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -6,6 +7,7 @@ from django.conf import settings
 import os
 import uuid
 from easy_thumbnails.files import get_thumbnailer
+from django.utils import timezone
 
 
 def get_file_path(instance, filename):
@@ -196,6 +198,17 @@ class Offer(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+def offer_update_published(sender, instance, raw, **kwargs):
+    if instance.pk is not None:
+        if instance.status == Offer.PUBLISHED:
+            old_instance = Offer.objects.get(pk=instance.pk)
+            if old_instance.status == Offer.UNPUBLISHED:
+                instance.published_at = timezone.now()
+
+
+pre_save.connect(offer_update_published, sender=Offer)
 
 
 class ActivePlanManager(models.Manager):
