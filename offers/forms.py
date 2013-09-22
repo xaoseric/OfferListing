@@ -54,7 +54,8 @@ PlanFormset = modelformset_factory(
         'url',
         'promo_code',
         'cost',
-    )
+    ),
+    can_delete=True,
 )
 PlanFormsetHelper = FormHelper()
 PlanFormsetHelper.form_tag = False
@@ -77,6 +78,7 @@ PlanFormsetHelper.layout = Layout(
         'url',
         'promo_code',
         'cost',
+        'DELETE',
     ),
     'id',
 )
