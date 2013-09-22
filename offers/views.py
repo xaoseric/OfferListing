@@ -241,3 +241,16 @@ def admin_provider_offer_edit(request, offer_pk):
         "offer": offer,
         "plans": plans,
     })
+
+
+@user_is_provider
+@login_required
+def admin_provider_offer_mark(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+
+    offer.is_active = not offer.is_active
+    offer.save()
+
+    return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))

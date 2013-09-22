@@ -10,9 +10,9 @@
     <div class="col-sm-12">
       <div class="btn-group btn-group-justified">
         {% if offer.is_active %}
-          <a href="#" class="btn btn-danger">Mark as not active</a>
+          <a href="{% url 'offer:admin_offer_mark' offer.pk %}" class="btn btn-danger">Mark as not active</a>
         {% else %}
-          <a href="#" class="btn btn-success">Mark as active</a>
+          <a href="{% url 'offer:admin_offer_mark' offer.pk %}" class="btn btn-success">Mark as active</a>
         {% endif %}
       </div>
     </div>
