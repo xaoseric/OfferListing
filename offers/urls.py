@@ -18,4 +18,9 @@ urlpatterns = patterns('offers.views',
     url(r'^manage/offers/$', 'admin_provider_offer_list', name="admin_offers"),
     url(r'^manage/offer/(?P<offer_pk>\d+)/$', 'admin_provider_offer_edit', name="admin_offer"),
     url(r'^manage/offer/(?P<offer_pk>\d+)/mark/$', 'admin_provider_offer_mark', name="admin_offer_mark"),
+    url(
+        r'^manage/offer/(?P<offer_pk>\d+)/mark/(?P<plan_pk>\d+)$',
+        'admin_provider_offer_plan_mark',
+        name="admin_offer_plan_mark"
+    ),
 )

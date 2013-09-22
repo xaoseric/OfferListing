@@ -254,3 +254,20 @@ def admin_provider_offer_mark(request, offer_pk):
     offer.save()
 
     return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
+
+
+@user_is_provider
+@login_required
+def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
+    if not Offer.not_requests.filter(pk=offer_pk).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+
+    if not offer.plan_set.filter(pk=plan_pk).exists():
+        return HttpResponseNotFound("Plan was not found!")
+    plan = offer.plan_set.get(pk=plan_pk)
+
+    plan.is_active = not plan.is_active
+    plan.save()
+
+    return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))

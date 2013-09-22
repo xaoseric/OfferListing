@@ -38,9 +38,9 @@
       </td>
       <td>
         {% if plan.is_active %}
-          <a href="#" class="btn btn-warning">Mark as "Not active"</a>
+          <a href="{% url 'offer:admin_offer_plan_mark' offer.pk plan.pk %}" class="btn btn-warning">Mark as "Not active"</a>
         {% else %}
-          <a href="#" class="btn btn-success">Mark as "Active"</a>
+          <a href="{% url 'offer:admin_offer_plan_mark' offer.pk plan.pk %}" class="btn btn-success">Mark as "Active"</a>
         {% endif %}
       </td>
     </tr>
