@@ -39,6 +39,12 @@ class OfferNotRequestManager(models.Manager):
             (Q(request=None) & Q(status=Offer.UNPUBLISHED))
         )
 
+    def for_provider(self, provider):
+        """
+        Get all the offers for a provider that are not requests
+        """
+        return self.get_query_set().filter(provider=provider)
+
 
 class OfferVisibleManager(models.Manager):
     """
@@ -191,6 +197,7 @@ class OfferBase(models.Model):
 
 class Offer(OfferBase):
 
+    objects = models.Manager()
     not_requests = OfferNotRequestManager()
 
     def __unicode__(self):

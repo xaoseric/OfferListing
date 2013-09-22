@@ -9,6 +9,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 from crispy_forms.helper import FormHelper
+from django.db.models import Q
 
 
 def view_offer(request, offer_pk):
@@ -195,7 +196,7 @@ def admin_provider_requests(request):
         '-created_at'
     )
 
-    return render(request, 'offers/manage/offers.html', {"requests": requests})
+    return render(request, 'offers/manage/requests.html', {"requests": requests})
 
 
 @user_is_provider
@@ -215,3 +216,14 @@ def admin_provider_delete_confirm(request, request_pk):
         return HttpResponseRedirect(reverse('offer:admin_requests'))
 
     return render(request, 'offers/manage/delete_request.html', {"offer_request": offer_request})
+
+
+@user_is_provider
+@login_required
+def admin_provider_offer_list(request):
+    offers = Offer.not_requests.for_provider(request.user.user_profile.provider)
+
+    return render(request, 'offers/manage/offer_list.html', {
+        "offers": offers,
+        "provider": request.user.user_profile.provider,
+    })
