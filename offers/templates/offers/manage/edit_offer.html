@@ -6,5 +6,44 @@
 {% block page_title %}Edit <em>{{ offer.name }}</em>{% endblock %}
 
 {% block content %}
-  <div class="row"></div>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="btn-group btn-group-justified">
+        {% if offer.is_active %}
+          <a href="#" class="btn btn-danger">Mark as not active</a>
+        {% else %}
+          <a href="#" class="btn btn-success">Mark as active</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <br />
+  <table class="table table-bordered">
+    <tr>
+      <th>Memory (RAM)</th>
+      <th>Disk space (HDD)</th>
+      <th>Status</th>
+      <th>Mark</th>
+    </tr>
+    {% for plan in plans %}
+    <tr>
+      <td>{{ plan.get_memory }}</td>
+      <td>{{ plan.get_hdd }}</td>
+      <td>
+        {% if plan.is_active %}
+          <span class="text-success">Active</span>
+        {% else %}
+          <span class="text-warning">Not Active</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if plan.is_active %}
+          <a href="#" class="btn btn-warning">Mark as "Not active"</a>
+        {% else %}
+          <a href="#" class="btn btn-success">Mark as "Active"</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
 {% endblock %}
