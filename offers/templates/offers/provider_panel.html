@@ -13,11 +13,12 @@
           {{ provider.name }} opened their doors {{ provider.start_date|naturalday }}.
         </li>
         <li class="list-group-item">
-          They have listed {{ provider.offer_count }} offers, {{ provider.active_offer_count }} of which are
-          still active.
+          They have listed {{ provider.offer_count }} offer{{ provider.offer_count | pluralize }},
+          {{ provider.active_offer_count }} of which {{ provider.active_offer_count | pluralize:"is,are" }} still active.
         </li>
         <li class="list-group-item">
-          In total, they provide {{ provider.plan_count }} plans accross all their offers.
+          In total, they provide {{ provider.plan_count }} plan{{ provider.plan_count | pluralize }} accross all their
+          offers.
         </li>
       </ul>
     </div>

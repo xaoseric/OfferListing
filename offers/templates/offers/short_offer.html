@@ -10,7 +10,10 @@
     {{ offer.content|truncatewords_html:100|safe }}
   </div>
   <ul class="list-group">
-    <li class="list-group-item">{{ offer.plan_count }} Plans listed ({{ offer.active_plan_count }} available)</li>
+    <li class="list-group-item">
+      {{ offer.plan_count }} Plan{{ offer.plan_count | pluralize }} listed
+      ({{ offer.active_plan_count }} available)
+    </li>
     <li class="list-group-item">
       Price range ${{ offer.min_cost|floatformat:2 }} - ${{ offer.max_cost|floatformat:2 }}
     </li>
