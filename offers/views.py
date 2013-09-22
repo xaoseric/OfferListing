@@ -12,6 +12,10 @@ from crispy_forms.helper import FormHelper
 
 
 def view_offer(request, offer_pk):
+    """
+    The view that displays an offer. This view is only accessible if the offer exists and the offer status
+    is published. It is still possible to view an inactive offer.
+    """
     offer = get_object_or_404(Offer, status=Offer.PUBLISHED, pk=offer_pk)
 
     if request.method == "POST":
@@ -40,6 +44,9 @@ def view_offer(request, offer_pk):
 
 
 def list_offers(request, page_number=1):
+    """
+    Displays a list of all visible offers. Paginated for better loading times.
+    """
     offer_list = Offer.visible_offers.all()
     paginator = Paginator(offer_list, 5)
 
@@ -53,6 +60,9 @@ def list_offers(request, page_number=1):
 
 
 def provider_list(request):
+    """
+    Displays a list of all providers
+    """
     providers = Provider.objects.order_by('name')
 
     return render(request, 'offers/providers.html', {
@@ -61,6 +71,9 @@ def provider_list(request):
 
 
 def provider_profile(request, provider_pk, page_number=1):
+    """
+    Displays the profile of a provider, including recent offers
+    """
     provider = get_object_or_404(Provider, pk=provider_pk)
     offer_list = Offer.visible_offers.for_provider(provider)
 
@@ -80,6 +93,9 @@ def provider_profile(request, provider_pk, page_number=1):
 @user_is_provider
 @login_required
 def admin_provider_home(request):
+    """
+    The homepage for provider users to manage their own provider
+    """
     if request.method == "POST":
         form = ProviderForm(request.POST, request.FILES, instance=request.user.user_profile.provider)
         if form.is_valid():
