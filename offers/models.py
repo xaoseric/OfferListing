@@ -366,6 +366,7 @@ class Plan(PlanBase):
 
 class PlanUpdate(PlanBase):
     offer = models.ForeignKey(OfferUpdate)
+    plan = models.OneToOneField(Plan, blank=True, null=True)
 
 
 class Comment(models.Model):
