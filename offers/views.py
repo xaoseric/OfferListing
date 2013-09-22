@@ -130,6 +130,8 @@ def admin_submit_request(request):
             offer_request.save()
             for plan_form in formset:
                 if plan_form.has_changed():
+                    if plan_form.cleaned_data["DELETE"]:
+                        continue
                     plan = plan_form.save(commit=False)
                     plan.offer = offer
                     plan.is_active = True

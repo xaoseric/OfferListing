@@ -1121,6 +1121,51 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
         self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
+    def test_plan_form_can_delete_empty_plans(self):
+        """
+        Test that checking the delete box on empty plan forms does nothing (modifies no data)
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        #  Submit a new offer
+        self.driver.find_element_by_id("id_name").clear()
+        self.driver.find_element_by_id("id_name").send_keys("Some title")
+        self.driver.find_element_by_id("id_content").clear()
+        self.driver.find_element_by_id("id_content").send_keys("Some content for the new offer")
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv4_space").send_keys("1")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://google.com")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("20.00")
+
+        # Click some delete boxes
+        self.driver.find_element_by_id("id_form-2-DELETE").click()
+        self.driver.find_element_by_id("id_form-3-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        self.driver.save_screenshot("test.png")
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 1)
+
+        # Make sure the page has no errors
+        self.driver.find_element_by_id("id_form-0-bandwidth")
+
 
 class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
     def setUp(self):
@@ -1532,7 +1577,6 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
-
 
 
 class ProviderAdminViewTests(TestCase):
