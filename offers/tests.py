@@ -1873,3 +1873,16 @@ class ProviderAdminOfferViewTests(TestCase):
         updated_offer = Offer.objects.get(pk=new_offer.pk)
         self.assertTrue(updated_offer.is_active)
 
+    def test_user_can_not_mark_offer_request(self):
+        """
+        Test that a user can not mark an offer request's status
+        """
+        offer_request = OfferRequest(offer=self.offer, user=self.user)
+        offer_request.save()
+
+        response = self.client.get(reverse('offer:admin_offer_mark', args=[self.offer.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_offer = Offer.objects.get(pk=self.offer.pk)
+        self.assertTrue(updated_offer.is_active)
