@@ -3,7 +3,10 @@
 
 {% block title %}Edit offer{% endblock %}
 
-{% block page_title %}Edit <em>{{ offer.name }}</em>{% endblock %}
+{% block page_title %}
+  Edit <em>{{ offer.name }}</em>
+  <small>{{ offer.get_status_display }}</small>
+{% endblock %}
 
 {% block content %}
   <div class="row">
