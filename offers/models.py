@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import pre_save
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
@@ -26,6 +27,17 @@ class OfferRequestActiveManager(models.Manager):
         Get all the requests for a specific provider
         """
         return self.get_query_set().filter(offer__provider=provider)
+
+
+class OfferNotRequestManager(models.Manager):
+    """
+    The offers that are not requests
+    """
+    def get_query_set(self):
+        return super(OfferNotRequestManager, self).get_query_set().filter(
+            Q(status=Offer.PUBLISHED) |
+            (Q(request=None) & Q(status=Offer.UNPUBLISHED))
+        )
 
 
 class OfferVisibleManager(models.Manager):
@@ -178,6 +190,8 @@ class OfferBase(models.Model):
 
 
 class Offer(OfferBase):
+
+    not_requests = OfferNotRequestManager()
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
