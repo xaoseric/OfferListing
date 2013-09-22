@@ -1156,8 +1156,6 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
         self.driver.find_element_by_id("id_form-3-DELETE").click()
         self.driver.find_element_by_id("submit-save").click()
 
-        self.driver.save_screenshot("test.png")
-
         # Assert the correct amount of records in the database
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(OfferRequest.objects.count(), 1)
