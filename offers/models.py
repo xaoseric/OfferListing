@@ -241,7 +241,8 @@ class Offer(OfferBase):
 
 
 class OfferUpdate(OfferBase):
-    pass
+    for_offer = models.OneToOneField(Offer)
+    user = models.ForeignKey(User)
 
 
 def offer_update_published(sender, instance, raw, **kwargs):
