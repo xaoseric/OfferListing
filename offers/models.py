@@ -240,6 +240,10 @@ class Offer(OfferBase):
         ordering = ['-published_at']
 
 
+class OfferUpdate(OfferBase):
+    pass
+
+
 def offer_update_published(sender, instance, raw, **kwargs):
     if instance.pk is not None:
         if instance.status == Offer.PUBLISHED:
@@ -249,8 +253,6 @@ def offer_update_published(sender, instance, raw, **kwargs):
 
 
 pre_save.connect(offer_update_published, sender=Offer)
-
-
 
 
 class PlanBase(models.Model):
@@ -274,7 +276,6 @@ class PlanBase(models.Model):
         (BIYEARLY, 'Biyearly'),
     )
 
-    offer = models.ForeignKey(Offer)
     virtualization = models.CharField(max_length=1, choices=VIRT_CHOICES, default=OPENVZ)
 
     # Data attributes
@@ -359,7 +360,11 @@ class PlanBase(models.Model):
 
 
 class Plan(PlanBase):
-    pass
+    offer = models.ForeignKey(Offer)
+
+
+class PlanUpdate(PlanBase):
+    offer = models.ForeignKey(OfferUpdate)
 
 
 class Comment(models.Model):
