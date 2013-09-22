@@ -1517,6 +1517,58 @@ class ProviderAdminViewTests(TestCase):
 
         self.assertNotContains(response, self.provider.name)
 
+    def test_user_can_modify_their_provider(self):
+        """
+        Test that a user can edit their own provider through the admin home page
+        """
+
+        response = self.client.get(reverse('offer:admin_home'))
+        self.assertEqual(response.status_code, 200)
+
+        # Make sure the name is present
+        self.assertContains(response, self.provider.name)
+
+        # Send off a post request
+        new_data = {
+            "name": 'New provider',
+            "start_date": self.provider.start_date,
+            "website": "http://example.com/provider/",
+        }
+        response = self.client.post(reverse('offer:admin_home'), new_data, follow=True)
+
+        self.assertContains(response, 'New provider')
+        self.assertContains(response, 'http://example.com/provider/')
+
+        new_provider = Provider.objects.get(pk=self.provider.pk)
+        self.assertEqual(new_provider.name, 'New provider')
+        self.assertEqual(new_provider.website, 'http://example.com/provider/')
+
+    def test_user_can_not_modify_their_provider_with_incorrect_information(self):
+        """
+        Test that a user can not edit their own provider through the admin home page if some information is incorrect
+        """
+
+        response = self.client.get(reverse('offer:admin_home'))
+        self.assertEqual(response.status_code, 200)
+
+        # Make sure the name is present
+        self.assertContains(response, self.provider.name)
+
+        # Send off a post request
+        new_data = {
+            "name": '',  # Empty name
+            "start_date": self.provider.start_date,
+            "website": "http://example.com/provider/",
+        }
+        response = self.client.post(reverse('offer:admin_home'), new_data, follow=True)
+
+        new_provider = Provider.objects.get(pk=self.provider.pk)
+        self.assertNotEqual(new_provider.name, '')
+        self.assertNotEqual(new_provider.website, 'http://example.com/provider/')
+
+        self.assertEqual(new_provider.name, self.provider.name)
+        self.assertEqual(new_provider.website, self.provider.website)
+
     def test_user_can_view_provider_admin_new_request(self):
         """
         Test a user which manages a provider can view the provider request offer page
