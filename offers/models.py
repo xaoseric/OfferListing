@@ -116,7 +116,7 @@ class OfferActiveManager(models.Manager):
         return self.get_query_set().filter(provider=provider)
 
 
-class Offer(models.Model):
+class OfferBase(models.Model):
     PUBLISHED = 'p'
     UNPUBLISHED = 'u'
 
@@ -138,6 +138,12 @@ class Offer(models.Model):
     objects = models.Manager()
     visible_offers = OfferVisibleManager()
     active_offers = OfferActiveManager()
+
+    class Meta:
+        abstract = True
+
+
+class Offer(OfferBase):
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
@@ -236,7 +242,7 @@ class ActivePlanManager(models.Manager):
         return self.get_query_set().filter(offer=offer)
 
 
-class Plan(models.Model):
+class PlanBase(models.Model):
     KVM = 'k'
     OPENVZ = 'o'
 
@@ -336,6 +342,13 @@ class Plan(models.Model):
 
     def __unicode__(self):
         return "{} ({})".format(self.offer.name, self.get_memory())
+
+    class Meta:
+        abstract = True
+
+
+class Plan(PlanBase):
+    pass
 
 
 class Comment(models.Model):
