@@ -85,6 +85,8 @@ def admin_provider_home(request):
         if form.is_valid():
             form.save()
             messages.success(request, "The provider's profile has been updated!")
+            # Reload the form
+            return HttpResponseRedirect(reverse('offer:admin_home'))
         else:
             messages.error(request, "There were errors in the updated profile. Please correct them and try again!")
     else:
