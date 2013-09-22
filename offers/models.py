@@ -184,6 +184,15 @@ class Offer(models.Model):
             return True
         return False
 
+    def is_request(self):
+        try:
+            if self.request is not None and self.status == self.UNPUBLISHED:
+                return True
+        except OfferRequest.DoesNotExist:
+            pass
+        return False
+    is_request.boolean = True
+
     class Meta:
         ordering = ['-created_at']
 
@@ -310,6 +319,9 @@ class Plan(models.Model):
         if self.offer.offer_active() and self.is_active:
             return True
         return False
+
+    def __unicode__(self):
+        return "{} ({})".format(self.offer.name, self.get_memory())
 
 
 class Comment(models.Model):
