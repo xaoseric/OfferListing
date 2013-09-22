@@ -1,6 +1,5 @@
 language: python
 python:
-  - "2.6"
   - "2.7"
 env:
   - DJANGO=Django==1.5 DB=sqlite
@@ -31,4 +30,4 @@ before_script:
   - mysql -e 'create database offers_test;'
   - psql -c 'create database offers_test;' -U postgres
 script:
-    - python manage.py test -v 2
+    - fab test

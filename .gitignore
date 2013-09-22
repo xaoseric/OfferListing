@@ -2,3 +2,4 @@ database.sqlite
 resources/media/provider_logos
 htmlcov
 reports
+ghostdriver.log

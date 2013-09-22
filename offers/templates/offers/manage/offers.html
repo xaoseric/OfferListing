@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Requests{% endblock %}
+
+{% block page_title %}Current offer requests{% endblock %}
+
+{% block content %}
+  <table class="table table-bordered">
+    <tr>
+      <th>Name</th>
+      <th>Plans</th>
+      <th>Submitted on</th>
+      <th>Submitted by</th>
+      <th>Manage</th>
+    </tr>
+    {% for offer_request in requests %}
+      <tr>
+        <td>{{ offer_request.offer.name }}</td>
+        <td>{{ offer_request.offer.plan_count }}</td>
+        <td>
+          {{ offer_request.created_at }}
+          <span class="pull-right text-success">{{ offer_request.created_at | naturaltime }}</span>
+        </td>
+        <td>{{ offer_request.user.username }}</td>
+        <td>
+          <div class="btn-group">
+            <a href="{% url 'offer:admin_request_edit' offer_request.pk %}" class="btn btn-info">Edit request</a>
+            <a href="{% url 'offer:admin_request_delete' offer_request.pk %}" class="btn btn-danger">Delete request</a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

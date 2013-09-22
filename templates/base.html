@@ -27,7 +27,17 @@
             {% navigation_link request 'offer:providers' 'Providers' %}
             {% if request.user.is_authenticated %}
               {% if request.user.user_profile.is_provider %}
-                {% navigation_link request 'offer:admin_home' 'Manage My Provider' %}
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    {{ request.user.user_profile.provider }}
+                    <b class="caret"></b>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a href="{% url 'offer:admin_home' %}">Provider profile</a></li>
+                    <li><a href="{% url 'offer:admin_requests' %}">Current offer requests</a></li>
+                    <li><a href="{% url 'offer:admin_request_new' %}">New offer request</a></li>
+                  </ul>
+                </li>
               {% endif %}
             {% endif %}
           </ul>

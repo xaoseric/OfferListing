@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.signals import pre_save
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -6,6 +7,7 @@ from django.conf import settings
 import os
 import uuid
 from easy_thumbnails.files import get_thumbnailer
+from django.utils import timezone
 
 
 def get_file_path(instance, filename):
@@ -18,7 +20,7 @@ class Provider(models.Model):
     name = models.CharField(max_length=255)
     start_date = models.DateField()
     website = models.URLField(max_length=255)
-    logo = models.ImageField(upload_to=get_file_path, blank=True)
+    logo = models.ImageField(upload_to=get_file_path, blank=True, max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -59,6 +61,31 @@ class Provider(models.Model):
         (and article with the status PUBLISHED).
         """
         return Plan.active_plans.for_provider(self).count()
+
+
+class OfferRequestActiveManager(models.Manager):
+    """
+    The offer requests that have not yet been published
+    """
+    def get_query_set(self):
+        return super(OfferRequestActiveManager, self).get_query_set().filter(offer__status=Offer.UNPUBLISHED)
+
+    def get_requests_for_provider(self, provider):
+        """
+        Get all the requests for a specific provider
+        """
+        return self.get_query_set().filter(offer__provider=provider)
+
+
+class OfferRequest(models.Model):
+    offer = models.OneToOneField('Offer', related_name='request')
+    user = models.ForeignKey(User)
+
+    objects = models.Manager()
+    requests = OfferRequestActiveManager()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class OfferVisibleManager(models.Manager):
@@ -104,6 +131,7 @@ class Offer(models.Model):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default=PUBLISHED)
     is_active = models.BooleanField(default=True)
 
+    published_at = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -159,8 +187,28 @@ class Offer(models.Model):
             return True
         return False
 
+    def is_request(self):
+        try:
+            if self.request is not None and self.status == self.UNPUBLISHED:
+                return True
+        except OfferRequest.DoesNotExist:
+            pass
+        return False
+    is_request.boolean = True
+
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-published_at']
+
+
+def offer_update_published(sender, instance, raw, **kwargs):
+    if instance.pk is not None:
+        if instance.status == Offer.PUBLISHED:
+            old_instance = Offer.objects.get(pk=instance.pk)
+            if old_instance.status == Offer.UNPUBLISHED:
+                instance.published_at = timezone.now()
+
+
+pre_save.connect(offer_update_published, sender=Offer)
 
 
 class ActivePlanManager(models.Manager):
@@ -285,6 +333,9 @@ class Plan(models.Model):
         if self.offer.offer_active() and self.is_active:
             return True
         return False
+
+    def __unicode__(self):
+        return "{} ({})".format(self.offer.name, self.get_memory())
 
 
 class Comment(models.Model):
