@@ -1886,7 +1886,7 @@ class ProviderAdminOfferViewTests(TestCase):
 
     def test_user_can_mark_offer_as_inactive(self):
         """
-        Test that a user can mark their own offer as active
+        Test that a user can mark their own offer as inactive
         """
         self.offer.is_active = True
         self.offer.save()
@@ -1924,3 +1924,80 @@ class ProviderAdminOfferViewTests(TestCase):
 
         updated_offer = Offer.objects.get(pk=self.offer.pk)
         self.assertTrue(updated_offer.is_active)
+
+    def test_user_can_mark_plan_as_active(self):
+        """
+        Test that a user can mark their own plan as active
+        """
+        plan = mommy.make(Plan, offer=self.offer, is_active=False)
+
+        response = self.client.get(
+            reverse('offer:admin_offer_plan_mark', args=[self.offer.pk, plan.pk]),
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('offer:admin_offer', args=[self.offer.pk]))
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertTrue(updated_plan.is_active)
+
+    def test_user_can_mark_plan_as_inactive(self):
+        """
+        Test that a user can mark their own plan as inactive
+        """
+        plan = mommy.make(Plan, offer=self.offer, is_active=True)
+
+        response = self.client.get(
+            reverse('offer:admin_offer_plan_mark', args=[self.offer.pk, plan.pk]),
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('offer:admin_offer', args=[self.offer.pk]))
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertFalse(updated_plan.is_active)
+
+    def test_user_can_not_mark_other_offer_plan(self):
+        """
+        Test that a user can not mark an offer plan that is not theirs (the provider is not their provider)
+        """
+        new_offer = mommy.make(Offer, is_active=True)
+        plan = mommy.make(Plan, offer=new_offer, is_active=True)
+
+        response = self.client.get(reverse('offer:admin_offer_plan_mark', args=[new_offer.pk, plan.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertTrue(updated_plan.is_active)
+
+    def test_user_can_not_mark_non_existent_plan(self):
+        """
+        Test that a user can not mark a plan that is not part of their offer
+        """
+        plan = mommy.make(Plan, is_active=True)
+
+        response = self.client.get(reverse('offer:admin_offer_plan_mark', args=[self.offer.pk, plan.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertTrue(updated_plan.is_active)
+
+    def test_user_can_not_mark_offer_request_plan(self):
+        """
+        Test that a user can not mark an offer request's plan status
+        """
+        offer_request = OfferRequest(offer=self.offer, user=self.user)
+        offer_request.save()
+
+        plan = mommy.make(Plan, offer=self.offer, is_active=True)
+
+        response = self.client.get(reverse('offer:admin_offer_plan_mark', args=[self.offer.pk, plan.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertTrue(updated_plan.is_active)
