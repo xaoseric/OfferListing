@@ -33,9 +33,18 @@
                     <b class="caret"></b>
                   </a>
                   <ul class="dropdown-menu">
-                    <li><a href="{% url 'offer:admin_home' %}">Provider profile</a></li>
-                    <li><a href="{% url 'offer:admin_requests' %}">Current offer requests</a></li>
-                    <li><a href="{% url 'offer:admin_request_new' %}">New offer request</a></li>
+                    <li><a href="{% url 'offer:admin_home' %}">
+                      <span class="glyphicon glyphicon-user"></span>
+                      Provider profile
+                    </a></li>
+                    <li><a href="{% url 'offer:admin_requests' %}">
+                      <span class="glyphicon glyphicon-th-list"></span>
+                      Current offer requests
+                    </a></li>
+                    <li><a href="{% url 'offer:admin_request_new' %}">
+                      <span class="glyphicon glyphicon-pencil"></span>
+                      New offer request
+                    </a></li>
                   </ul>
                 </li>
               {% endif %}
