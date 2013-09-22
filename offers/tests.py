@@ -2001,3 +2001,37 @@ class ProviderAdminOfferViewTests(TestCase):
 
         updated_plan = Plan.objects.get(pk=plan.pk)
         self.assertTrue(updated_plan.is_active)
+
+    def test_user_can_view_offer_edit_page(self):
+        """
+        Test that a user can view the offer edit page for one of their offers
+        """
+
+        mommy.make(Plan, offer=self.offer, _quantity=5)
+
+        response = self.client.get(reverse('offer:admin_offer', args=[self.offer.pk]))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context["offer"], self.offer)
+        self.assertQuerysetEqual(response.context["plans"], map(repr, self.offer.plan_set.all()), ordered=False)
+
+    def test_user_can_not_view_offer_edit_page_request(self):
+        """
+        Test that the user can not view an offer request through the offer edit page
+        """
+        self.offer.status = Offer.UNPUBLISHED
+        self.offer.save()
+        mommy.make(OfferRequest, offer=self.offer)
+
+        response = self.client.get(reverse('offer:admin_offer', args=[self.offer.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_view_offer_edit_page_of_other_provider(self):
+        """
+        Test that the user can not edit an offer from another provider
+        """
+
+        other_offer = mommy.make(Offer)
+
+        response = self.client.get(reverse('offer:admin_offer', args=[other_offer.pk]))
+        self.assertEqual(response.status_code, 404)
