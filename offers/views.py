@@ -248,7 +248,7 @@ def admin_provider_offer_edit(request, offer_pk):
 @user_is_provider
 @login_required
 def admin_provider_offer_mark(request, offer_pk):
-    if not Offer.not_requests.filter(pk=offer_pk).exists():
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
         return HttpResponseNotFound("Offer was not found!")
     offer = Offer.not_requests.get(pk=offer_pk)
 
@@ -261,7 +261,7 @@ def admin_provider_offer_mark(request, offer_pk):
 @user_is_provider
 @login_required
 def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
-    if not Offer.not_requests.filter(pk=offer_pk).exists():
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
         return HttpResponseNotFound("Offer was not found!")
     offer = Offer.not_requests.get(pk=offer_pk)
 
