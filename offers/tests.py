@@ -1514,6 +1514,25 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 0)
 
+    def test_plan_form_can_delete_empty_plans(self):
+        """
+        Test that checking the delete box on empty plan forms does nothing (modifies no data)
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-3-DELETE").click()
+        self.driver.find_element_by_id("id_form-4-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
 
 
 class ProviderAdminViewTests(TestCase):
