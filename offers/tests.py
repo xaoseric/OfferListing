@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate
+from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate
 from offers.selenium_test import SeleniumTestCase
 from selenium.webdriver.common.by import By
 from model_mommy import mommy
@@ -464,6 +464,11 @@ class OfferUpdateTests(TestCase):
         """
         Test that using the get_update_for_offer creates a new offer update
         """
+
+        # Assert initial database data
+        self.assertEqual(OfferUpdate.objects.count(), 0)
+        self.assertEqual(PlanUpdate.objects.count(), 0)
+
         offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
 
         # Check all values are copied across
@@ -492,6 +497,32 @@ class OfferUpdateTests(TestCase):
             self.assertEqual(plan.promo_code, plan_update.promo_code)
             self.assertEqual(plan.cost, plan_update.cost)
             self.assertEqual(plan.is_active, plan_update.is_active)
+
+        # Assert final database data
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 4)
+
+    def test_get_update_for_offer_gets_existing_offer_update(self):
+        """
+        Test that the get_update_for_offer method returns the existing offer update for an offer if it already exists
+        """
+        # Assert initial database data
+        self.assertEqual(OfferUpdate.objects.count(), 0)
+        self.assertEqual(PlanUpdate.objects.count(), 0)
+
+        # Call the method multiple times
+        offer_update1 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+        offer_update2 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+        offer_update3 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+        offer_update4 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+
+        self.assertEqual(offer_update1, offer_update2)
+        self.assertEqual(offer_update2, offer_update3)
+        self.assertEqual(offer_update3, offer_update4)
+
+        # Assert final database data
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 4)
 
 
 class OfferSignalTests(TestCase):
