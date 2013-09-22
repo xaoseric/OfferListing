@@ -28,7 +28,7 @@
       <td>{{ offer.get_status_display }}</td>
       <td>
         <div class="btn-group">
-          <a class="btn btn-info" href="#">Request edit</a>
+          <a class="btn btn-info" href="#">Edit</a>
           {% if offer.status == offer.PUBLISHED %}
             <a class="btn btn-warning" href="{% url 'offer:view' offer.pk %}">View</a>
           {% else %}
