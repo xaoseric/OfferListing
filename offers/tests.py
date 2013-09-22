@@ -1477,6 +1477,44 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(updated_plan_1.offer, self.offer)
         self.assertEqual(updated_plan_1.cost, 400.00)
 
+    def test_plan_form_can_delete_plans(self):
+        """
+        Test that checking the delete box on plans deletes them
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-0-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 1)
+
+    def test_plan_form_can_delete_multiple_plans(self):
+        """
+        Test that checking the delete box on plans deletes them with multiple plans
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-0-DELETE").click()
+        self.driver.find_element_by_id("id_form-1-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 0)
+
+
 
 class ProviderAdminViewTests(TestCase):
     """
