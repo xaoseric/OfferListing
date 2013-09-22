@@ -1832,6 +1832,18 @@ class ProviderAdminOfferViewTests(TestCase):
 
         self.client.login(username='user', password='password')
 
+    def test_user_can_view_offer_list(self):
+        """
+        Test that a user can view their own offer list
+        """
+
+        mommy.make(Offer, provider=self.provider, _quantity=20)
+
+        response = self.client.get(reverse('offer:admin_offers'))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(self.provider, response.context["provider"])
+
     def test_user_can_mark_offer_as_active(self):
         """
         Test that a user can mark their own offer as active
