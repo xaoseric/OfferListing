@@ -9,6 +9,82 @@ import uuid
 from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
 
+############
+# Managers #
+############
+
+
+class OfferRequestActiveManager(models.Manager):
+    """
+    The offer requests that have not yet been published
+    """
+    def get_query_set(self):
+        return super(OfferRequestActiveManager, self).get_query_set().filter(offer__status=Offer.UNPUBLISHED)
+
+    def get_requests_for_provider(self, provider):
+        """
+        Get all the requests for a specific provider
+        """
+        return self.get_query_set().filter(offer__provider=provider)
+
+
+class OfferVisibleManager(models.Manager):
+    """
+    Only gets the visible offers (offers which are published)
+    """
+    def get_query_set(self):
+        return super(OfferVisibleManager, self).get_query_set().filter(status=Offer.PUBLISHED)
+
+    def for_provider(self, provider):
+        """
+        Returns all visible offers for a provider
+        """
+        return self.get_query_set().filter(provider=provider)
+
+
+class OfferActiveManager(models.Manager):
+    """
+    Only gets the active offers (offers which are published and have the active status)
+    """
+    def get_query_set(self):
+        return super(OfferActiveManager, self).get_query_set().filter(status=Offer.PUBLISHED, is_active=True)
+
+    def for_provider(self, provider):
+        """
+        Returns all visible offers for a provider
+        """
+        return self.get_query_set().filter(provider=provider)
+
+
+class ActivePlanManager(models.Manager):
+    """
+    A plan manager that only gets active plans
+    """
+    def get_query_set(self):
+        return super(ActivePlanManager, self).get_query_set().filter(
+            offer__status=Offer.PUBLISHED,
+            offer__is_active=True,
+            is_active=True
+        )
+
+    def for_provider(self, provider):
+        """
+        Get all the active plans (The ones that match the conditions that the offer is published, the offer is
+        active and the plan is active)
+        """
+        return self.get_query_set().filter(offer__provider=provider)
+
+    def for_offer(self, offer):
+        """
+        Get all the active plans for an offer
+        """
+        return self.get_query_set().filter(offer=offer)
+
+
+##########
+# Models #
+##########
+
 
 def get_file_path(instance, filename):
     ext = filename.split('.')[-1]
@@ -63,20 +139,6 @@ class Provider(models.Model):
         return Plan.active_plans.for_provider(self).count()
 
 
-class OfferRequestActiveManager(models.Manager):
-    """
-    The offer requests that have not yet been published
-    """
-    def get_query_set(self):
-        return super(OfferRequestActiveManager, self).get_query_set().filter(offer__status=Offer.UNPUBLISHED)
-
-    def get_requests_for_provider(self, provider):
-        """
-        Get all the requests for a specific provider
-        """
-        return self.get_query_set().filter(offer__provider=provider)
-
-
 class OfferRequest(models.Model):
     offer = models.OneToOneField('Offer', related_name='request')
     user = models.ForeignKey(User)
@@ -88,35 +150,7 @@ class OfferRequest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class OfferVisibleManager(models.Manager):
-    """
-    Only gets the visible offers (offers which are published)
-    """
-    def get_query_set(self):
-        return super(OfferVisibleManager, self).get_query_set().filter(status=Offer.PUBLISHED)
-
-    def for_provider(self, provider):
-        """
-        Returns all visible offers for a provider
-        """
-        return self.get_query_set().filter(provider=provider)
-
-
-class OfferActiveManager(models.Manager):
-    """
-    Only gets the active offers (offers which are published and have the active status)
-    """
-    def get_query_set(self):
-        return super(OfferActiveManager, self).get_query_set().filter(status=Offer.PUBLISHED, is_active=True)
-
-    def for_provider(self, provider):
-        """
-        Returns all visible offers for a provider
-        """
-        return self.get_query_set().filter(provider=provider)
-
-
-class Offer(models.Model):
+class OfferBase(models.Model):
     PUBLISHED = 'p'
     UNPUBLISHED = 'u'
 
@@ -138,6 +172,12 @@ class Offer(models.Model):
     objects = models.Manager()
     visible_offers = OfferVisibleManager()
     active_offers = OfferActiveManager()
+
+    class Meta:
+        abstract = True
+
+
+class Offer(OfferBase):
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
@@ -200,6 +240,11 @@ class Offer(models.Model):
         ordering = ['-published_at']
 
 
+class OfferUpdate(OfferBase):
+    for_offer = models.OneToOneField(Offer)
+    user = models.ForeignKey(User)
+
+
 def offer_update_published(sender, instance, raw, **kwargs):
     if instance.pk is not None:
         if instance.status == Offer.PUBLISHED:
@@ -211,32 +256,7 @@ def offer_update_published(sender, instance, raw, **kwargs):
 pre_save.connect(offer_update_published, sender=Offer)
 
 
-class ActivePlanManager(models.Manager):
-    """
-    A plan manager that only gets active plans
-    """
-    def get_query_set(self):
-        return super(ActivePlanManager, self).get_query_set().filter(
-            offer__status=Offer.PUBLISHED,
-            offer__is_active=True,
-            is_active=True
-        )
-
-    def for_provider(self, provider):
-        """
-        Get all the active plans (The ones that match the conditions that the offer is published, the offer is
-        active and the plan is active)
-        """
-        return self.get_query_set().filter(offer__provider=provider)
-
-    def for_offer(self, offer):
-        """
-        Get all the active plans for an offer
-        """
-        return self.get_query_set().filter(offer=offer)
-
-
-class Plan(models.Model):
+class PlanBase(models.Model):
     KVM = 'k'
     OPENVZ = 'o'
 
@@ -257,7 +277,6 @@ class Plan(models.Model):
         (BIYEARLY, 'Biyearly'),
     )
 
-    offer = models.ForeignKey(Offer)
     virtualization = models.CharField(max_length=1, choices=VIRT_CHOICES, default=OPENVZ)
 
     # Data attributes
@@ -336,6 +355,18 @@ class Plan(models.Model):
 
     def __unicode__(self):
         return "{} ({})".format(self.offer.name, self.get_memory())
+
+    class Meta:
+        abstract = True
+
+
+class Plan(PlanBase):
+    offer = models.ForeignKey(Offer)
+
+
+class PlanUpdate(PlanBase):
+    offer = models.ForeignKey(OfferUpdate)
+    plan = models.OneToOneField(Plan, blank=True, null=True)
 
 
 class Comment(models.Model):
