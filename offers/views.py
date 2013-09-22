@@ -227,3 +227,17 @@ def admin_provider_offer_list(request):
         "offers": offers,
         "provider": request.user.user_profile.provider,
     })
+
+
+@user_is_provider
+@login_required
+def admin_provider_offer_edit(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+    plans = offer.plan_set.all()
+
+    return render(request, 'offers/manage/edit_offer.html', {
+        "offer": offer,
+        "plans": plans,
+    })
