@@ -1577,7 +1577,7 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(Plan.objects.count(), 2)
 
 
-class ProviderAdminViewTests(TestCase):
+class ProviderAdminRequestViewTests(TestCase):
     """
     Tests that validate how the views work
     """
@@ -1819,3 +1819,57 @@ class ProviderAdminViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertNotContains(response, self.provider.name)
+
+
+class ProviderAdminOfferViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
+
+        self.client.login(username='user', password='password')
+
+    def test_user_can_mark_offer_as_active(self):
+        """
+        Test that a user can mark their own offer as active
+        """
+        self.offer.is_active = False
+        self.offer.save()
+
+        response = self.client.get(reverse('offer:admin_offer_mark', args=[self.offer.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        updated_offer = Offer.objects.get(pk=self.offer.pk)
+        self.assertTrue(updated_offer.is_active)
+
+    def test_user_can_mark_offer_as_inactive(self):
+        """
+        Test that a user can mark their own offer as active
+        """
+        self.offer.is_active = True
+        self.offer.save()
+
+        response = self.client.get(reverse('offer:admin_offer_mark', args=[self.offer.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        updated_offer = Offer.objects.get(pk=self.offer.pk)
+        self.assertFalse(updated_offer.is_active)
+
+    def test_user_can_not_mark_other_offer(self):
+        """
+        Test that a user can not mark an offer that is not theirs (the provider is not their provider)
+        """
+        new_offer = mommy.make(Offer, is_active=True)
+
+        response = self.client.get(reverse('offer:admin_offer_mark', args=[new_offer.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_offer = Offer.objects.get(pk=new_offer.pk)
+        self.assertTrue(updated_offer.is_active)
+
