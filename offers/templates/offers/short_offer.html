@@ -20,7 +20,7 @@
       </li>
     {% endif %}
     <li class="list-group-item offer-time-since">
-      Offer released {{ offer.created_at|naturaltime }}.
+      Offer released {{ offer.published_at|naturaltime }}.
       <span class="pull-right">Last updated {{ offer.updated_at|naturaltime }}.</span>
     </li>
   </ul>

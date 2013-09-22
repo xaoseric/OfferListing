@@ -197,7 +197,7 @@ class Offer(models.Model):
     is_request.boolean = True
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-published_at']
 
 
 def offer_update_published(sender, instance, raw, **kwargs):
