@@ -1837,12 +1837,38 @@ class ProviderAdminOfferViewTests(TestCase):
         Test that a user can view their own offer list
         """
 
-        mommy.make(Offer, provider=self.provider, _quantity=20)
+        offers = mommy.make(Offer, provider=self.provider, _quantity=20)
 
         response = self.client.get(reverse('offer:admin_offers'))
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(self.provider, response.context["provider"])
+
+        for offer in offers:
+            self.assertIn(offer, response.context["offers"])
+
+    def test_offer_list_does_not_contain_offer_requests(self):
+        """
+        Test that the offer list does not contain offer requests
+        """
+        offers = mommy.make(Offer, provider=self.provider, _quantity=20)
+        offer_requests = mommy.make(
+            OfferRequest,
+            offer__provider=self.provider,
+            offer__status=Offer.UNPUBLISHED,
+            _quantity=20
+        )
+
+        response = self.client.get(reverse('offer:admin_offers'))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(self.provider, response.context["provider"])
+
+        for offer in offers:
+            self.assertIn(offer, response.context["offers"])
+
+        for offer_request in offer_requests:
+            self.assertNotIn(offer_request, response.context["offers"])
 
     def test_user_can_mark_offer_as_active(self):
         """
