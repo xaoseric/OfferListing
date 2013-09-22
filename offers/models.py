@@ -261,7 +261,53 @@ class Offer(OfferBase):
         ordering = ['-published_at']
 
 
+class OfferUpdateManager(models.Manager):
+    def get_update_for_offer(self, offer, user):
+        try:
+            return offer.offerupdate
+        except OfferUpdate.DoesNotExist:
+            # Create a new offer update
+            offer_update = OfferUpdate(
+                for_offer=offer,
+                user=user,
+                name=offer.name,
+                content=offer.content,
+                provider=offer.provider,
+                status=offer.status,
+                is_active=offer.is_active,
+            )
+            offer_update.save()
+
+            for plan in offer.plan_set.all():
+                new_plan = PlanUpdate(
+                    offer=offer_update,
+                    plan=plan,
+
+                    virtualization=plan.virtualization,
+
+                    # Data attributes
+                    bandwidth=plan.bandwidth,
+                    disk_space=plan.disk_space,
+                    memory=plan.memory,
+
+                    # Ip space
+                    ipv4_space=plan.ipv4_space,
+                    ipv6_space=plan.ipv6_space,
+
+                    # Billing details
+                    billing_time=plan.billing_time,
+                    url=plan.url,
+                    promo_code=plan.promo_code,
+                    cost=plan.cost,
+                    is_active=plan.is_active,
+                )
+                new_plan.save()
+
+            return offer_update
+
+
 class OfferUpdate(OfferBase):
+    objects = OfferUpdateManager()
     for_offer = models.OneToOneField(Offer)
     user = models.ForeignKey(User)
 

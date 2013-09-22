@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest
+from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate
 from offers.selenium_test import SeleniumTestCase
 from selenium.webdriver.common.by import By
 from model_mommy import mommy
@@ -446,6 +446,52 @@ class OfferMethodTests(TestCase):
         offer = mommy.make(Offer, status=Offer.PUBLISHED)
 
         self.assertFalse(offer.is_request())
+
+
+class OfferUpdateTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
+        self.plans = mommy.make(Plan, offer=self.offer, _quantity=4)
+
+        self.client.login(username='user', password='password')
+
+    def test_get_update_for_offer_creates_new_offer_update(self):
+        """
+        Test that using the get_update_for_offer creates a new offer update
+        """
+        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+
+        # Check all values are copied across
+        self.assertEqual(offer_update.name, self.offer.name)
+        self.assertEqual(offer_update.content, self.offer.content)
+        self.assertEqual(offer_update.is_active, self.offer.is_active)
+        self.assertEqual(offer_update.provider, self.offer.provider)
+        self.assertEqual(offer_update.status, self.offer.status)
+
+        # Check additional fields are correct
+        self.assertEqual(offer_update.user, self.user)
+        self.assertEqual(offer_update.for_offer, self.offer)
+
+        # Check that all the plans have been copied across
+        for i, plan in enumerate(self.offer.plan_set.all()):
+            plan_update = offer_update.planupdate_set.all()[i]
+
+            self.assertEqual(plan.virtualization, plan_update.virtualization)
+            self.assertEqual(plan.bandwidth, plan_update.bandwidth)
+            self.assertEqual(plan.disk_space, plan_update.disk_space)
+            self.assertEqual(plan.memory, plan_update.memory)
+            self.assertEqual(plan.ipv4_space, plan_update.ipv4_space)
+            self.assertEqual(plan.ipv6_space, plan_update.ipv6_space)
+            self.assertEqual(plan.billing_time, plan_update.billing_time)
+            self.assertEqual(plan.url, plan_update.url)
+            self.assertEqual(plan.promo_code, plan_update.promo_code)
+            self.assertEqual(plan.cost, plan_update.cost)
+            self.assertEqual(plan.is_active, plan_update.is_active)
 
 
 class OfferSignalTests(TestCase):
