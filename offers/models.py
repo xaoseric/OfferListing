@@ -317,6 +317,7 @@ class OfferUpdate(OfferBase):
     objects = OfferUpdateManager()
     for_offer = models.OneToOneField(Offer)
     user = models.ForeignKey(User)
+    ready = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name
