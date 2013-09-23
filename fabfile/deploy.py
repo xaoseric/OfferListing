@@ -117,6 +117,12 @@ def migrate_database():
             run("python manage.py syncdb --noinput")
             run("python manage.py migrate --noinput")
 
+@task
+def collect_static():
+    with cd(env.hosts_data.app_path()):
+        with prefix("source {}".format(env.hosts_data.virtualenv_activate_path())):
+            run("python manage.py collectstatic --noinput")
+
 
 @task
 def delete_folders():
@@ -153,6 +159,9 @@ def make_deploy():
     # Create database
     migrate_database()
     create_demo_superuser()
+
+    # Collect the static files
+    collect_static()
 
     # Create the gunicorn environment
     create_gunicorn_config()
@@ -197,4 +206,5 @@ def update_deploy():
             run('git pull')
             run('pip install -r {}'.format(env.hosts_data.requirements_path()))
     migrate_database()
+    collect_static()
     server_start()
