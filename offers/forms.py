@@ -1,5 +1,5 @@
 from django import forms
-from offers.models import Comment, Offer, Plan, Provider
+from offers.models import Comment, Offer, Plan, Provider, OfferUpdate, PlanUpdate
 from django.forms.models import formset_factory, modelformset_factory
 
 from crispy_forms.helper import FormHelper
@@ -28,6 +28,21 @@ class CommentForm(forms.Form):
         self.helper.add_input(Submit('submit', 'Comment!'))
 
 
+# Plans and offers
+
+PLAN_FIELDS = (
+    'virtualization',
+    'bandwidth',
+    'disk_space',
+    'memory',
+    'ipv4_space',
+    'ipv6_space',
+    'billing_time',
+    'url',
+    'promo_code',
+    'cost',
+)
+
 class OfferForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -43,18 +58,7 @@ class OfferForm(forms.ModelForm):
 PlanFormset = modelformset_factory(
     Plan,
     extra=4,
-    fields=(
-        'virtualization',
-        'bandwidth',
-        'disk_space',
-        'memory',
-        'ipv4_space',
-        'ipv6_space',
-        'billing_time',
-        'url',
-        'promo_code',
-        'cost',
-    ),
+    fields=PLAN_FIELDS,
     can_delete=True,
 )
 PlanFormsetHelper = FormHelper()
@@ -81,4 +85,26 @@ PlanFormsetHelper.layout = Layout(
         'DELETE',
     ),
     'id',
+)
+
+
+# Offer update
+
+class OfferUpdateForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(OfferUpdateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+    class Meta:
+        model = OfferUpdate
+        fields = ('name', 'content')
+
+
+PlanUpdateFormset = modelformset_factory(
+    PlanUpdate,
+    extra=4,
+    fields=PLAN_FIELDS,
+    can_delete=True,
 )

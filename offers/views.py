@@ -1,8 +1,16 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate
-from offers.forms import CommentForm, OfferForm, PlanFormset, PlanFormsetHelper, ProviderForm
+from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate, PlanUpdate
+from offers.forms import (
+    CommentForm,
+    OfferForm,
+    PlanFormset,
+    PlanFormsetHelper,
+    ProviderForm,
+    PlanUpdateFormset,
+    OfferUpdateForm
+)
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -283,3 +291,35 @@ def admin_provider_update_offer(request, offer_pk):
 
     offer = Offer.not_requests.get(pk=offer_pk)
     offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
+
+    if request.method == "POST":
+        form = OfferUpdateForm(request.POST, instance=offer_update)
+        formset = PlanUpdateFormset(request.POST, queryset=PlanUpdate.objects.filter(offer=offer_update))
+
+        if form.is_valid() and formset.is_valid():
+            offer_update = form.save()
+            for plan_form in formset:
+                if plan_form.has_changed():
+                    if plan_form.cleaned_data["DELETE"]:
+                        continue
+                    plan_update = plan_form.save(commit=False)
+                    plan_update.offer = offer_update
+                    plan_update.is_active = True
+                    plan_update.save()
+            for plan_form in formset.deleted_forms:
+                if plan_form.instance.pk is not None:
+                    plan_update = plan_form.save(commit=False)
+                    plan_update.delete()
+
+            # Reload form data
+            form = OfferUpdateForm(instance=offer_update)
+            formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
+    else:
+        form = OfferUpdateForm(instance=offer_update)
+        formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
+    return render(request, 'offers/manage/edit_request.html', {
+        "form": form,
+        "formset": formset,
+        "helper": PlanFormsetHelper,
+        "offer_update": offer_update,
+    })
