@@ -70,7 +70,7 @@
             Mark ready
           {% endif %}
         </a>
-        <a href="#" class="btn btn-danger">Delete</a>
+        <a href="{% url 'offer:admin_offer_update_delete' offer.pk %}" class="btn btn-danger">Delete</a>
       </div>
     </div>
   {% else %}
