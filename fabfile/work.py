@@ -10,7 +10,7 @@ def set_test_environment():
     os.environ["TEST_RUNNING"] = 'True'
 
 
-@task
+@task(default=True)
 def test(specific=''):
     set_test_environment()
     run_django_command('test {0} -v 2'.format(specific))
