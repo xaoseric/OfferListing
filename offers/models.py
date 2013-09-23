@@ -311,6 +311,9 @@ class OfferUpdate(OfferBase):
     for_offer = models.OneToOneField(Offer)
     user = models.ForeignKey(User)
 
+    def __unicode__(self):
+        return self.name
+
 
 def offer_update_published(sender, instance, raw, **kwargs):
     if instance.pk is not None:
