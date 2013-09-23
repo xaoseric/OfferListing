@@ -194,6 +194,10 @@ LOGGING = {
             'level': 'INFO',
             'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
+        'sentry_strict': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -209,6 +213,11 @@ LOGGING = {
         'offers': {
             'handlers': ['sentry'],
             'level': 'INFO',
+            'propagate': True,
+        },
+        '': {
+            'handlers': ['sentry_strict'],
+            'level': 'ERROR',
             'propagate': True,
         },
     }
