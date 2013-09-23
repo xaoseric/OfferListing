@@ -18,6 +18,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 from crispy_forms.helper import FormHelper
 from django.db.models import Q
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def view_offer(request, offer_pk):
@@ -39,13 +42,15 @@ def view_offer(request, offer_pk):
                 ).save()
                 messages.success(request, "Thank you for commenting!")
                 form = CommentForm()
+                logger.info("User submitted a comment", exc_info=True, extra={
+                    'request': request,
+                })
             else:
                 messages.error(request, 'You need to be logged in to comment!')
         else:
             messages.error(request, "Your comment had errors. Please fix them and submit again!")
     else:
         form = CommentForm()
-
     return render(request, 'offers/view.html', {
         "offer": offer,
         "form": form,
@@ -63,6 +68,9 @@ def list_offers(request, page_number=1):
         offers = paginator.page(page_number)
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
+        logger.info("Offer page got past range", exc_info=True, extra={
+            'request': request,
+        })
         offers = paginator.page(paginator.num_pages)
 
     return render(request, 'offers/list.html', {"offers": offers})
