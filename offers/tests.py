@@ -2113,6 +2113,16 @@ class ProviderAdminOfferViewTests(TestCase):
         response = self.client.get(reverse('offer:admin_offer', args=[other_offer.pk]))
         self.assertEqual(response.status_code, 404)
 
+    def test_user_can_not_view_offer_update_page_of_other_provider(self):
+        """
+        Test that the user can not update an offer from another provider
+        """
+
+        other_offer = mommy.make(Offer)
+
+        response = self.client.get(reverse('offer:admin_offer_update', args=[other_offer.pk]))
+        self.assertEqual(response.status_code, 404)
+
 
 class ProviderAdminUpdateOfferTests(SeleniumTestCase):
     def setUp(self):
