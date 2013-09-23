@@ -59,11 +59,17 @@
   <strong>Warning: </strong>Offer update requests may / may not be accepted. The offer history is visible to the public,
   so an update will not hide anything!
   </div>
-  {% if offer.has_update_request %}
+  {% if offer.update_request %}
     <div class="row">
       <div class="btn-group btn-group-justified col-sm-12">
         <a href="{% url 'offer:admin_offer_update' offer.pk %}" class="btn btn-success">Modify update request</a>
-        <a href="#" class="btn btn-warning">Mark ready</a>
+        <a href="#" class="btn btn-warning">
+          {% if offer.update_request.ready %}
+            Mark not ready
+          {% else %}
+            Mark ready
+          {% endif %}
+        </a>
         <a href="#" class="btn btn-danger">Delete</a>
       </div>
     </div>
