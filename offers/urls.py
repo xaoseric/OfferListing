@@ -29,4 +29,9 @@ urlpatterns = patterns('offers.views',
         'admin_provider_update_offer_mark',
         name="admin_offer_update_mark"
     ),
+    url(
+        r'^manage/offer/(?P<offer_pk>\d+)/update/delete/$',
+        'admin_provider_update_delete_confirm',
+        name="admin_offer_update_delete"
+    ),
 )

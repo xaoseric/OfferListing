@@ -337,3 +337,20 @@ def admin_provider_update_offer_mark(request, offer_pk):
     offer_update.save()
 
     return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
+
+
+@user_is_provider
+@login_required
+def admin_provider_update_delete_confirm(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+    offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
+
+    if request.GET.get('delete', False):
+        offer_update.planupdate_set.all().delete()
+        offer_update.delete()
+        messages.success(request, "The update was deleted!")
+        return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
+
+    return render(request, 'offers/manage/update_delete_request.html', {"offer_update": offer_update})
