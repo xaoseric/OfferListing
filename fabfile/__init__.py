@@ -1,2 +1,2 @@
 import work
-#from deploy import *
+import deploy
