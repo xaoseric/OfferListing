@@ -63,7 +63,7 @@
     <div class="row">
       <div class="btn-group btn-group-justified col-sm-12">
         <a href="{% url 'offer:admin_offer_update' offer.pk %}" class="btn btn-success">Modify update request</a>
-        <a href="#" class="btn btn-warning">
+        <a href="{% url 'offer:admin_offer_update_mark' offer.pk %}" class="btn btn-warning">
           {% if offer.update_request.ready %}
             Mark not ready
           {% else %}
