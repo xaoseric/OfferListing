@@ -30,4 +30,4 @@ before_script:
   - mysql -e 'create database offers_test;'
   - psql -c 'create database offers_test;' -U postgres
 script:
-    - fab test
+    - fab work.test
