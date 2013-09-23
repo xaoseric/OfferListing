@@ -49,4 +49,29 @@
     </tr>
     {% endfor %}
   </table>
+  <h2 class="page-header">Update offer details or plans</h2>
+  <p>To update an offers details (e.g. to change the content of the offer and/or add/remove plans), you may submit an offer
+  update request.</p>
+  <p>Clicking the button below will create a new offer update request, but the update request will not be
+  processed until you mark it as <strong>ready</strong>. Once marked as ready, an admin will review it and update the
+  offer.</p>
+  <div class="alert alert-danger">
+  <strong>Warning: </strong>Offer update requests may / may not be accepted. The offer history is visible to the public,
+  so an update will not hide anything!
+  </div>
+  {% if offer.has_update_request %}
+    <div class="row">
+      <div class="btn-group btn-group-justified col-sm-12">
+        <a href="{% url 'offer:admin_offer_update' offer.pk %}" class="btn btn-success">Modify update request</a>
+        <a href="#" class="btn btn-warning">Mark ready</a>
+        <a href="#" class="btn btn-danger">Delete</a>
+      </div>
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="btn-group btn-group-justified col-sm-12">
+        <a href="{% url 'offer:admin_offer_update' offer.pk %}" class="btn btn-success">Submit New Request</a>
+      </div>
+    </div>
+  {% endif %}
 {% endblock %}

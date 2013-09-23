@@ -257,6 +257,13 @@ class Offer(OfferBase):
         return False
     is_request.boolean = True
 
+    def has_update_request(self):
+        try:
+            if self.offerupdate is not None:
+                return True
+        except OfferUpdate.DoesNotExist:
+            return False
+
     class Meta:
         ordering = ['-published_at']
 
