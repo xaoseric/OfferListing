@@ -140,6 +140,7 @@ INSTALLED_APPS = (
     'crispy_forms',
     'django_gravatar',
     'easy_thumbnails',
+    'raven.contrib.django.raven_compat',
 
     # Custom applications
     'offers',
@@ -183,7 +184,16 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+    },
     'handlers': {
+        'sentry': {
+            'level': 'INFO',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -192,8 +202,13 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['mail_admins', 'sentry'],
             'level': 'ERROR',
+            'propagate': True,
+        },
+        'offers': {
+            'handlers': ['sentry'],
+            'level': 'INFO',
             'propagate': True,
         },
     }
