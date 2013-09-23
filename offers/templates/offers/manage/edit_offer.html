@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit offer{% endblock %}
+
+{% block page_title %}
+  Edit <em>{{ offer.name }}</em>
+  <small>{{ offer.get_status_display }}</small>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="btn-group btn-group-justified">
+        {% if offer.is_active %}
+          <a href="{% url 'offer:admin_offer_mark' offer.pk %}" class="btn btn-danger">Mark as not active</a>
+        {% else %}
+          <a href="{% url 'offer:admin_offer_mark' offer.pk %}" class="btn btn-success">Mark as active</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <br />
+  <table class="table table-bordered">
+    <tr>
+      <th>Memory (RAM)</th>
+      <th>Disk space (HDD)</th>
+      <th>Status</th>
+      <th>Mark</th>
+    </tr>
+    {% for plan in plans %}
+    <tr>
+      <td>{{ plan.get_memory }}</td>
+      <td>{{ plan.get_hdd }}</td>
+      <td>
+        {% if plan.is_active %}
+          <span class="text-success">Active</span>
+        {% else %}
+          <span class="text-warning">Not Active</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if plan.is_active %}
+          <a href="{% url 'offer:admin_offer_plan_mark' offer.pk plan.pk %}" class="btn btn-warning">Mark as "Not active"</a>
+        {% else %}
+          <a href="{% url 'offer:admin_offer_plan_mark' offer.pk plan.pk %}" class="btn btn-success">Mark as "Active"</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <h2 class="page-header">Update offer details or plans</h2>
+  <p>To update an offers details (e.g. to change the content of the offer and/or add/remove plans), you may submit an offer
+  update request.</p>
+  <p>Clicking the button below will create a new offer update request, but the update request will not be
+  processed until you mark it as <strong>ready</strong>. Once marked as ready, an admin will review it and update the
+  offer.</p>
+  <div class="alert alert-danger">
+  <strong>Warning: </strong>Offer update requests may / may not be accepted. The offer history is visible to the public,
+  so an update will not hide anything!
+  </div>
+  {% if offer.update_request %}
+    <div class="row">
+      <div class="btn-group btn-group-justified col-sm-12">
+        <a href="{% url 'offer:admin_offer_update' offer.pk %}" class="btn btn-success">Modify update request</a>
+        <a href="{% url 'offer:admin_offer_update_mark' offer.pk %}" class="btn btn-warning">
+          {% if offer.update_request.ready %}
+            Mark not ready
+          {% else %}
+            Mark ready
+          {% endif %}
+        </a>
+        <a href="{% url 'offer:admin_offer_update_delete' offer.pk %}" class="btn btn-danger">Delete</a>
+      </div>
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="btn-group btn-group-justified col-sm-12">
+        <a href="{% url 'offer:admin_offer_update' offer.pk %}" class="btn btn-success">Submit New Request</a>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

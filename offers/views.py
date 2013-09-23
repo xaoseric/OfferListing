@@ -1,14 +1,23 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, OfferRequest, Plan
-from offers.forms import CommentForm, OfferForm, PlanFormset, PlanFormsetHelper, ProviderForm
+from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate, PlanUpdate
+from offers.forms import (
+    CommentForm,
+    OfferForm,
+    PlanFormset,
+    PlanFormsetHelper,
+    ProviderForm,
+    PlanUpdateFormset,
+    OfferUpdateForm
+)
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from django.views.generic import View
 from crispy_forms.helper import FormHelper
+from django.db.models import Q
 
 
 def view_offer(request, offer_pk):
@@ -129,6 +138,8 @@ def admin_submit_request(request):
             offer_request.save()
             for plan_form in formset:
                 if plan_form.has_changed():
+                    if plan_form.cleaned_data["DELETE"]:
+                        continue
                     plan = plan_form.save(commit=False)
                     plan.offer = offer
                     plan.is_active = True
@@ -161,10 +172,20 @@ def admin_edit_request(request, request_pk):
             form.save()
             for plan_form in formset:
                 if plan_form.has_changed():
+                    if plan_form.cleaned_data["DELETE"]:
+                        continue
                     plan = plan_form.save(commit=False)
                     plan.offer = offer_request.offer
                     plan.is_active = True
                     plan.save()
+            for plan_form in formset.deleted_forms:
+                if plan_form.instance.pk is not None:
+                    plan = plan_form.save(commit=False)
+                    plan.delete()
+
+            # Reload form data
+            form = OfferForm(instance=offer_request.offer)
+            formset = PlanFormset(queryset=Plan.objects.filter(offer=offer_request.offer))
     else:
         form = OfferForm(instance=offer_request.offer)
         formset = PlanFormset(queryset=Plan.objects.filter(offer=offer_request.offer))
@@ -185,7 +206,7 @@ def admin_provider_requests(request):
         '-created_at'
     )
 
-    return render(request, 'offers/manage/offers.html', {"requests": requests})
+    return render(request, 'offers/manage/requests.html', {"requests": requests})
 
 
 @user_is_provider
@@ -205,3 +226,131 @@ def admin_provider_delete_confirm(request, request_pk):
         return HttpResponseRedirect(reverse('offer:admin_requests'))
 
     return render(request, 'offers/manage/delete_request.html', {"offer_request": offer_request})
+
+
+@user_is_provider
+@login_required
+def admin_provider_offer_list(request):
+    offers = Offer.not_requests.for_provider(request.user.user_profile.provider)
+
+    return render(request, 'offers/manage/offer_list.html', {
+        "offers": offers,
+        "provider": request.user.user_profile.provider,
+    })
+
+
+@user_is_provider
+@login_required
+def admin_provider_offer_edit(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+    plans = offer.plan_set.all()
+
+    return render(request, 'offers/manage/edit_offer.html', {
+        "offer": offer,
+        "plans": plans,
+    })
+
+
+@user_is_provider
+@login_required
+def admin_provider_offer_mark(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+
+    offer.is_active = not offer.is_active
+    offer.save()
+
+    return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
+
+
+@user_is_provider
+@login_required
+def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+
+    if not offer.plan_set.filter(pk=plan_pk).exists():
+        return HttpResponseNotFound("Plan was not found!")
+    plan = offer.plan_set.get(pk=plan_pk)
+
+    plan.is_active = not plan.is_active
+    plan.save()
+
+    return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
+
+
+@user_is_provider
+@login_required
+def admin_provider_update_offer(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
+        return HttpResponseNotFound("Offer was not found!")
+
+    offer = Offer.not_requests.get(pk=offer_pk)
+    offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
+
+    if request.method == "POST":
+        form = OfferUpdateForm(request.POST, instance=offer_update)
+        formset = PlanUpdateFormset(request.POST, queryset=PlanUpdate.objects.filter(offer=offer_update))
+
+        if form.is_valid() and formset.is_valid():
+            offer_update = form.save()
+            for plan_form in formset:
+                if plan_form.has_changed():
+                    if plan_form.cleaned_data["DELETE"]:
+                        continue
+                    plan_update = plan_form.save(commit=False)
+                    plan_update.offer = offer_update
+                    plan_update.is_active = True
+                    plan_update.save()
+            for plan_form in formset.deleted_forms:
+                if plan_form.instance.pk is not None:
+                    plan_update = plan_form.save(commit=False)
+                    plan_update.delete()
+
+            # Reload form data
+            form = OfferUpdateForm(instance=offer_update)
+            formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
+    else:
+        form = OfferUpdateForm(instance=offer_update)
+        formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
+    return render(request, 'offers/manage/update_offer.html', {
+        "form": form,
+        "formset": formset,
+        "helper": PlanFormsetHelper,
+        "offer_update": offer_update,
+    })
+
+
+@user_is_provider
+@login_required
+def admin_provider_update_offer_mark(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+    offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
+
+    offer_update.ready = not offer_update.ready
+    offer_update.save()
+
+    return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
+
+
+@user_is_provider
+@login_required
+def admin_provider_update_delete_confirm(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
+        return HttpResponseNotFound("Offer was not found!")
+    offer = Offer.not_requests.get(pk=offer_pk)
+    offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
+
+    if request.GET.get('delete', False):
+        offer_update.planupdate_set.all().delete()
+        offer_update.delete()
+        messages.success(request, "The update was deleted!")
+        return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
+
+    return render(request, 'offers/manage/update_delete_request.html', {"offer_update": offer_update})

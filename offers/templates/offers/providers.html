@@ -9,7 +9,7 @@
   <div class="list-group">
     {% for provider in providers %}
       <a class="list-group-item" href="{% url 'offer:provider' provider.pk %}">
-        <span class="badge">{{ provider.offer_set.count }} offers</span>
+        <span class="badge">{{ provider.offer_count }} offers</span>
         <h4 class="list-group-item-heading">{{ provider.name }}</h4>
         <p class="list-group-item-text">
           In business for over {{ provider.start_date|timesince }}.

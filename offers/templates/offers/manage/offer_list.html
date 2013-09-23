@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}My Offers{% endblock %}
+
+{% block page_title %}{{ provider.name }} Offers{% endblock %}
+
+{% block content %}
+  <table class="table table-bordered">
+    <tr>
+      <th>Name</th>
+      <th>Plans</th>
+      <th>Published or Created</th>
+      <th>Status</th>
+      <th>Manage</th>
+    </tr>
+    {% for offer in offers %}
+    <tr>
+      <td>
+        {% if offer.status == offer.PUBLISHED %}
+          <a href="{% url 'offer:view' offer.pk %}">{{ offer.name }}</a>
+        {% else %}
+          {{ offer.name }}
+        {% endif %}
+      </td>
+      <td>{{ offer.plan_count }}</td>
+      <td>{{ offer.published_at }}</td>
+      <td>{{ offer.get_status_display }}</td>
+      <td>
+        <div class="btn-group">
+          <a class="btn btn-info" href="{% url 'offer:admin_offer' offer.pk %}">Edit</a>
+          {% if offer.status == offer.PUBLISHED %}
+            <a class="btn btn-warning" href="{% url 'offer:view' offer.pk %}">View</a>
+          {% else %}
+            <a class="btn btn-warning disabled">View</a>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

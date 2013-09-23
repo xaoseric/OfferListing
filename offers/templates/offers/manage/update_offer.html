@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}Update Offer{% endblock %}
+
+{% block page_title %}Update offer <em>{{ offer_update.for_offer.name }}</em>{% endblock %}
+
+{% block content %}
+  <a href="{% url 'offer:admin_offer' offer_update.for_offer.pk  %}" class="btn btn-info">
+    <span class="glyphicon glyphicon-arrow-left"></span>
+    Back to edit page
+  </a>
+  <form action="{% url 'offer:admin_offer_update' offer_update.for_offer.pk %}" method="POST">
+    {% crispy form %}
+    {{ formset.management_form|crispy }}
+    <div class="row">
+      {% for form in formset %}
+          <div class="col-md-6">
+            <div class="well">
+              {% crispy form helper %}
+            </div>
+          </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <input type="submit" name="submit" value="Save" class="btn btn-primary" id="submit-save">
+    </div>
+  </form>
+{% endblock %}

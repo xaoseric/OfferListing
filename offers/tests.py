@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest
+from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate
 from offers.selenium_test import SeleniumTestCase
 from selenium.webdriver.common.by import By
 from model_mommy import mommy
@@ -446,6 +446,83 @@ class OfferMethodTests(TestCase):
         offer = mommy.make(Offer, status=Offer.PUBLISHED)
 
         self.assertFalse(offer.is_request())
+
+
+class OfferUpdateTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
+        self.plans = mommy.make(Plan, offer=self.offer, _quantity=4)
+
+        self.client.login(username='user', password='password')
+
+    def test_get_update_for_offer_creates_new_offer_update(self):
+        """
+        Test that using the get_update_for_offer creates a new offer update
+        """
+
+        # Assert initial database data
+        self.assertEqual(OfferUpdate.objects.count(), 0)
+        self.assertEqual(PlanUpdate.objects.count(), 0)
+
+        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+
+        # Check all values are copied across
+        self.assertEqual(offer_update.name, self.offer.name)
+        self.assertEqual(offer_update.content, self.offer.content)
+        self.assertEqual(offer_update.is_active, self.offer.is_active)
+        self.assertEqual(offer_update.provider, self.offer.provider)
+        self.assertEqual(offer_update.status, self.offer.status)
+
+        # Check additional fields are correct
+        self.assertEqual(offer_update.user, self.user)
+        self.assertEqual(offer_update.for_offer, self.offer)
+
+        # Check that all the plans have been copied across
+        for i, plan in enumerate(self.offer.plan_set.all()):
+            plan_update = offer_update.planupdate_set.all()[i]
+
+            self.assertEqual(plan.virtualization, plan_update.virtualization)
+            self.assertEqual(plan.bandwidth, plan_update.bandwidth)
+            self.assertEqual(plan.disk_space, plan_update.disk_space)
+            self.assertEqual(plan.memory, plan_update.memory)
+            self.assertEqual(plan.ipv4_space, plan_update.ipv4_space)
+            self.assertEqual(plan.ipv6_space, plan_update.ipv6_space)
+            self.assertEqual(plan.billing_time, plan_update.billing_time)
+            self.assertEqual(plan.url, plan_update.url)
+            self.assertEqual(plan.promo_code, plan_update.promo_code)
+            self.assertEqual(plan.cost, plan_update.cost)
+            self.assertEqual(plan.is_active, plan_update.is_active)
+
+        # Assert final database data
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 4)
+
+    def test_get_update_for_offer_gets_existing_offer_update(self):
+        """
+        Test that the get_update_for_offer method returns the existing offer update for an offer if it already exists
+        """
+        # Assert initial database data
+        self.assertEqual(OfferUpdate.objects.count(), 0)
+        self.assertEqual(PlanUpdate.objects.count(), 0)
+
+        # Call the method multiple times
+        offer_update1 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+        offer_update2 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+        offer_update3 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+        offer_update4 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+
+        self.assertEqual(offer_update1, offer_update2)
+        self.assertEqual(offer_update2, offer_update3)
+        self.assertEqual(offer_update3, offer_update4)
+
+        # Assert final database data
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 4)
 
 
 class OfferSignalTests(TestCase):
@@ -1121,6 +1198,49 @@ class ProviderAdminNewOfferRequestTests(SeleniumTestCase):
         self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
+    def test_plan_form_can_delete_empty_plans(self):
+        """
+        Test that checking the delete box on empty plan forms does nothing (modifies no data)
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        #  Submit a new offer
+        self.driver.find_element_by_id("id_name").clear()
+        self.driver.find_element_by_id("id_name").send_keys("Some title")
+        self.driver.find_element_by_id("id_content").clear()
+        self.driver.find_element_by_id("id_content").send_keys("Some content for the new offer")
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv4_space").send_keys("1")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://google.com")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("20.00")
+
+        # Click some delete boxes
+        self.driver.find_element_by_id("id_form-2-DELETE").click()
+        self.driver.find_element_by_id("id_form-3-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 1)
+
+        # Make sure the page has no errors
+        self.driver.find_element_by_id("id_form-0-bandwidth")
+
 
 class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
     def setUp(self):
@@ -1477,8 +1597,64 @@ class ProviderAdminEditOfferRequestTests(SeleniumTestCase):
         self.assertEqual(updated_plan_1.offer, self.offer)
         self.assertEqual(updated_plan_1.cost, 400.00)
 
+    def test_plan_form_can_delete_plans(self):
+        """
+        Test that checking the delete box on plans deletes them
+        """
 
-class ProviderAdminViewTests(TestCase):
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-0-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 1)
+
+    def test_plan_form_can_delete_multiple_plans(self):
+        """
+        Test that checking the delete box on plans deletes them with multiple plans
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-0-DELETE").click()
+        self.driver.find_element_by_id("id_form-1-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 0)
+
+    def test_plan_form_can_delete_empty_plans(self):
+        """
+        Test that checking the delete box on empty plan forms does nothing (modifies no data)
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-3-DELETE").click()
+        self.driver.find_element_by_id("id_form-4-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+
+class ProviderAdminRequestViewTests(TestCase):
     """
     Tests that validate how the views work
     """
@@ -1516,6 +1692,58 @@ class ProviderAdminViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertNotContains(response, self.provider.name)
+
+    def test_user_can_modify_their_provider(self):
+        """
+        Test that a user can edit their own provider through the admin home page
+        """
+
+        response = self.client.get(reverse('offer:admin_home'))
+        self.assertEqual(response.status_code, 200)
+
+        # Make sure the name is present
+        self.assertContains(response, self.provider.name)
+
+        # Send off a post request
+        new_data = {
+            "name": 'New provider',
+            "start_date": self.provider.start_date,
+            "website": "http://example.com/provider/",
+        }
+        response = self.client.post(reverse('offer:admin_home'), new_data, follow=True)
+
+        self.assertContains(response, 'New provider')
+        self.assertContains(response, 'http://example.com/provider/')
+
+        new_provider = Provider.objects.get(pk=self.provider.pk)
+        self.assertEqual(new_provider.name, 'New provider')
+        self.assertEqual(new_provider.website, 'http://example.com/provider/')
+
+    def test_user_can_not_modify_their_provider_with_incorrect_information(self):
+        """
+        Test that a user can not edit their own provider through the admin home page if some information is incorrect
+        """
+
+        response = self.client.get(reverse('offer:admin_home'))
+        self.assertEqual(response.status_code, 200)
+
+        # Make sure the name is present
+        self.assertContains(response, self.provider.name)
+
+        # Send off a post request
+        new_data = {
+            "name": '',  # Empty name
+            "start_date": self.provider.start_date,
+            "website": "http://example.com/provider/",
+        }
+        response = self.client.post(reverse('offer:admin_home'), new_data, follow=True)
+
+        new_provider = Provider.objects.get(pk=self.provider.pk)
+        self.assertNotEqual(new_provider.name, '')
+        self.assertNotEqual(new_provider.website, 'http://example.com/provider/')
+
+        self.assertEqual(new_provider.name, self.provider.name)
+        self.assertEqual(new_provider.website, self.provider.website)
 
     def test_user_can_view_provider_admin_new_request(self):
         """
@@ -1668,3 +1896,672 @@ class ProviderAdminViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertNotContains(response, self.provider.name)
+
+
+class ProviderAdminOfferViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
+
+        self.client.login(username='user', password='password')
+
+    def test_user_can_view_offer_list(self):
+        """
+        Test that a user can view their own offer list
+        """
+
+        offers = mommy.make(Offer, provider=self.provider, _quantity=20)
+
+        response = self.client.get(reverse('offer:admin_offers'))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(self.provider, response.context["provider"])
+
+        for offer in offers:
+            self.assertIn(offer, response.context["offers"])
+
+    def test_offer_list_does_not_contain_offer_requests(self):
+        """
+        Test that the offer list does not contain offer requests
+        """
+        offers = mommy.make(Offer, provider=self.provider, _quantity=20)
+        offer_requests = mommy.make(
+            OfferRequest,
+            offer__provider=self.provider,
+            offer__status=Offer.UNPUBLISHED,
+            _quantity=20
+        )
+
+        response = self.client.get(reverse('offer:admin_offers'))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(self.provider, response.context["provider"])
+
+        for offer in offers:
+            self.assertIn(offer, response.context["offers"])
+
+        for offer_request in offer_requests:
+            self.assertNotIn(offer_request, response.context["offers"])
+
+    def test_user_can_mark_offer_as_active(self):
+        """
+        Test that a user can mark their own offer as active
+        """
+        self.offer.is_active = False
+        self.offer.save()
+
+        response = self.client.get(reverse('offer:admin_offer_mark', args=[self.offer.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        updated_offer = Offer.objects.get(pk=self.offer.pk)
+        self.assertTrue(updated_offer.is_active)
+
+    def test_user_can_mark_offer_as_inactive(self):
+        """
+        Test that a user can mark their own offer as inactive
+        """
+        self.offer.is_active = True
+        self.offer.save()
+
+        response = self.client.get(reverse('offer:admin_offer_mark', args=[self.offer.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        updated_offer = Offer.objects.get(pk=self.offer.pk)
+        self.assertFalse(updated_offer.is_active)
+
+    def test_user_can_not_mark_other_offer(self):
+        """
+        Test that a user can not mark an offer that is not theirs (the provider is not their provider)
+        """
+        new_offer = mommy.make(Offer, is_active=True)
+
+        response = self.client.get(reverse('offer:admin_offer_mark', args=[new_offer.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_offer = Offer.objects.get(pk=new_offer.pk)
+        self.assertTrue(updated_offer.is_active)
+
+    def test_user_can_not_mark_offer_request(self):
+        """
+        Test that a user can not mark an offer request's status
+        """
+        offer_request = OfferRequest(offer=self.offer, user=self.user)
+        offer_request.save()
+
+        response = self.client.get(reverse('offer:admin_offer_mark', args=[self.offer.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_offer = Offer.objects.get(pk=self.offer.pk)
+        self.assertTrue(updated_offer.is_active)
+
+    def test_user_can_mark_plan_as_active(self):
+        """
+        Test that a user can mark their own plan as active
+        """
+        plan = mommy.make(Plan, offer=self.offer, is_active=False)
+
+        response = self.client.get(
+            reverse('offer:admin_offer_plan_mark', args=[self.offer.pk, plan.pk]),
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('offer:admin_offer', args=[self.offer.pk]))
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertTrue(updated_plan.is_active)
+
+    def test_user_can_mark_plan_as_inactive(self):
+        """
+        Test that a user can mark their own plan as inactive
+        """
+        plan = mommy.make(Plan, offer=self.offer, is_active=True)
+
+        response = self.client.get(
+            reverse('offer:admin_offer_plan_mark', args=[self.offer.pk, plan.pk]),
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('offer:admin_offer', args=[self.offer.pk]))
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertFalse(updated_plan.is_active)
+
+    def test_user_can_not_mark_other_offer_plan(self):
+        """
+        Test that a user can not mark an offer plan that is not theirs (the provider is not their provider)
+        """
+        new_offer = mommy.make(Offer, is_active=True)
+        plan = mommy.make(Plan, offer=new_offer, is_active=True)
+
+        response = self.client.get(reverse('offer:admin_offer_plan_mark', args=[new_offer.pk, plan.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertTrue(updated_plan.is_active)
+
+    def test_user_can_not_mark_non_existent_plan(self):
+        """
+        Test that a user can not mark a plan that is not part of their offer
+        """
+        plan = mommy.make(Plan, is_active=True)
+
+        response = self.client.get(reverse('offer:admin_offer_plan_mark', args=[self.offer.pk, plan.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertTrue(updated_plan.is_active)
+
+    def test_user_can_not_mark_offer_request_plan(self):
+        """
+        Test that a user can not mark an offer request's plan status
+        """
+        offer_request = OfferRequest(offer=self.offer, user=self.user)
+        offer_request.save()
+
+        plan = mommy.make(Plan, offer=self.offer, is_active=True)
+
+        response = self.client.get(reverse('offer:admin_offer_plan_mark', args=[self.offer.pk, plan.pk]), follow=True)
+
+        self.assertEqual(response.status_code, 404)
+
+        updated_plan = Plan.objects.get(pk=plan.pk)
+        self.assertTrue(updated_plan.is_active)
+
+    def test_user_can_view_offer_edit_page(self):
+        """
+        Test that a user can view the offer edit page for one of their offers
+        """
+
+        mommy.make(Plan, offer=self.offer, _quantity=5)
+
+        response = self.client.get(reverse('offer:admin_offer', args=[self.offer.pk]))
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context["offer"], self.offer)
+        self.assertQuerysetEqual(response.context["plans"], map(repr, self.offer.plan_set.all()), ordered=False)
+
+    def test_user_can_not_view_offer_edit_page_request(self):
+        """
+        Test that the user can not view an offer request through the offer edit page
+        """
+        self.offer.status = Offer.UNPUBLISHED
+        self.offer.save()
+        mommy.make(OfferRequest, offer=self.offer)
+
+        response = self.client.get(reverse('offer:admin_offer', args=[self.offer.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_view_offer_edit_page_of_other_provider(self):
+        """
+        Test that the user can not edit an offer from another provider
+        """
+
+        other_offer = mommy.make(Offer)
+
+        response = self.client.get(reverse('offer:admin_offer', args=[other_offer.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_view_offer_update_page_of_other_provider(self):
+        """
+        Test that the user can not update an offer from another provider
+        """
+
+        other_offer = mommy.make(Offer)
+
+        response = self.client.get(reverse('offer:admin_offer_update', args=[other_offer.pk]))
+        self.assertEqual(response.status_code, 404)
+
+
+class ProviderAdminUpdateOfferTests(SeleniumTestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('user', 'test@example.com', 'password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer = mommy.make(Offer, status=Offer.PUBLISHED, provider=self.provider)
+        self.plan1 = mommy.make(Plan, offer=self.offer, cost=200.20, url='http://example.com/first/')
+        self.plan2 = mommy.make(Plan, offer=self.offer, cost=3000.82, url='http://example.com/second/')
+
+        self.offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+
+        self.login()
+        self.open(reverse("offer:admin_offer_update", args=[self.offer_update.for_offer.pk]))
+
+    def test_offer_update_form_has_correct_data(self):
+        """
+        Test that the offer update form contains all the correct data to update an offer
+        """
+        # Assert offer values
+        self.assertEqual(self.offer.name, self.driver.find_element_by_id("id_name").get_attribute("value"))
+        self.assertEqual(self.offer.content, self.driver.find_element_by_id("id_content").text)
+
+        # Assert plan 1 values
+        self.assertEqual(
+            str(self.plan1.bandwidth),
+            self.driver.find_element_by_id("id_form-0-bandwidth").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.disk_space),
+            self.driver.find_element_by_id("id_form-0-disk_space").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.memory),
+            self.driver.find_element_by_id("id_form-0-memory").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.ipv4_space),
+            self.driver.find_element_by_id("id_form-0-ipv4_space").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.ipv6_space),
+            self.driver.find_element_by_id("id_form-0-ipv6_space").get_attribute("value")
+        )
+        self.assertEqual(
+            self.plan1.url,
+            self.driver.find_element_by_id("id_form-0-url").get_attribute("value")
+        )
+        self.assertEqual(
+            self.plan1.promo_code,
+            self.driver.find_element_by_id("id_form-0-promo_code").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan1.cost),
+            self.driver.find_element_by_id("id_form-0-cost").get_attribute("value")
+        )
+
+        # Assert plan 2 values
+        self.assertEqual(
+            str(self.plan2.bandwidth),
+            self.driver.find_element_by_id("id_form-1-bandwidth").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.disk_space),
+            self.driver.find_element_by_id("id_form-1-disk_space").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.memory),
+            self.driver.find_element_by_id("id_form-1-memory").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.ipv4_space),
+            self.driver.find_element_by_id("id_form-1-ipv4_space").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.ipv6_space),
+            self.driver.find_element_by_id("id_form-1-ipv6_space").get_attribute("value")
+        )
+        self.assertEqual(
+            self.plan2.url,
+            self.driver.find_element_by_id("id_form-1-url").get_attribute("value")
+        )
+        self.assertEqual(
+            self.plan2.promo_code,
+            self.driver.find_element_by_id("id_form-1-promo_code").get_attribute("value")
+        )
+        self.assertEqual(
+            str(self.plan2.cost),
+            self.driver.find_element_by_id("id_form-1-cost").get_attribute("value")
+        )
+
+    def test_can_update_offer_using_form(self):
+        """
+        Test that a user can submit an offer update using the provided form
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+        # Submit the new values
+        self.driver.find_element_by_id("id_name").clear()
+        self.driver.find_element_by_id("id_name").send_keys("New title")
+        self.driver.find_element_by_id("id_content").clear()
+        self.driver.find_element_by_id("id_content").send_keys("New content")
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Reload the local instances
+        offer = Offer.objects.get(pk=self.offer.pk)
+        offer_update = OfferUpdate.objects.get(pk=self.offer_update.pk)
+
+        # Make sure the new data is saved to the database
+        self.assertEqual(offer_update.name, "New title")
+        self.assertEqual(offer_update.content, "New content")
+
+        # Make sure initial offer has not changed
+        self.assertEqual(self.offer.name, offer.name)
+        self.assertEqual(self.offer.content, offer.content)
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+    def test_can_update_plans_using_form(self):
+        """
+        Test that a user can update the plans of an offer update using the provided forms
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+        # Submit the new values for form 1
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("1024")
+        self.driver.find_element_by_id("id_form-0-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv4_space").send_keys("1")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://example.com/")
+        self.driver.find_element_by_id("id_form-0-promo_code").clear()
+        self.driver.find_element_by_id("id_form-0-promo_code").send_keys("CHEAP")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("400.00")
+
+        # Submit the new values for form 2
+        self.driver.find_element_by_id("id_form-1-disk_space").clear()
+        self.driver.find_element_by_id("id_form-1-disk_space").send_keys("300")
+        self.driver.find_element_by_id("id_form-1-memory").clear()
+        self.driver.find_element_by_id("id_form-1-memory").send_keys("4096")
+        self.driver.find_element_by_id("id_form-1-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-1-ipv4_space").send_keys("2")
+        self.driver.find_element_by_id("id_form-1-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-1-ipv6_space").send_keys("32")
+        self.driver.find_element_by_id("id_form-1-url").clear()
+        self.driver.find_element_by_id("id_form-1-url").send_keys("http://example.com/special/")
+        self.driver.find_element_by_id("id_form-1-cost").clear()
+        self.driver.find_element_by_id("id_form-1-cost").send_keys("800.00")
+
+        # Submit the form
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Reload the local instances
+        plan1 = Plan.objects.get(pk=self.plan1.pk)
+        plan2 = Plan.objects.get(pk=self.plan2.pk)
+
+        plan_update1 = PlanUpdate.objects.all()[0]
+        plan_update2 = PlanUpdate.objects.all()[1]
+
+        # Assert the data for plan update 1 is the same
+        self.assertEqual(plan_update1.bandwidth, 200)
+        self.assertEqual(plan_update1.disk_space, 100)
+        self.assertEqual(plan_update1.memory, 1024)
+        self.assertEqual(plan_update1.ipv4_space, 1)
+        self.assertEqual(plan_update1.ipv6_space, 16)
+        self.assertEqual(plan_update1.url, "http://example.com/")
+        self.assertEqual(plan_update1.promo_code, "CHEAP")
+        self.assertEqual(plan_update1.cost, 400.00)
+
+        # Assert the data for plan update 2 is the same
+        self.assertEqual(plan_update2.disk_space, 300)
+        self.assertEqual(plan_update2.memory, 4096)
+        self.assertEqual(plan_update2.ipv4_space, 2)
+        self.assertEqual(plan_update2.ipv6_space, 32)
+        self.assertEqual(plan_update2.url, "http://example.com/special/")
+        self.assertEqual(plan_update2.promo_code, "")
+        self.assertEqual(plan_update2.cost, 800.00)
+
+        # Assert that the old plan values have not changes
+        self.assertEqual(plan1.bandwidth, self.plan1.bandwidth)
+        self.assertEqual(plan2.bandwidth, self.plan2.bandwidth)
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+    def test_saving_does_not_duplicate_data(self):
+        """
+        Test that saving does not duplicate any database data
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+    def test_can_add_new_plans(self):
+        """
+        Test that the user can add new plans to an offer update
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+        # Send in some new data
+        self.driver.find_element_by_id("id_form-2-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-2-bandwidth").send_keys("600")
+        self.driver.find_element_by_id("id_form-2-disk_space").clear()
+        self.driver.find_element_by_id("id_form-2-disk_space").send_keys("200")
+        self.driver.find_element_by_id("id_form-2-memory").clear()
+        self.driver.find_element_by_id("id_form-2-memory").send_keys("256")
+        self.driver.find_element_by_id("id_form-2-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-2-ipv4_space").send_keys("4")
+        self.driver.find_element_by_id("id_form-2-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-2-ipv6_space").send_keys("256")
+        self.driver.find_element_by_id("id_form-2-url").clear()
+        self.driver.find_element_by_id("id_form-2-url").send_keys("http://example.com/new_offer/")
+        self.driver.find_element_by_id("id_form-2-promo_code").clear()
+        self.driver.find_element_by_id("id_form-2-promo_code").send_keys("CHEAP_PROMO_CODE")
+        self.driver.find_element_by_id("id_form-2-cost").clear()
+        self.driver.find_element_by_id("id_form-2-cost").send_keys("15.00")
+        self.driver.find_element_by_id("submit-save").click()
+
+        new_plan = PlanUpdate.objects.latest('created_at')
+        self.assertEqual(new_plan.bandwidth, 600)
+        self.assertEqual(new_plan.disk_space, 200)
+        self.assertEqual(new_plan.memory, 256)
+        self.assertEqual(new_plan.ipv4_space, 4)
+        self.assertEqual(new_plan.ipv6_space, 256)
+        self.assertEqual(new_plan.url, "http://example.com/new_offer/")
+        self.assertEqual(new_plan.promo_code, "CHEAP_PROMO_CODE")
+        self.assertEqual(new_plan.cost, 15.00)
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 3)
+
+    def test_can_add_new_plans_out_of_order(self):
+        """
+        Test that the user can add new plans to an offer out of the order (with a different form field)
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+        # Send in some new data
+        self.driver.find_element_by_id("id_form-3-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-3-bandwidth").send_keys("600")
+        self.driver.find_element_by_id("id_form-3-disk_space").clear()
+        self.driver.find_element_by_id("id_form-3-disk_space").send_keys("200")
+        self.driver.find_element_by_id("id_form-3-memory").clear()
+        self.driver.find_element_by_id("id_form-3-memory").send_keys("256")
+        self.driver.find_element_by_id("id_form-3-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-3-ipv4_space").send_keys("4")
+        self.driver.find_element_by_id("id_form-3-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-3-ipv6_space").send_keys("256")
+        self.driver.find_element_by_id("id_form-3-url").clear()
+        self.driver.find_element_by_id("id_form-3-url").send_keys("http://example.com/new_offer/")
+        self.driver.find_element_by_id("id_form-3-promo_code").clear()
+        self.driver.find_element_by_id("id_form-3-promo_code").send_keys("CHEAP_PROMO_CODE")
+        self.driver.find_element_by_id("id_form-3-cost").clear()
+        self.driver.find_element_by_id("id_form-3-cost").send_keys("15.00")
+        self.driver.find_element_by_id("submit-save").click()
+
+        new_plan = PlanUpdate.objects.latest('created_at')
+        self.assertEqual(new_plan.bandwidth, 600)
+        self.assertEqual(new_plan.disk_space, 200)
+        self.assertEqual(new_plan.memory, 256)
+        self.assertEqual(new_plan.ipv4_space, 4)
+        self.assertEqual(new_plan.ipv6_space, 256)
+        self.assertEqual(new_plan.url, "http://example.com/new_offer/")
+        self.assertEqual(new_plan.promo_code, "CHEAP_PROMO_CODE")
+        self.assertEqual(new_plan.cost, 15.00)
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 3)
+
+    def test_plan_form_can_not_edit_other_plans(self):
+        """
+        Test that the user can not modify the form to update plans with a different ID
+        """
+
+        another_plan = mommy.make(PlanUpdate, cost=400.00, url="http://example.com/offer")
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 2)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(self.offer.plan_set.count(), 2)
+
+        self.assertEqual(OfferUpdate.objects.count(), 2)
+        self.assertEqual(PlanUpdate.objects.count(), 3)
+        self.assertEqual(self.offer_update.planupdate_set.count(), 2)
+
+        # Update the hidden id field to that of the another_plan
+        self.driver.execute_script('$("#id_form-0-id").val({0})'.format(another_plan.pk))
+        self.assertEqual(self.driver.execute_script('return $("#id_form-0-id").val()'), str(another_plan.pk))
+
+        # Set the new values for form 1
+        self.driver.find_element_by_id("id_form-0-bandwidth").clear()
+        self.driver.find_element_by_id("id_form-0-bandwidth").send_keys("200")
+        self.driver.find_element_by_id("id_form-0-disk_space").clear()
+        self.driver.find_element_by_id("id_form-0-disk_space").send_keys("100")
+        self.driver.find_element_by_id("id_form-0-memory").clear()
+        self.driver.find_element_by_id("id_form-0-memory").send_keys("1024")
+        self.driver.find_element_by_id("id_form-0-ipv4_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv4_space").send_keys("1")
+        self.driver.find_element_by_id("id_form-0-ipv6_space").clear()
+        self.driver.find_element_by_id("id_form-0-ipv6_space").send_keys("16")
+        self.driver.find_element_by_id("id_form-0-url").clear()
+        self.driver.find_element_by_id("id_form-0-url").send_keys("http://example.com/")
+        self.driver.find_element_by_id("id_form-0-promo_code").clear()
+        self.driver.find_element_by_id("id_form-0-promo_code").send_keys("CHEAP")
+        self.driver.find_element_by_id("id_form-0-cost").clear()
+        self.driver.find_element_by_id("id_form-0-cost").send_keys("400.00")
+
+        # Submit the form
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Make sure there were no errors i.e. the form still exists
+        self.driver.find_element_by_id("id_form-0-bandwidth")
+
+        # Make sure that neither model was changed
+        updated_another_plan = PlanUpdate.objects.get(pk=another_plan.pk)
+
+        self.assertEqual(updated_another_plan.bandwidth, another_plan.bandwidth)
+        self.assertEqual(updated_another_plan.memory, another_plan.memory)
+        self.assertEqual(updated_another_plan.offer, another_plan.offer)
+        self.assertEqual(updated_another_plan.cost, another_plan.cost)
+
+        updated_plan_1 = PlanUpdate.objects.get(pk=self.plan1.pk)
+
+        self.assertEqual(updated_plan_1.bandwidth, 200)
+        self.assertEqual(updated_plan_1.memory, 1024)
+        self.assertEqual(updated_plan_1.offer, self.offer_update)
+        self.assertEqual(updated_plan_1.cost, 400.00)
+
+    def test_plan_form_can_delete_plans(self):
+        """
+        Test that checking the delete box on plans deletes them
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-0-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 1)
+
+    def test_plan_form_can_delete_multiple_plans(self):
+        """
+        Test that checking the delete box on plans deletes them with multiple plans
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-0-DELETE").click()
+        self.driver.find_element_by_id("id_form-1-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 0)
+
+    def test_plan_form_can_delete_empty_plans(self):
+        """
+        Test that checking the delete box on empty plan forms does nothing (modifies no data)
+        """
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
+
+        self.driver.find_element_by_id("id_form-3-DELETE").click()
+        self.driver.find_element_by_id("id_form-4-DELETE").click()
+        self.driver.find_element_by_id("submit-save").click()
+
+        # Assert the correct amount of records in the database
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+        self.assertEqual(OfferUpdate.objects.count(), 1)
+        self.assertEqual(PlanUpdate.objects.count(), 2)
