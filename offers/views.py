@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, OfferRequest, Plan
+from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate
 from offers.forms import CommentForm, OfferForm, PlanFormset, PlanFormsetHelper, ProviderForm
 from offers.decorators import user_is_provider
 from django.contrib import messages
@@ -273,3 +273,13 @@ def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
     plan.save()
 
     return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
+
+
+@user_is_provider
+@login_required
+def admin_provider_update_offer(request, offer_pk):
+    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
+        return HttpResponseNotFound("Offer was not found!")
+
+    offer = Offer.not_requests.get(pk=offer_pk)
+    offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
