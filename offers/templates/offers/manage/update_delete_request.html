@@ -21,4 +21,9 @@
       Delete offer update request
     </a>
   </div>
+  <br>
+  <a href="{% url 'offer:admin_offer' offer_update.for_offer.pk  %}" class="btn btn-info">
+    <span class="glyphicon glyphicon-arrow-left"></span>
+    Back to edit page
+  </a>
 {% endblock %}
