@@ -317,7 +317,7 @@ def admin_provider_update_offer(request, offer_pk):
     else:
         form = OfferUpdateForm(instance=offer_update)
         formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
-    return render(request, 'offers/manage/edit_request.html', {
+    return render(request, 'offers/manage/update_offer.html', {
         "form": form,
         "formset": formset,
         "helper": PlanFormsetHelper,
