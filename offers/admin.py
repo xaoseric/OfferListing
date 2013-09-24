@@ -53,9 +53,16 @@ class OfferAdmin(admin.ModelAdmin):
         PlanInlineAdmin,
     ]
 
+
+class CommentAdmin(admin.ModelAdmin):
+    date_hierarchy = 'created_at'
+    list_display = ('offer', 'commenter', 'status', 'created_at')
+    list_filter = ('status', 'created_at', 'updated_at')
+
+
 admin.site.register(Provider)
 admin.site.register(Offer, OfferAdmin)
 admin.site.register(OfferUpdate)
 admin.site.register(PlanUpdate)
 admin.site.register(Plan)
-admin.site.register(Comment)
+admin.site.register(Comment, CommentAdmin)
