@@ -113,6 +113,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
     "template_helpers.context_processors.footer_context_processor",
+    "template_helpers.context_processors.testing_mode",
 )
 
 ROOT_URLCONF = 'OfferListings.urls'
@@ -163,8 +164,10 @@ if os.getenv('TEST_RUNNING', False):
         'django_jenkins.tasks.run_pep8',
         'django_jenkins.tasks.run_csslint',
     )
+    IS_TEST = True
 else:
     INSTALLED_APPS += ('django_extensions',)
+    IS_TEST = False
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
