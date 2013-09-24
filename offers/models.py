@@ -9,6 +9,7 @@ import os
 import uuid
 from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
+from template_helpers.cleaners import clean
 
 ############
 # Managers #
@@ -193,6 +194,12 @@ class OfferBase(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_html_content(self):
+        """
+        Get the safe HTML content of this offer
+        """
+        return clean(self.content)
 
 
 class Offer(OfferBase):
