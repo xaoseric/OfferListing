@@ -34,5 +34,9 @@
     "admins":{
         "Admin Name": "email@example.com",
         "Bdmin Name": "tests@example.com"
+    },
+
+    "raven": {
+        "url": "http://example.com"
     }
 }

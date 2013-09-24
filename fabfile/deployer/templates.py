@@ -18,6 +18,10 @@ TEMPLATE_DEBUG = DEBUG
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+RAVEN_CONFIG = {{
+    'dsn': '{raven_url}',
+}}
+
 ADMINS = (
 {admins}
 )

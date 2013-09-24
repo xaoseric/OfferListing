@@ -99,7 +99,8 @@ class Configuration(object):
             type=self.database_type(),
             site_name=self.site_name(),
             additional_settings=additional_settings,
-            admins=admins
+            admins=admins,
+            raven_url=self.data["raven"]["url"],
         )
 
     def local_settings_path(self):
