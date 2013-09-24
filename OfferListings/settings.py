@@ -112,6 +112,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.tz",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
+    "template_helpers.context_processors.footer_context_processor",
 )
 
 ROOT_URLCONF = 'OfferListings.urls'
@@ -170,6 +171,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+FOOTER_EXTRA = ''
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
