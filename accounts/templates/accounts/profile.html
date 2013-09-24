@@ -6,6 +6,16 @@
 
 {% block content %}
   {% include 'accounts/profile_bits/profile_badge.html' with user=user reference=user.username plural_suffix='s' %}
+  <a name="comments"></a>
   <h2>Comments for this user:</h2>
   {% include 'offers/comments.html' with comments=comments is_profile=True %}
+  <ul class="pagination">
+    <li class="{% if not comments.has_previous %}disabled{% endif %}">
+      <a {% if comments.has_previous %}href="?page={{ comments.previous_page_number }}#comments"{% endif %}>&laquo;</a>
+    </li>
+    <li><a>Page {{ comments.number }} of {{ comments.paginator.num_pages }}</a></li>
+    <li class="{% if not comments.has_next %}disabled{% endif %}">
+      <a {% if comments.has_next %}href="?page={{ comments.next_page_number }}#comments"{% endif %}>&raquo;</a>
+    </li>
+</ul>
 {% endblock %}

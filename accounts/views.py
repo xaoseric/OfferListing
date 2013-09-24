@@ -11,6 +11,7 @@ from django.contrib.auth import logout as logout_user
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from offers.models import Comment, Offer
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 @login_required
@@ -21,6 +22,18 @@ def self_profile(request):
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     comments = user.comment_set.filter(status=Comment.PUBLISHED, offer__status=Offer.PUBLISHED).order_by('-created_at')
+
+    paginator = Paginator(comments, 5)
+
+    page = request.GET.get('page')
+    try:
+        comments = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        comments = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        comments = paginator.page(paginator.num_pages)
 
     return render(request, 'accounts/profile.html', {
         "user": user,
