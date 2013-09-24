@@ -23,8 +23,17 @@
       </li>
     {% endif %}
     <li class="list-group-item offer-time-since">
-      Offer released {{ offer.published_at|naturaltime }}.
-      <span class="pull-right">Last updated {{ offer.updated_at|naturaltime }}.</span>
+      <div class="row">
+        <div class="col-md-4">
+          Offer released {{ offer.published_at|naturaltime }}.
+        </div>
+        <div class="col-md-4 text-center">
+          {{ offer.comment_count }} Comment{{ offer.comment_count | pluralize }}
+        </div>
+        <div class="col-md-4 text-right">
+          Last updated {{ offer.updated_at|naturaltime }}.
+        </div>
+      </div>
     </li>
   </ul>
 </div>

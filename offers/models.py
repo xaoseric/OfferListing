@@ -217,6 +217,9 @@ class Offer(OfferBase):
         """
         return self.comment_set.filter(status=Comment.PUBLISHED).order_by('created_at')
 
+    def comment_count(self):
+        return self.get_comments().count()
+
     def active_plan_count(self):
         """
         Returns the number of active plans that this offer has.
