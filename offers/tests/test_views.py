@@ -1,6 +1,5 @@
 from django.test import TestCase
 from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate
-from offers.selenium_test import SeleniumTestCase
 from selenium.webdriver.common.by import By
 from model_mommy import mommy
 from django.utils.text import slugify
