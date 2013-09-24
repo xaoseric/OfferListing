@@ -14,6 +14,7 @@
   <h2>Plans on offer:</h2>
   {% include 'offers/plan_set.html' with plan_set=offer.plan_set.all %}
   <hr>
+  <a name="comments"></a>
   <h2>Comments:</h2>
   {% include 'offers/comments.html' with comments=offer.get_comments %}
   {% if request.user.is_authenticated %}
