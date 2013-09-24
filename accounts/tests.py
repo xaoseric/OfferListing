@@ -42,7 +42,7 @@ class ProfileViewTests(TestCase):
         """
         Test that the user can view their own profile when they are logged in
         """
-        response = self.client.get(reverse('profile'))
+        response = self.client.get(reverse('self_profile'))
 
         self.assertEqual(200, response.status_code)
         self.assertContains(response, 'Joe')
@@ -55,7 +55,7 @@ class ProfileViewTests(TestCase):
         """
         self.client.logout()
 
-        response = self.client.get(reverse('profile'), follow=True)
+        response = self.client.get(reverse('self_profile'), follow=True)
 
         self.assertEqual(200, response.status_code)
 
