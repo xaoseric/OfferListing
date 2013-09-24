@@ -9,7 +9,7 @@ import os
 import uuid
 from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
-from template_helpers.cleaners import clean
+from template_helpers.cleaners import clean, super_clean
 
 ############
 # Managers #
@@ -341,8 +341,6 @@ pre_save.connect(clean_offer_on_save, sender=OfferUpdate)
 pre_save.connect(offer_update_published, sender=Offer)
 
 
-
-
 class PlanBase(models.Model):
     KVM = 'k'
     OPENVZ = 'o'
@@ -478,3 +476,9 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['created_at']
+
+
+def clean_comment_on_save(sender, instance, raw, **kwargs):
+    instance.content = super_clean(instance.content)
+
+pre_save.connect(clean_comment_on_save, sender=Comment)

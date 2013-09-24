@@ -27,7 +27,7 @@
               <small>Commented on {{ comment.created_at }}</small>
             </a>
           </h4>
-          {{ comment.content }}
+          {{ comment.content | safe }}
         </div>
         {% endspaceless %}
       </li>
