@@ -337,7 +337,16 @@ def offer_update_published(sender, instance, raw, **kwargs):
                 instance.published_at = timezone.now()
 
 
+def clean_offer_on_save(sender, instance, raw, **kwargs):
+    instance.content = clean(instance.content)
+
+
+pre_save.connect(clean_offer_on_save, sender=Offer)
+pre_save.connect(clean_offer_on_save, sender=OfferUpdate)
+
 pre_save.connect(offer_update_published, sender=Offer)
+
+
 
 
 class PlanBase(models.Model):
