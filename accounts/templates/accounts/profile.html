@@ -6,4 +6,6 @@
 
 {% block content %}
   {% include 'accounts/profile_bits/profile_badge.html' with user=user reference=user.username %}
+  <h2>Comments for this user:</h2>
+  {% include 'offers/comments.html' with comments=comments is_profile=True %}
 {% endblock %}

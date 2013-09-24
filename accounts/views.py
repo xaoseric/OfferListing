@@ -10,7 +10,7 @@ from crispy_forms.layout import Submit
 from django.contrib.auth import logout as logout_user
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from offers.models import Comment
+from offers.models import Comment, Offer
 
 
 @login_required
@@ -20,7 +20,13 @@ def self_profile(request):
 
 def profile(request, username):
     user = get_object_or_404(User, username=username)
-    return render(request, 'accounts/profile.html', {"user": user})
+    comments = user.comment_set.filter(status=Comment.PUBLISHED, offer__status=Offer.PUBLISHED).order_by('-created_at')
+
+    return render(request, 'accounts/profile.html', {
+        "user": user,
+        "comments": comments,
+    })
+
 
 @login_required
 def edit_account(request):

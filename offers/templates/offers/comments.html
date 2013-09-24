@@ -24,7 +24,13 @@
             {% endif %}
             <br />
             <a href="{% url 'offer:view' comment.offer.pk %}#comment-{{ comment.pk }}">
-              <small>Commented on {{ comment.created_at }}</small>
+              {% if is_profile %}
+                <small>
+                  Commented on {{ comment.created_at }} on the offer <em>{{ comment.offer.name }}</em>
+                </small>
+              {% else %}
+                <small>Commented on {{ comment.created_at }}</small>
+              {% endif %}
             </a>
           </h4>
           {{ comment.content | safe }}
@@ -34,5 +40,9 @@
     {% endfor %}
   </ul>
 {% else %}
-No comments of this offer!
+  {% if is_profile %}
+    This user has not commented!
+  {% else %}
+    No comments of this offer!
+  {% endif %}
 {% endif %}
