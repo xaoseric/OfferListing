@@ -14,7 +14,7 @@ from offers.models import Comment
 
 
 @login_required
-def profile(request):
+def self_profile(request):
     return render(request, 'accounts/profile.html', {"user": request.user})
 
 
