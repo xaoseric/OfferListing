@@ -1,3 +1,4 @@
+{% if not is_test %}
 <script type="text/javascript">
   $(document).ready(function(){
     CKEDITOR.replace("{{ editor_name }}", {
@@ -16,3 +17,4 @@
   });
   })
 </script>
+{% endif %}
