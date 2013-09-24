@@ -1,5 +1,5 @@
 from django.contrib import admin
-from offers.models import Offer, Plan, Provider, OfferUpdate, PlanUpdate
+from offers.models import Offer, Plan, Provider, OfferUpdate, PlanUpdate, Comment
 from django.db.models import Q
 
 
@@ -58,3 +58,4 @@ admin.site.register(Offer, OfferAdmin)
 admin.site.register(OfferUpdate)
 admin.site.register(PlanUpdate)
 admin.site.register(Plan)
+admin.site.register(Comment)
