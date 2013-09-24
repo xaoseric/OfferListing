@@ -3,3 +3,4 @@ resources/media/provider_logos
 htmlcov
 reports
 ghostdriver.log
+local_settings.py
