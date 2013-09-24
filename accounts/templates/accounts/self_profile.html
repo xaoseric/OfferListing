@@ -8,7 +8,7 @@
 {% block page_title %}My Profile{% endblock %}
 
 {% block content %}
-  {% include 'accounts/profile_bits/profile_badge.html' with user=user %}
+  {% include 'accounts/profile_bits/profile_badge.html' with user=user reference='You' %}
   <h2>Actions</h2>
   {% include 'accounts/account_actions.html' with long=True %}
 {% endblock %}

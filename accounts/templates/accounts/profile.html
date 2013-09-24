@@ -5,5 +5,5 @@
 {% block page_title %}{{ user.username }}'s Profile{% endblock %}
 
 {% block content %}
-  {% include 'accounts/profile_bits/profile_badge.html' with user=user %}
+  {% include 'accounts/profile_bits/profile_badge.html' with user=user reference=user.username %}
 {% endblock %}

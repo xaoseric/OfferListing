@@ -7,8 +7,8 @@
     </div>
     <div class="col-sm-8">
       <h1>{{ user.first_name }} {{ user.last_name }}</h1>
-      <p>You last logged in {{ user.last_login |naturaltime }}.</p>
-      <p>You registered {{ user.date_joined |naturaltime }}, on {{ user.date_joined }}</p>
+      <p>{{ reference }} last logged in {{ user.last_login |naturaltime }}.</p>
+      <p>{{ reference }} registered {{ user.date_joined |naturaltime }}, on {{ user.date_joined }}</p>
     </div>
   </div>
 </div>
