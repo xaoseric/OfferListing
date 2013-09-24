@@ -4,8 +4,8 @@ import bleach
 attrs = {
     '*': ['style']
 }
-tags = ['p', 'em', 'strong', 'ul', 'li', 's', 'h1', 'h2', 'h3', 'div', 'ol', 'hr', 'pre']
-styles = ['color', 'font-weight', 'font-style', 'color', 'background']
+tags = ['p', 'em', 'strong', 'ul', 'li', 's', 'h1', 'h2', 'h3', 'div', 'ol', 'pre']
+styles = ['color', 'font-weight', 'font-style', 'color', 'background', 'border', 'padding']
 
 
 def clean(text):
