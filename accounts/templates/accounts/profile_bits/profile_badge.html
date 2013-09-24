@@ -9,6 +9,12 @@
       <h1>{{ user.first_name }} {{ user.last_name }}</h1>
       <p>{{ reference }} last logged in {{ user.last_login |naturaltime }}.</p>
       <p>{{ reference }} registered {{ user.date_joined |naturaltime }}, on {{ user.date_joined }}</p>
+      {% if user.user_profile.is_provider %}
+        <p>
+          {{ reference }} manage{{ plural_suffix }} the provider
+          <a href="{% url 'offer:provider' user.user_profile.provider.pk %}">{{ user.user_profile.provider.name }}</a>
+        </p>
+      {% endif %}
     </div>
   </div>
 </div>

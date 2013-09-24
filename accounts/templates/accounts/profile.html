@@ -5,7 +5,7 @@
 {% block page_title %}{{ user.username }}'s Profile{% endblock %}
 
 {% block content %}
-  {% include 'accounts/profile_bits/profile_badge.html' with user=user reference=user.username %}
+  {% include 'accounts/profile_bits/profile_badge.html' with user=user reference=user.username plural_suffix='s' %}
   <h2>Comments for this user:</h2>
   {% include 'offers/comments.html' with comments=comments is_profile=True %}
 {% endblock %}
