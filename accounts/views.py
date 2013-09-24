@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from accounts.forms import UserEditForm, UserConfirmDeletionForm, UserRegisterForm
 from django.contrib import messages
 from crispy_forms.helper import FormHelper
@@ -15,8 +15,12 @@ from offers.models import Comment
 
 @login_required
 def self_profile(request):
-    return render(request, 'accounts/profile.html', {"user": request.user})
+    return render(request, 'accounts/self_profile.html', {"user": request.user})
 
+
+def profile(request, username):
+    user = get_object_or_404(User, username=username)
+    return render(request, 'accounts/profile.html', {"user": user})
 
 @login_required
 def edit_account(request):

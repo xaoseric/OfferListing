@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load gravatar %}
+{% load humanize %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+  {% include 'accounts/profile_bits/profile_badge.html' with user=user %}
+  <h2>Actions</h2>
+  {% include 'accounts/account_actions.html' with long=True %}
+{% endblock %}
