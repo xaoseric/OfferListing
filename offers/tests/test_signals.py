@@ -1,13 +1,6 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate
-from selenium.webdriver.common.by import By
+from offers.models import Offer
 from model_mommy import mommy
-from django.utils.text import slugify
-from django.core.urlresolvers import reverse
-from django.core.files import File
-from django.conf import settings
-from django.contrib.auth.models import User
-import os
 from django.utils import timezone
 from datetime import timedelta
 
