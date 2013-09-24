@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-  {{ offer.get_html_content | safe }}
+  {{ offer.content | safe }}
   <hr>
   <h2>Plans on offer:</h2>
   {% include 'offers/plan_set.html' with plan_set=offer.plan_set.all %}
