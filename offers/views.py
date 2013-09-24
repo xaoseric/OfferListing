@@ -14,10 +14,6 @@ from offers.forms import (
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.auth.decorators import login_required
-from django.views.generic import View
-from crispy_forms.helper import FormHelper
-from django.db.models import Q
 import logging
 
 logger = logging.getLogger(__name__)
@@ -102,7 +98,6 @@ def provider_profile(request, provider_pk, page_number=1):
 
 
 @user_is_provider
-@login_required
 def admin_provider_home(request):
     """
     The homepage for provider users to manage their own provider
@@ -125,7 +120,6 @@ def admin_provider_home(request):
 
 
 @user_is_provider
-@login_required
 def admin_submit_request(request):
     if request.method == "POST":
 
@@ -158,7 +152,6 @@ def admin_submit_request(request):
 
 
 @user_is_provider
-@login_required
 def admin_edit_request(request, request_pk):
     offer_request = get_object_or_404(
         OfferRequest,
@@ -200,7 +193,6 @@ def admin_edit_request(request, request_pk):
 
 
 @user_is_provider
-@login_required
 def admin_provider_requests(request):
     requests = OfferRequest.requests.get_requests_for_provider(
         request.user.user_profile.provider
@@ -212,7 +204,6 @@ def admin_provider_requests(request):
 
 
 @user_is_provider
-@login_required
 def admin_provider_delete_confirm(request, request_pk):
     offer_request = get_object_or_404(
         OfferRequest,
@@ -231,7 +222,6 @@ def admin_provider_delete_confirm(request, request_pk):
 
 
 @user_is_provider
-@login_required
 def admin_provider_offer_list(request):
     offers = Offer.not_requests.for_provider(request.user.user_profile.provider)
 
@@ -242,7 +232,6 @@ def admin_provider_offer_list(request):
 
 
 @user_is_provider
-@login_required
 def admin_provider_offer_edit(request, offer_pk):
     if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
         return HttpResponseNotFound("Offer was not found!")
@@ -256,7 +245,6 @@ def admin_provider_offer_edit(request, offer_pk):
 
 
 @user_is_provider
-@login_required
 def admin_provider_offer_mark(request, offer_pk):
     if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
         return HttpResponseNotFound("Offer was not found!")
@@ -269,7 +257,6 @@ def admin_provider_offer_mark(request, offer_pk):
 
 
 @user_is_provider
-@login_required
 def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
     if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
         return HttpResponseNotFound("Offer was not found!")
@@ -286,7 +273,6 @@ def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
 
 
 @user_is_provider
-@login_required
 def admin_provider_update_offer(request, offer_pk):
     if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
         return HttpResponseNotFound("Offer was not found!")
@@ -328,7 +314,6 @@ def admin_provider_update_offer(request, offer_pk):
 
 
 @user_is_provider
-@login_required
 def admin_provider_update_offer_mark(request, offer_pk):
     if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
         return HttpResponseNotFound("Offer was not found!")
@@ -342,7 +327,6 @@ def admin_provider_update_offer_mark(request, offer_pk):
 
 
 @user_is_provider
-@login_required
 def admin_provider_update_delete_confirm(request, offer_pk):
     if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
         return HttpResponseNotFound("Offer was not found!")

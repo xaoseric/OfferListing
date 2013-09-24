@@ -1679,6 +1679,20 @@ class ProviderAdminRequestViewTests(TestCase):
 
         self.assertContains(response, self.provider.name)
 
+    def test_logged_out_user_can_not_view_provider_admin_profile(self):
+        """
+        Test that a user which is logged out can not view the provider admin profile
+        """
+        self.client.logout()
+
+        response = self.client.get(reverse('offer:admin_home'), follow=True)
+
+        self.assertIn(reverse('login'), response.redirect_chain[0][0])
+        self.assertEqual(response.redirect_chain[0][1], 302)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, self.provider.name)
+
     def test_unauthorized_user_can_not_view_provider_admin_profile(self):
         """
         Test a user which can not manage a provider can not access the profile page
