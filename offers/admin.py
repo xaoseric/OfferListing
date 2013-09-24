@@ -1,5 +1,5 @@
 from django.contrib import admin
-from offers.models import Offer, Plan, Provider
+from offers.models import Offer, Plan, Provider, OfferUpdate, PlanUpdate
 from django.db.models import Q
 
 
@@ -55,4 +55,6 @@ class OfferAdmin(admin.ModelAdmin):
 
 admin.site.register(Provider)
 admin.site.register(Offer, OfferAdmin)
+admin.site.register(OfferUpdate)
+admin.site.register(PlanUpdate)
 admin.site.register(Plan)
