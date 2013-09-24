@@ -195,12 +195,6 @@ class OfferBase(models.Model):
     class Meta:
         abstract = True
 
-    def get_html_content(self):
-        """
-        Get the safe HTML content of this offer
-        """
-        return clean(self.content)
-
 
 class Offer(OfferBase):
 
