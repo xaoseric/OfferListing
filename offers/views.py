@@ -16,6 +16,7 @@ from offers.forms import (
 )
 from offers.decorators import user_is_provider
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import logging
 
@@ -380,3 +381,16 @@ def admin_provider_locations_new(request):
         "download_formset": download_formset,
         "location": location,
     })
+
+
+# Admin section
+@user_passes_test(lambda u: u.is_superuser)
+def superuser_approve_updates(request):
+    if request.GET.get('update_pk'):
+        if OfferUpdate.objects.filter(pk=request.GET.get('update_pk')).exists():
+            offer_update = OfferUpdate.objects.filter(pk=request.GET.get('update_pk'))
+            print offer_update
+
+    offer_updates = OfferUpdate.objects.all()
+    return render(request, 'offers/manage/admin/offer_updates.html', {"offer_updates": offer_updates})
+

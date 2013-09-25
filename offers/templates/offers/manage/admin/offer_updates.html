@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}Offer Updates{% endblock %}
+
+{% block page_title %}Offer Updates{% endblock %}
+
+{% block content %}
+  {% for offer_update in offer_updates %}
+    {{ offer_update }}
+  {% endfor %}
+{% endblock %}

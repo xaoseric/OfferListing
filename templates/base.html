@@ -57,6 +57,9 @@
                 </li>
               {% endif %}
             {% endif %}
+            {% if request.user.is_superuser %}
+              {% navigation_link request 'offer:superuser_approve_updates' 'Offer Updates' %}
+            {% endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
             {% if request.user.is_authenticated %}
