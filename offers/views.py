@@ -168,7 +168,7 @@ def admin_edit_request(request, request_pk):
 
             # Reload form data
             form = OfferForm(instance=offer_request.offer)
-            formset = PlanFormset(instance=offer_request.offer)
+            formset = PlanFormset(instance=offer_request.offer, provider=request.user.user_profile.provider)
     else:
         form = OfferForm(instance=offer_request.offer)
         formset = PlanFormset(instance=offer_request.offer, provider=request.user.user_profile.provider)
