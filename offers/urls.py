@@ -34,4 +34,6 @@ urlpatterns = patterns('offers.views',
         'admin_provider_update_delete_confirm',
         name="admin_offer_update_delete"
     ),
+
+    url(r'^manage/location/(?P<location_pk>\d+)/$', 'admin_provider_locations_edit', name="admin_location_edit"),
 )

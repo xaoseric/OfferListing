@@ -9,7 +9,9 @@ from offers.forms import (
     PlanFormsetHelper,
     ProviderForm,
     PlanUpdateFormset,
-    OfferUpdateForm
+    OfferUpdateForm,
+    TestIPFormset,
+    LocationForm
 )
 from offers.decorators import user_is_provider
 from django.contrib import messages
@@ -313,3 +315,30 @@ def admin_provider_update_delete_confirm(request, offer_pk):
         return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
 
     return render(request, 'offers/manage/update_delete_request.html', {"offer_update": offer_update})
+
+
+# Provider Locations
+@user_is_provider
+def admin_provider_locations_edit(request, location_pk):
+    location = get_object_or_404(Location, pk=location_pk, provider=request.user.user_profile.provider)
+
+    if request.method == "POST":
+        form = LocationForm(request.POST, instance=location)
+        formset = TestIPFormset(request.POST, instance=location)
+
+        if form.is_valid() and formset.is_valid():
+            location = form.save()
+            formset.save()
+
+            # Reload form data
+            form = LocationForm(instance=location)
+            formset = TestIPFormset(instance=location)
+    else:
+        form = LocationForm(instance=location)
+        formset = TestIPFormset(instance=location)
+    return render(request, 'offers/manage/edit_location.html', {
+        "form": form,
+        "formset": formset,
+        "helper": PlanFormsetHelper,
+        "location": location,
+    })

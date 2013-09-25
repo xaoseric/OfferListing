@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}Edit Location{% endblock %}
+
+{% block page_title %}Edit Location <em>{{ location.location }}</em>{% endblock %}
+
+{% block content %}
+  <a href="#" class="btn btn-info">
+    <span class="glyphicon glyphicon-arrow-left"></span>
+    Back to location list
+  </a>
+  <form action="{% url 'offer:admin_location_edit' location.pk %}" method="POST" name="location-form">
+    {% crispy form %}
+    {{ formset.management_form|crispy }}
+    <div class="row">
+      {% for form in formset %}
+          <div class="col-md-6">
+            <div class="well">
+              {% crispy form %}
+            </div>
+          </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <input type="submit" name="submit" value="Save" class="btn btn-primary" id="submit-save">
+    </div>
+  </form>
+{% endblock %}

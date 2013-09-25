@@ -1,5 +1,5 @@
 from django import forms
-from offers.models import Comment, Offer, Plan, Provider, OfferUpdate, PlanUpdate, Location
+from offers.models import Comment, Offer, Plan, Provider, OfferUpdate, PlanUpdate, Location, TestIP
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from crispy_forms.helper import FormHelper
@@ -132,3 +132,29 @@ class PlanUpdateFormset(PlanUpdateFormsetBase):
 
         for form in self:
             form.fields["location"].queryset = Location.objects.filter(provider=provider)
+
+
+# Locations
+class LocationForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(LocationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+    class Meta:
+        model = Location
+        fields = ('location', 'datacenter')
+
+
+TestIPFormsetBase = inlineformset_factory(Location, TestIP, extra=4, fields=('ip', 'ip_type'))
+
+
+class TestIPFormset(TestIPFormsetBase):
+
+    def __init__(self, *args, **kwargs):
+        super(TestIPFormset, self).__init__(*args, **kwargs)
+
+        for form in self:
+            form.helper = FormHelper()
+            form.helper.form_tag = False
