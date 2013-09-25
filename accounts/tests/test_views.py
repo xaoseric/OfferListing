@@ -125,6 +125,17 @@ class OtherUserViewTests(TestCase):
             self.assertNotContains(response, comment.content)
 
 
+class AuthenticatedOtherUserViewTests(OtherUserViewTests):
+    def setUp(self):
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.comments = mommy.make(Comment, commenter=self.user, _quantity=20)
+        self.user.save()
+
+        self.client.login(username='some_user', password='password')
+
+
 class EditAccountViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
