@@ -191,7 +191,7 @@ class TestIP(models.Model):
 
 class TestDownload(models.Model):
     location = models.ForeignKey(Location, related_name='test_downloads')
-    url = models.CharField(max_length=255)
+    url = models.URLField(max_length=255)
     size = models.BigIntegerField()  # In Megabytes
 
     created_at = models.DateTimeField(auto_now_add=True)
