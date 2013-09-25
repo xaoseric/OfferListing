@@ -155,6 +155,6 @@ class TestIPFormset(TestIPFormsetBase):
     def __init__(self, *args, **kwargs):
         super(TestIPFormset, self).__init__(*args, **kwargs)
 
-        for form in self:
-            form.helper = FormHelper()
-            form.helper.form_tag = False
+        self.helper = FormHelper()
+        self.helper.template = 'offers/better_table_inline_form.html'
+        self.helper.form_tag = False

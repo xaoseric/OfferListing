@@ -324,21 +324,21 @@ def admin_provider_locations_edit(request, location_pk):
 
     if request.method == "POST":
         form = LocationForm(request.POST, instance=location)
-        formset = TestIPFormset(request.POST, instance=location)
+        ip_formset = TestIPFormset(request.POST, instance=location)
 
-        if form.is_valid() and formset.is_valid():
+        if form.is_valid() and ip_formset.is_valid():
             location = form.save()
-            formset.save()
+            ip_formset.save()
 
             # Reload form data
             form = LocationForm(instance=location)
-            formset = TestIPFormset(instance=location)
+            ip_formset = TestIPFormset(instance=location)
     else:
         form = LocationForm(instance=location)
-        formset = TestIPFormset(instance=location)
+        ip_formset = TestIPFormset(instance=location)
     return render(request, 'offers/manage/edit_location.html', {
         "form": form,
-        "formset": formset,
+        "ip_formset": ip_formset,
         "helper": PlanFormsetHelper,
         "location": location,
     })
