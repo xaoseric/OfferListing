@@ -11,6 +11,13 @@
     <div class="well">
       <h1 class="page-header">
         {{ offer_update.name }}
+        <small>
+          {% if offer_update.ready %}
+            Ready
+          {% else %}
+            Not Ready
+          {% endif %}
+        </small>
       </h1>
       <a href="?update={{ offer_update.pk }}" class="btn btn-success">Update</a>
     </div>
