@@ -158,7 +158,7 @@ def admin_edit_request(request, request_pk):
     )
     if request.method == "POST":
         form = OfferForm(request.POST, instance=offer_request.offer)
-        formset = PlanFormset(request.POST, instance=offer_request.offer)
+        formset = PlanFormset(request.POST, instance=offer_request.offer, provider=request.user.user_profile.provider)
         if form.is_valid() and formset.is_valid():
             formset.save()
 
@@ -167,7 +167,7 @@ def admin_edit_request(request, request_pk):
             formset = PlanFormset(instance=offer_request.offer)
     else:
         form = OfferForm(instance=offer_request.offer)
-        formset = PlanFormset(instance=offer_request.offer)
+        formset = PlanFormset(instance=offer_request.offer, provider=request.user.user_profile.provider)
     return render(request, 'offers/manage/edit_request.html', {
         "form": form,
         "formset": formset,
