@@ -17,3 +17,4 @@ fabric
 raven
 bleach
 django-countries
+django-simple-captcha
