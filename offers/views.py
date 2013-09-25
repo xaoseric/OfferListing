@@ -266,29 +266,18 @@ def admin_provider_update_offer(request, offer_pk):
 
     if request.method == "POST":
         form = OfferUpdateForm(request.POST, instance=offer_update)
-        formset = PlanUpdateFormset(request.POST, queryset=PlanUpdate.objects.filter(offer=offer_update))
+        formset = PlanUpdateFormset(request.POST, instance=offer_update)
 
         if form.is_valid() and formset.is_valid():
             offer_update = form.save()
-            for plan_form in formset:
-                if plan_form.has_changed():
-                    if plan_form.cleaned_data["DELETE"]:
-                        continue
-                    plan_update = plan_form.save(commit=False)
-                    plan_update.offer = offer_update
-                    plan_update.is_active = True
-                    plan_update.save()
-            for plan_form in formset.deleted_forms:
-                if plan_form.instance.pk is not None:
-                    plan_update = plan_form.save(commit=False)
-                    plan_update.delete()
+            formset.save()
 
             # Reload form data
             form = OfferUpdateForm(instance=offer_update)
-            formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
+            formset = PlanUpdateFormset(instance=offer_update)
     else:
         form = OfferUpdateForm(instance=offer_update)
-        formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
+        formset = PlanUpdateFormset(instance=offer_update)
     return render(request, 'offers/manage/update_offer.html', {
         "form": form,
         "formset": formset,

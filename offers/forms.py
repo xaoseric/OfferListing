@@ -30,6 +30,17 @@ class CommentForm(forms.Form):
 
 # Plans and offers
 
+class OfferForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(OfferForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
+    class Meta:
+        model = Offer
+        fields = ('name', 'content')
+
 PLAN_FIELDS = (
     'virtualization',
     'bandwidth',
@@ -43,18 +54,6 @@ PLAN_FIELDS = (
     'cost',
     'location',
 )
-
-class OfferForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(OfferForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-
-    class Meta:
-        model = Offer
-        fields = ('name', 'content')
-
 
 PlanFormset = inlineformset_factory(
     Offer,
@@ -105,9 +104,9 @@ class OfferUpdateForm(forms.ModelForm):
         fields = ('name', 'content')
 
 
-PlanUpdateFormset = modelformset_factory(
+PlanUpdateFormset = inlineformset_factory(
+    OfferUpdate,
     PlanUpdate,
     extra=4,
     fields=PLAN_FIELDS,
-    can_delete=True,
 )
