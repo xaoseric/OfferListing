@@ -20,18 +20,19 @@
               >
                 <span class="glyphicon glyphicon-flash"></span>
               </a>
-              {% if comment.commenter.user_profile.is_provider %}
-                <a
-                        class="tooltipify text-success"
-                        href="#" data-toggle="tooltip"
-                        title="This user is a manager of the provider {{ comment.commenter.user_profile.provider.name }}."
-                        style="text-decoration: none"
-                >
-                  <span class="glyphicon glyphicon-ok"></span>
-                </a>
-              {% endif %}
-
             {% endif %}
+            {% if comment.commenter.user_profile.is_provider %}
+              <a
+                      class="tooltipify text-success"
+                      href="#" data-toggle="tooltip"
+                      title="This user is a manager of the provider {{ comment.commenter.user_profile.provider.name }}."
+                      style="text-decoration: none"
+              >
+                <span class="glyphicon glyphicon-ok"></span>
+              </a>
+            {% endif %}
+
+
             <br />
             <a href="{% url 'offer:view' comment.offer.pk %}#comment-{{ comment.pk }}">
               {% if is_profile %}
