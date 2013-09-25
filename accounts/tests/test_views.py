@@ -2,6 +2,8 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from accounts.models import UserProfile
+from model_mommy import mommy
+from offers.models import Comment
 
 
 class LogoutViewTests(TestCase):
@@ -30,7 +32,7 @@ class LogoutViewTests(TestCase):
         self.assertEqual(response.redirect_chain[0][1], 302)
 
 
-class ProfileViewTests(TestCase):
+class SelfProfileViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
         self.user.first_name = 'Joe'
@@ -62,6 +64,65 @@ class ProfileViewTests(TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertTrue(reverse('login') in response.redirect_chain[0][0])
         self.assertEqual(response.redirect_chain[0][1], 302)
+
+
+class OtherUserViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.comments = mommy.make(Comment, commenter=self.user, _quantity=20)
+        self.user.save()
+
+    def test_can_view_other_user_profile(self):
+        """
+        Test that another user's profile can be viewed
+        """
+        response = self.client.get(reverse('profile', args=[self.user.username]))
+
+        self.assertContains(response, self.user.first_name)
+        self.assertContains(response, self.user.last_name)
+        self.assertContains(response, self.user.username)
+        self.assertContains(response, self.user.username + '\'s Profile')
+
+    def test_profile_page_contains_first_5_comments(self):
+        """
+        Test that the profile page contains only the first 5 comments
+        """
+        response = self.client.get(reverse('profile', args=[self.user.username]))
+
+        for comment in self.comments[15:20]:
+            self.assertContains(response, comment.content)
+
+        for comment in self.comments[0:15]:
+            self.assertNotContains(response, comment.content)
+
+    def test_profile_second_page_contains_next_5_comments(self):
+        """
+        Test that the next profile page contains the next 5 comments
+        """
+        response = self.client.get(reverse('profile', args=[self.user.username]) + '?page=2')
+
+        for comment in self.comments[10:15]:
+            self.assertContains(response, comment.content)
+
+        for comment in self.comments[0:10]:
+            self.assertNotContains(response, comment.content)
+
+        for comment in self.comments[15:20]:
+            self.assertNotContains(response, comment.content)
+
+    def test_profile_page_with_large_page_number(self):
+        """
+        Test that a profile page with a page number greater than the highest page gets the last page
+        """
+        response = self.client.get(reverse('profile', args=[self.user.username]) + '?page=10')
+
+        for comment in self.comments[0:5]:
+            self.assertContains(response, comment.content)
+
+        for comment in self.comments[5:20]:
+            self.assertNotContains(response, comment.content)
 
 
 class EditAccountViewTests(TestCase):
