@@ -320,6 +320,12 @@ def admin_provider_update_delete_confirm(request, offer_pk):
 
 # Provider Locations
 @user_is_provider
+def admin_provider_locations(request):
+    locations = Location.objects.filter(provider=request.user.user_profile.provider)
+    return render(request, 'offers/manage/locations.html', {"locations": locations})
+
+
+@user_is_provider
 def admin_provider_locations_edit(request, location_pk):
     location = get_object_or_404(Location, pk=location_pk, provider=request.user.user_profile.provider)
 

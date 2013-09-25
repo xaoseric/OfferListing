@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Locations{% endblock %}
+
+{% block page_title %}{{ provider.name }} Locations{% endblock %}
+
+{% block content %}
+  <table class="table table-bordered">
+    <tr>
+      <th></th>
+      <th>City</th>
+      <th>Country</th>
+      <th>Created</th>
+      <th>Test IPs</th>
+      <th>Test Downloads</th>
+    </tr>
+    {% for location in locations %}
+      <td class="text-center"><img src="{{ location.country.flag }}"></td>
+      <td>{{ location.city }}</td>
+      <td>{{ location.country.name }}</td>
+      <td>{{ location.created_at }}</td>
+      <td>{{ location.test_ips.count }}</td>
+      <td>{{ location.test_downloads.count }}</td>
+    {% endfor %}
+  </table>
+{% endblock %}
