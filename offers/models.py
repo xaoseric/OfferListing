@@ -162,7 +162,7 @@ class Provider(models.Model):
 class Location(models.Model):
     location = models.TextField()
     datacenter = models.CharField(max_length=255)
-    
+
     provider = models.ForeignKey(Provider, related_name='locations')
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -408,6 +408,7 @@ class PlanBase(models.Model):
     bandwidth = models.BigIntegerField()  # In gigabytes
     disk_space = models.BigIntegerField()  # In gigabytes
     memory = models.BigIntegerField()  # In megabytes
+    location = models.ForeignKey(Location)
 
     # Ip space
     ipv4_space = models.IntegerField()
