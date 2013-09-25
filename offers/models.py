@@ -116,6 +116,7 @@ class Provider(models.Model):
     start_date = models.DateField()
     website = models.URLField(max_length=255)
     logo = models.ImageField(upload_to=get_file_path, blank=True, max_length=255)
+    tos = models.URLField(max_length=255)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
