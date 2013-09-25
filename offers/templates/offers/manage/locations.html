@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Locations{% endblock %}
+
+{% block page_title %}{{ provider.name }} Locations{% endblock %}
+
+{% block content %}
+  <table class="table table-bordered">
+    <tr>
+      <th></th>
+      <th>City</th>
+      <th>Country</th>
+      <th>Created</th>
+      <th>Test IPs</th>
+      <th>Test Downloads</th>
+      <th>Management</th>
+    </tr>
+    {% for location in locations %}
+      <tr>
+        <td class="text-center"><img src="{{ location.country.flag }}"></td>
+        <td>{{ location.city }}</td>
+        <td>{{ location.country.name }}</td>
+        <td>{{ location.created_at }}</td>
+        <td>{{ location.test_ips.count }}</td>
+        <td>{{ location.test_downloads.count }}</td>
+        <td class="text-center">
+          <a href="{% url 'offer:admin_location_edit' location.pk %}" class="btn btn-success">Edit</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+  <a href="{% url 'offer:admin_location_new' %}" class="btn btn-success col-xs-12">New Request</a>
+{% endblock %}

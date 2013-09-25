@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'django_gravatar',
     'easy_thumbnails',
     'raven.contrib.django.raven_compat',
+    'django_countries',
 
     # Custom applications
     'offers',

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate, PlanUpdate
+from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate, Location
 from offers.forms import (
     CommentForm,
     OfferForm,
@@ -9,7 +9,10 @@ from offers.forms import (
     PlanFormsetHelper,
     ProviderForm,
     PlanUpdateFormset,
-    OfferUpdateForm
+    OfferUpdateForm,
+    TestIPFormset,
+    TestDownloadFormset,
+    LocationForm,
 )
 from offers.decorators import user_is_provider
 from django.contrib import messages
@@ -126,24 +129,21 @@ def admin_submit_request(request):
         offer = Offer(status=Offer.UNPUBLISHED, is_active=True, provider=request.user.user_profile.provider)
 
         form = OfferForm(request.POST, instance=offer)
-        formset = PlanFormset(request.POST)
 
-        if form.is_valid() and formset.is_valid():
-            offer = form.save()
-            offer_request = OfferRequest(user=request.user, offer=offer)
-            offer_request.save()
-            for plan_form in formset:
-                if plan_form.has_changed():
-                    if plan_form.cleaned_data["DELETE"]:
-                        continue
-                    plan = plan_form.save(commit=False)
-                    plan.offer = offer
-                    plan.is_active = True
-                    plan.save()
-            return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        if form.is_valid():
+            offer = form.save(commit=False)
+            formset = PlanFormset(request.POST, instance=offer, provider=request.user.user_profile.provider)
+            if formset.is_valid():
+                offer.save()
+                offer_request = OfferRequest(user=request.user, offer=offer)
+                offer_request.save()
+                formset.save()
+                return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        else:
+            formset = PlanFormset(request.POST, provider=request.user.user_profile.provider)
     else:
         form = OfferForm()
-        formset = PlanFormset(queryset=Plan.objects.none())
+        formset = PlanFormset(queryset=Plan.objects.none(), provider=request.user.user_profile.provider)
     return render(request, 'offers/manage/new_request.html', {
         "form": form,
         "formset": formset,
@@ -161,29 +161,16 @@ def admin_edit_request(request, request_pk):
     )
     if request.method == "POST":
         form = OfferForm(request.POST, instance=offer_request.offer)
-        formset = PlanFormset(request.POST, queryset=Plan.objects.filter(offer=offer_request.offer))
-
+        formset = PlanFormset(request.POST, instance=offer_request.offer, provider=request.user.user_profile.provider)
         if form.is_valid() and formset.is_valid():
-            form.save()
-            for plan_form in formset:
-                if plan_form.has_changed():
-                    if plan_form.cleaned_data["DELETE"]:
-                        continue
-                    plan = plan_form.save(commit=False)
-                    plan.offer = offer_request.offer
-                    plan.is_active = True
-                    plan.save()
-            for plan_form in formset.deleted_forms:
-                if plan_form.instance.pk is not None:
-                    plan = plan_form.save(commit=False)
-                    plan.delete()
+            formset.save()
 
             # Reload form data
             form = OfferForm(instance=offer_request.offer)
-            formset = PlanFormset(queryset=Plan.objects.filter(offer=offer_request.offer))
+            formset = PlanFormset(instance=offer_request.offer)
     else:
         form = OfferForm(instance=offer_request.offer)
-        formset = PlanFormset(queryset=Plan.objects.filter(offer=offer_request.offer))
+        formset = PlanFormset(instance=offer_request.offer, provider=request.user.user_profile.provider)
     return render(request, 'offers/manage/edit_request.html', {
         "form": form,
         "formset": formset,
@@ -282,29 +269,18 @@ def admin_provider_update_offer(request, offer_pk):
 
     if request.method == "POST":
         form = OfferUpdateForm(request.POST, instance=offer_update)
-        formset = PlanUpdateFormset(request.POST, queryset=PlanUpdate.objects.filter(offer=offer_update))
+        formset = PlanUpdateFormset(request.POST, instance=offer_update, provider=request.user.user_profile.provider)
 
         if form.is_valid() and formset.is_valid():
             offer_update = form.save()
-            for plan_form in formset:
-                if plan_form.has_changed():
-                    if plan_form.cleaned_data["DELETE"]:
-                        continue
-                    plan_update = plan_form.save(commit=False)
-                    plan_update.offer = offer_update
-                    plan_update.is_active = True
-                    plan_update.save()
-            for plan_form in formset.deleted_forms:
-                if plan_form.instance.pk is not None:
-                    plan_update = plan_form.save(commit=False)
-                    plan_update.delete()
+            formset.save()
 
             # Reload form data
             form = OfferUpdateForm(instance=offer_update)
-            formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
+            formset = PlanUpdateFormset(instance=offer_update, provider=request.user.user_profile.provider)
     else:
         form = OfferUpdateForm(instance=offer_update)
-        formset = PlanUpdateFormset(queryset=PlanUpdate.objects.filter(offer=offer_update))
+        formset = PlanUpdateFormset(instance=offer_update, provider=request.user.user_profile.provider)
     return render(request, 'offers/manage/update_offer.html', {
         "form": form,
         "formset": formset,
@@ -340,3 +316,67 @@ def admin_provider_update_delete_confirm(request, offer_pk):
         return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
 
     return render(request, 'offers/manage/update_delete_request.html', {"offer_update": offer_update})
+
+
+# Provider Locations
+@user_is_provider
+def admin_provider_locations(request):
+    locations = Location.objects.filter(provider=request.user.user_profile.provider)
+    return render(request, 'offers/manage/locations.html', {"locations": locations})
+
+
+@user_is_provider
+def admin_provider_locations_edit(request, location_pk):
+    location = get_object_or_404(Location, pk=location_pk, provider=request.user.user_profile.provider)
+
+    if request.method == "POST":
+        form = LocationForm(request.POST, instance=location)
+        ip_formset = TestIPFormset(request.POST, instance=location)
+        download_formset = TestDownloadFormset(request.POST, instance=location)
+
+        if form.is_valid() and ip_formset.is_valid() and download_formset.is_valid():
+            location = form.save()
+            ip_formset.save()
+            download_formset.save()
+
+            # Reload form data
+            form = LocationForm(instance=location)
+            ip_formset = TestIPFormset(instance=location)
+            download_formset = TestDownloadFormset(instance=location)
+    else:
+        form = LocationForm(instance=location)
+        ip_formset = TestIPFormset(instance=location)
+        download_formset = TestDownloadFormset(instance=location)
+    return render(request, 'offers/manage/edit_location.html', {
+        "form": form,
+        "ip_formset": ip_formset,
+        "download_formset": download_formset,
+        "helper": PlanFormsetHelper,
+        "location": location,
+    })
+
+
+@user_is_provider
+def admin_provider_locations_new(request):
+    location = Location(provider=request.user.user_profile.provider)
+    if request.method == "POST":
+        form = LocationForm(request.POST, instance=location)
+        ip_formset = TestIPFormset(request.POST, instance=location)
+        download_formset = TestDownloadFormset(request.POST, instance=location)
+
+        if form.is_valid() and ip_formset.is_valid() and download_formset.is_valid():
+            location = form.save()
+            ip_formset.save()
+            download_formset.save()
+
+            return HttpResponseRedirect(reverse('offer:admin_location_edit', args=[location.pk]))
+    else:
+        form = LocationForm(instance=location)
+        ip_formset = TestIPFormset(instance=location)
+        download_formset = TestDownloadFormset(instance=location)
+    return render(request, 'offers/manage/new_location.html', {
+        "form": form,
+        "ip_formset": ip_formset,
+        "download_formset": download_formset,
+        "location": location,
+    })

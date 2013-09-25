@@ -10,6 +10,7 @@ import uuid
 from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
 from template_helpers.cleaners import clean, super_clean
+from django_countries import CountryField
 
 ############
 # Managers #
@@ -159,6 +160,46 @@ class Provider(models.Model):
         return Plan.active_plans.for_provider(self).count()
 
 
+class Location(models.Model):
+    city = models.CharField(max_length=255)
+    country = CountryField()
+    datacenter = models.CharField(max_length=255)
+
+    provider = models.ForeignKey(Provider, related_name='locations')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return "{0}, {1}".format(self.city, self.country.name.__unicode__())
+
+
+class TestIP(models.Model):
+    IPV4 = 'v4'
+    IPV6 = 'v6'
+
+    IP_TYPES = (
+        (IPV4, 'IPv4'),
+        (IPV6, 'IPv6'),
+    )
+
+    location = models.ForeignKey(Location, related_name='test_ips')
+    ip_type = models.CharField(max_length=2, choices=IP_TYPES)
+    ip = models.GenericIPAddressField(verbose_name='IP Address')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class TestDownload(models.Model):
+    location = models.ForeignKey(Location, related_name='test_downloads')
+    url = models.URLField(max_length=255)
+    size = models.BigIntegerField()  # In Megabytes
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class OfferRequest(models.Model):
     offer = models.OneToOneField('Offer', related_name='request')
     user = models.ForeignKey(User)
@@ -268,6 +309,13 @@ class Offer(OfferBase):
         except OfferUpdate.DoesNotExist:
             return False
 
+    def get_plan_locations(self):
+        locations = []
+        for plan in self.plan_set.all():
+            if plan.location not in locations:
+                locations.append(plan.location)
+        return locations
+
     class Meta:
         ordering = ['-published_at']
 
@@ -295,6 +343,7 @@ class OfferUpdateManager(models.Manager):
                     plan=plan,
 
                     virtualization=plan.virtualization,
+                    location=plan.location,
 
                     # Data attributes
                     bandwidth=plan.bandwidth,
@@ -372,6 +421,7 @@ class PlanBase(models.Model):
     bandwidth = models.BigIntegerField()  # In gigabytes
     disk_space = models.BigIntegerField()  # In gigabytes
     memory = models.BigIntegerField()  # In megabytes
+    location = models.ForeignKey(Location)
 
     # Ip space
     ipv4_space = models.IntegerField()

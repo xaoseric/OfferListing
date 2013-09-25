@@ -17,6 +17,10 @@
   <hr>
   <h2>Plans on offer:</h2>
   {% include 'offers/plan_set.html' with plan_set=offer.plan_set.all %}
+  <h3>Locations:</h3>
+  {% for location in offer.get_plan_locations %}
+    {% include 'offers/location_detail.html' with location=location %}
+  {% endfor %}
   <hr>
   <a name="comments"></a>
   <h2>Comments:</h2>
