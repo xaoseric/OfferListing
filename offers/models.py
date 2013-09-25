@@ -10,6 +10,7 @@ import uuid
 from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
 from template_helpers.cleaners import clean, super_clean
+from django_countries import CountryField
 
 ############
 # Managers #
@@ -160,7 +161,8 @@ class Provider(models.Model):
 
 
 class Location(models.Model):
-    location = models.TextField()
+    city = models.CharField(max_length=255)
+    country = CountryField()
     datacenter = models.CharField(max_length=255)
 
     provider = models.ForeignKey(Provider, related_name='locations')
