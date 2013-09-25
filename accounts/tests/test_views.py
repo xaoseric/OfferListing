@@ -494,7 +494,6 @@ class RegisterViewTests(TestCase):
             'captcha_1': captcha.response,
         }
 
-
         response = self.client.post(reverse('register'), data=data, follow=True)
         self.assertRedirects(response, reverse('home'))
         self.assertEqual(User.objects.count(), 1)
@@ -509,3 +508,60 @@ class RegisterViewTests(TestCase):
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
         self.assertTrue(user.is_active)
+
+    def test_user_can_not_register_with_duplicate_username(self):
+        """
+        Test that a user can not register with a duplicate username
+        """
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.user.save()
+
+        self.client.get(reverse('register'))
+        captcha = CaptchaStore.objects.all()[0]
+
+        self.assertEqual(User.objects.count(), 1)
+
+        data = {
+            "first_name": "Man",
+            "last_name": "Tan",
+            "email": "test2@example.com",
+            "username": "some_user",  # Duplicate user
+            "password1": "password",
+            "password2": "password",
+            'captcha_0': captcha.hashkey,
+            'captcha_1': captcha.response,
+        }
+
+        response = self.client.post(reverse('register'), data=data, follow=True)
+        self.assertContains(response, "You had errors in your details. Please fix them and submit again.")
+        self.assertFormError(response, 'form', 'username', 'A user with that username already exists.')
+
+        self.assertEqual(User.objects.count(), 1)
+
+    def test_user_can_not_register_with_mismatched_password(self):
+        """
+        Test that a user can not register with passwords that do not match
+        """
+        self.client.get(reverse('register'))
+        captcha = CaptchaStore.objects.all()[0]
+
+        self.assertEqual(User.objects.count(), 0)
+
+        data = {
+            "first_name": "Man",
+            "last_name": "Tan",
+            "email": "test2@example.com",
+            "username": "some_user",
+            "password1": "password",
+            "password2": "password_mismatch",
+            'captcha_0': captcha.hashkey,
+            'captcha_1': captcha.response,
+        }
+
+        response = self.client.post(reverse('register'), data=data, follow=True)
+        self.assertContains(response, "You had errors in your details. Please fix them and submit again.")
+        self.assertFormError(response, 'form', 'password2', 'The two password fields didn\'t match.')
+
+        self.assertEqual(User.objects.count(), 0)
