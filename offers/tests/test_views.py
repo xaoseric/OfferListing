@@ -727,4 +727,31 @@ class ProviderNewRequestViewTests(WebTest):
         response = self.client.get(reverse('offer:admin_request_new'), follow=True)
         self.assertRedirects(response, reverse('login') + '?next=' + reverse('offer:admin_request_new'))
 
-    
+    def test_user_can_submit_no_plans_request(self):
+        """
+        Test that a user can submit an empty request (one without plans)
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = "Offer name!"
+        form["content"] = "Offer content"
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        offer_request = OfferRequest.objects.latest('created_at')
+
+        self.assertEqual(offer_request.user, self.user)
+        self.assertEqual(offer_request.offer.name, 'Offer name!')
+        self.assertEqual(offer_request.offer.content, 'Offer content')
+        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer_request.offer.is_active, True)
+
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
