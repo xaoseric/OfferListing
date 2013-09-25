@@ -1,3 +1,4 @@
+{% load static %}
 <div>
 {% for plan in plan_set %}
   {% if forloop.counter0|divisibleby:'2' %}
@@ -46,6 +47,10 @@
               <td class="text-success">{{ plan.promo_code }}</td>
             </tr>
           {% endif %}
+          <tr>
+            <td>Location</td>
+            <td><img src="{{ plan.location.country.flag }}"> {{ plan.location.city }}, {{ plan.location.country.name }}</td>
+          </tr>
           <tr>
             <td>Cost</td>
             <td>${{ plan.cost|floatformat:2 }}</td>
