@@ -433,3 +433,19 @@ class CommentAccountViewTest(TestCase):
             self.assertNotContains(response, comment.content)
 
         self.assertContains(response, self.user.username)
+
+    def test_user_can_not_see_other_users_comments(self):
+        """
+        Test that the user can not see other user's comments on their page
+        """
+        other_comments = mommy.make(Comment, _quantity=20)
+
+        response = self.client.get(reverse('my_comments'))
+
+        for comment in self.comments:
+            self.assertContains(response, comment.content)
+
+        for comment in other_comments:
+            self.assertNotContains(response, comment.content)
+
+        self.assertContains(response, self.user.username)
