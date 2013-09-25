@@ -15,7 +15,18 @@
       ({{ offer.active_plan_count }} available)
     </li>
     <li class="list-group-item">
-      Price range ${{ offer.min_cost|floatformat:2 }} - ${{ offer.max_cost|floatformat:2 }}
+      <div class="row">
+        <div class="col-xs-6">
+          Price range ${{ offer.min_cost|floatformat:2 }} - ${{ offer.max_cost|floatformat:2 }}
+        </div>
+        <div class="col-xs-6 text-right">
+          <span class="text-right">
+          {% for location in offer.get_plan_locations %}
+            <img src="{{ location.country.flag }}">
+          {% endfor %}
+        </span>
+        </div>
+      </div>
     </li>
     {% if not offer.offer_active %}
       <li class="list-group-item text-danger">
