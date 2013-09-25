@@ -354,3 +354,29 @@ def admin_provider_locations_edit(request, location_pk):
         "helper": PlanFormsetHelper,
         "location": location,
     })
+
+
+@user_is_provider
+def admin_provider_locations_new(request):
+    location = Location(provider=request.user.user_profile.provider)
+    if request.method == "POST":
+        form = LocationForm(request.POST, instance=location)
+        ip_formset = TestIPFormset(request.POST, instance=location)
+        download_formset = TestDownloadFormset(request.POST, instance=location)
+
+        if form.is_valid() and ip_formset.is_valid() and download_formset.is_valid():
+            location = form.save()
+            ip_formset.save()
+            download_formset.save()
+
+            return HttpResponseRedirect(reverse('offer:admin_location_edit', args=[location.pk]))
+    else:
+        form = LocationForm(instance=location)
+        ip_formset = TestIPFormset(instance=location)
+        download_formset = TestDownloadFormset(instance=location)
+    return render(request, 'offers/manage/new_location.html', {
+        "form": form,
+        "ip_formset": ip_formset,
+        "download_formset": download_formset,
+        "location": location,
+    })
