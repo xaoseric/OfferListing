@@ -116,9 +116,19 @@ class OfferUpdateForm(forms.ModelForm):
         fields = ('name', 'content')
 
 
-PlanUpdateFormset = inlineformset_factory(
+PlanUpdateFormsetBase = inlineformset_factory(
     OfferUpdate,
     PlanUpdate,
     extra=4,
     fields=PLAN_FIELDS,
 )
+
+
+class PlanUpdateFormset(PlanUpdateFormsetBase):
+    def __init__(self, *args, **kwargs):
+        provider = kwargs['provider']
+        del kwargs["provider"]
+        super(PlanUpdateFormset, self).__init__(*args, **kwargs)
+
+        for form in self:
+            form.fields["location"].queryset = Location.objects.filter(provider=provider)

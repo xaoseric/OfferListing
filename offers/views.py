@@ -266,7 +266,7 @@ def admin_provider_update_offer(request, offer_pk):
 
     if request.method == "POST":
         form = OfferUpdateForm(request.POST, instance=offer_update)
-        formset = PlanUpdateFormset(request.POST, instance=offer_update)
+        formset = PlanUpdateFormset(request.POST, instance=offer_update, provider=request.user.user_profile.provider)
 
         if form.is_valid() and formset.is_valid():
             offer_update = form.save()
@@ -274,10 +274,10 @@ def admin_provider_update_offer(request, offer_pk):
 
             # Reload form data
             form = OfferUpdateForm(instance=offer_update)
-            formset = PlanUpdateFormset(instance=offer_update)
+            formset = PlanUpdateFormset(instance=offer_update, provider=request.user.user_profile.provider)
     else:
         form = OfferUpdateForm(instance=offer_update)
-        formset = PlanUpdateFormset(instance=offer_update)
+        formset = PlanUpdateFormset(instance=offer_update, provider=request.user.user_profile.provider)
     return render(request, 'offers/manage/update_offer.html', {
         "form": form,
         "formset": formset,
