@@ -159,6 +159,42 @@ class Provider(models.Model):
         return Plan.active_plans.for_provider(self).count()
 
 
+class Location(models.Model):
+    location = models.TextField()
+    datacenter = models.CharField(max_length=255)
+    
+    provider = models.ForeignKey(Provider, related_name='locations')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class TestIP(models.Model):
+    IPV4 = 'v4'
+    IPV6 = 'v6'
+
+    IP_TYPES = (
+        (IPV4, 'IPv4'),
+        (IPV6, 'IPv6'),
+    )
+
+    location = models.ForeignKey(Location, related_name='test_ips')
+    ip_type = models.CharField(max_length=2, choices=IP_TYPES)
+    ip = models.GenericIPAddressField(verbose_name='IP Address')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class TestDownload(models.Model):
+    location = models.ForeignKey(Location, related_name='test_downloads')
+    url = models.CharField(max_length=255)
+    size = models.BigIntegerField()  # In Megabytes
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class OfferRequest(models.Model):
     offer = models.OneToOneField('Offer', related_name='request')
     user = models.ForeignKey(User)
