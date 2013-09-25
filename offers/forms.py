@@ -1,5 +1,5 @@
 from django import forms
-from offers.models import Comment, Offer, Plan, Provider, OfferUpdate, PlanUpdate, Location, TestIP
+from offers.models import Comment, Offer, Plan, Provider, OfferUpdate, PlanUpdate, Location, TestIP, TestDownload
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from crispy_forms.helper import FormHelper
@@ -148,6 +148,13 @@ class LocationForm(forms.ModelForm):
 
 
 TestIPFormsetBase = inlineformset_factory(Location, TestIP, extra=4, fields=('ip', 'ip_type'), fk_name='location')
+TestDownloadFormsetBase = inlineformset_factory(
+    Location,
+    TestDownload,
+    extra=4,
+    fields=('url', 'size'),
+    fk_name='location',
+)
 
 
 class TestIPFormset(TestIPFormsetBase):
@@ -158,3 +165,16 @@ class TestIPFormset(TestIPFormsetBase):
         self.helper = FormHelper()
         self.helper.template = 'offers/better_table_inline_form.html'
         self.helper.form_tag = False
+
+
+class TestDownloadFormset(TestDownloadFormsetBase):
+
+    def __init__(self, *args, **kwargs):
+        super(TestDownloadFormset, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.template = 'offers/better_table_inline_form.html'
+        self.helper.form_tag = False
+
+        for form in self:
+            form.fields["size"].label = 'Size (MB)'

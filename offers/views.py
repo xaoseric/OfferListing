@@ -11,7 +11,8 @@ from offers.forms import (
     PlanUpdateFormset,
     OfferUpdateForm,
     TestIPFormset,
-    LocationForm
+    TestDownloadFormset,
+    LocationForm,
 )
 from offers.decorators import user_is_provider
 from django.contrib import messages
@@ -325,20 +326,25 @@ def admin_provider_locations_edit(request, location_pk):
     if request.method == "POST":
         form = LocationForm(request.POST, instance=location)
         ip_formset = TestIPFormset(request.POST, instance=location)
+        download_formset = TestDownloadFormset(request.POST, instance=location)
 
-        if form.is_valid() and ip_formset.is_valid():
+        if form.is_valid() and ip_formset.is_valid() and download_formset.is_valid():
             location = form.save()
             ip_formset.save()
+            download_formset.save()
 
             # Reload form data
             form = LocationForm(instance=location)
             ip_formset = TestIPFormset(instance=location)
+            download_formset = TestDownloadFormset(instance=location)
     else:
         form = LocationForm(instance=location)
         ip_formset = TestIPFormset(instance=location)
+        download_formset = TestDownloadFormset(instance=location)
     return render(request, 'offers/manage/edit_location.html', {
         "form": form,
         "ip_formset": ip_formset,
+        "download_formset": download_formset,
         "helper": PlanFormsetHelper,
         "location": location,
     })
