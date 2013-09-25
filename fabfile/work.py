@@ -23,6 +23,6 @@ def test_jenkins():
 
 
 @task
-def coverage():
+def coverage(application=''):
     set_test_environment()
-    local('coverage run manage.py test -v 2 && coverage html')
+    local('coverage run manage.py test {0} -v 2 && coverage html'.format(application))
