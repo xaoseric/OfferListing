@@ -16,3 +16,5 @@ werkzeug
 fabric
 raven
 bleach
+webtest
+django-webtest
