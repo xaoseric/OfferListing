@@ -316,6 +316,35 @@ class Offer(OfferBase):
                 locations.append(plan.location)
         return locations
 
+    def from_offer_update(self, offer_update):
+        self.name = offer_update.name
+        self.content = offer_update.content
+        self.save()
+        self.plan_set.all().delete()
+        for plan in offer_update.planupdate_set.all():
+            new_plan = Plan(
+                offer=self,
+                virtualization=plan.virtualization,
+                location=plan.location,
+
+                # Data attributes
+                bandwidth=plan.bandwidth,
+                disk_space=plan.disk_space,
+                memory=plan.memory,
+
+                # Ip space
+                ipv4_space=plan.ipv4_space,
+                ipv6_space=plan.ipv6_space,
+
+                # Billing details
+                billing_time=plan.billing_time,
+                url=plan.url,
+                promo_code=plan.promo_code,
+                cost=plan.cost,
+                is_active=plan.is_active,
+            )
+            new_plan.save()
+
     class Meta:
         ordering = ['-published_at']
 
@@ -505,7 +534,7 @@ class Plan(PlanBase):
 
 class PlanUpdate(PlanBase):
     offer = models.ForeignKey(OfferUpdate)
-    plan = models.OneToOneField(Plan, blank=True, null=True)
+    plan = models.OneToOneField(Plan, blank=True, null=True, on_delete=models.SET_NULL)
 
 
 class Comment(models.Model):

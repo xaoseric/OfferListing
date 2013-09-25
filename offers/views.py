@@ -386,11 +386,10 @@ def admin_provider_locations_new(request):
 # Admin section
 @user_passes_test(lambda u: u.is_superuser)
 def superuser_approve_updates(request):
-    if request.GET.get('update_pk'):
-        if OfferUpdate.objects.filter(pk=request.GET.get('update_pk')).exists():
-            offer_update = OfferUpdate.objects.filter(pk=request.GET.get('update_pk'))
-            print offer_update
-
+    if request.GET.get('update'):
+        if OfferUpdate.objects.filter(pk=request.GET.get('update')).exists():
+            offer_update = OfferUpdate.objects.get(pk=request.GET.get('update'))
+            offer_update.for_offer.from_offer_update(offer_update)
+            offer_update.delete()
     offer_updates = OfferUpdate.objects.all()
     return render(request, 'offers/manage/admin/offer_updates.html', {"offer_updates": offer_updates})
-

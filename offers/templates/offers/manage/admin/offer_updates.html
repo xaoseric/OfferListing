@@ -9,7 +9,10 @@
 {% block content %}
   {% for offer_update in offer_updates %}
     <div class="well">
-      <h1 class="page-header">{{ offer_update.name }}</h1>
+      <h1 class="page-header">
+        {{ offer_update.name }}
+      </h1>
+      <a href="?update={{ offer_update.pk }}" class="btn btn-success">Update</a>
     </div>
     {{ offer_update.content | safe }}
     <h2>Plans on offer:</h2>
