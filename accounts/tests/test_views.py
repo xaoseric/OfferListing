@@ -390,3 +390,46 @@ class DeactivateAccountTests(TestCase):
         self.assertContains(response, 'Invalid username or password!')
         self.assertTrue(user.is_active)
         self.assertTrue(other_user.is_active)
+
+
+class CommentAccountViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.user.save()
+        self.client.login(username='some_user', password='password')
+
+        self.comments = mommy.make(Comment, commenter=self.user, _quantity=50)
+
+    def test_user_can_view_own_comments(self):
+        """
+        Test that a user can view their own comments
+        """
+        response = self.client.get(reverse('my_comments'))
+
+        for comment in self.comments:
+            self.assertContains(response, comment.content)
+
+        self.assertContains(response, self.user.username)
+
+    def test_user_can_not_see_unpublished_comments(self):
+        """
+        Test that a user can not see unpublished or deleted comments
+        """
+
+        unpublished_comments = mommy.make(Comment, commenter=self.user, status=Comment.UNPUBLISHED, _quantity=20)
+        deleted_comments = mommy.make(Comment, commenter=self.user, status=Comment.DELETED, _quantity=20)
+
+        response = self.client.get(reverse('my_comments'))
+
+        for comment in self.comments:
+            self.assertContains(response, comment.content)
+
+        for comment in unpublished_comments:
+            self.assertNotContains(response, comment.content)
+
+        for comment in deleted_comments:
+            self.assertNotContains(response, comment.content)
+
+        self.assertContains(response, self.user.username)
