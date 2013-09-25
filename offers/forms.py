@@ -1,6 +1,6 @@
 from django import forms
 from offers.models import Comment, Offer, Plan, Provider, OfferUpdate, PlanUpdate
-from django.forms.models import formset_factory, modelformset_factory
+from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Div, Fieldset, HTML
@@ -41,6 +41,7 @@ PLAN_FIELDS = (
     'url',
     'promo_code',
     'cost',
+    'location',
 )
 
 class OfferForm(forms.ModelForm):
@@ -55,7 +56,8 @@ class OfferForm(forms.ModelForm):
         fields = ('name', 'content')
 
 
-PlanFormset = modelformset_factory(
+PlanFormset = inlineformset_factory(
+    Offer,
     Plan,
     extra=4,
     fields=PLAN_FIELDS,
@@ -70,6 +72,7 @@ PlanFormsetHelper.layout = Layout(
         'disk_space',
         'memory',
         'virtualization',
+        'location',
     ),
     Fieldset(
         'IP Space',

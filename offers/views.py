@@ -126,21 +126,18 @@ def admin_submit_request(request):
         offer = Offer(status=Offer.UNPUBLISHED, is_active=True, provider=request.user.user_profile.provider)
 
         form = OfferForm(request.POST, instance=offer)
-        formset = PlanFormset(request.POST)
 
-        if form.is_valid() and formset.is_valid():
-            offer = form.save()
-            offer_request = OfferRequest(user=request.user, offer=offer)
-            offer_request.save()
-            for plan_form in formset:
-                if plan_form.has_changed():
-                    if plan_form.cleaned_data["DELETE"]:
-                        continue
-                    plan = plan_form.save(commit=False)
-                    plan.offer = offer
-                    plan.is_active = True
-                    plan.save()
-            return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        if form.is_valid():
+            offer = form.save(commit=False)
+            formset = PlanFormset(request.POST, instance=offer)
+            if formset.is_valid():
+                offer.save()
+                offer_request = OfferRequest(user=request.user, offer=offer)
+                offer_request.save()
+                formset.save()
+                return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        else:
+            formset = PlanFormset(request.POST)
     else:
         form = OfferForm()
         formset = PlanFormset(queryset=Plan.objects.none())
