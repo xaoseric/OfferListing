@@ -4,7 +4,7 @@
     {% for comment in comments %}
       <li class="media" id="comment-{{ comment.pk }}">
         <a class="pull-left" href="{% url 'profile' comment.commenter.username %}">
-          <img class="media-object" src="{% gravatar_url comment.commenter.email 64 %}" width="64">
+          <img height="64" class="media-object" src="{% gravatar_url comment.commenter.email 64 %}" width="64">
         </a>
         {% spaceless %}
         <div class="media-body">
@@ -20,6 +20,16 @@
               >
                 <span class="glyphicon glyphicon-flash"></span>
               </a>
+              {% if comment.commenter.user_profile.is_provider %}
+                <a
+                        class="tooltipify text-success"
+                        href="#" data-toggle="tooltip"
+                        title="This user is a manager of the provider {{ comment.commenter.user_profile.provider.name }}."
+                        style="text-decoration: none"
+                >
+                  <span class="glyphicon glyphicon-ok"></span>
+                </a>
+              {% endif %}
 
             {% endif %}
             <br />
