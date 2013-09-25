@@ -283,15 +283,18 @@ class ProviderAdminRequestViewTests(TestCase):
             "name": 'New provider',
             "start_date": self.provider.start_date,
             "website": "http://example.com/provider/",
+            "tos": "http://example.com/provider/tos/",
         }
         response = self.client.post(reverse('offer:admin_home'), new_data, follow=True)
 
         self.assertContains(response, 'New provider')
         self.assertContains(response, 'http://example.com/provider/')
+        self.assertContains(response, 'http://example.com/provider/tos/')
 
         new_provider = Provider.objects.get(pk=self.provider.pk)
         self.assertEqual(new_provider.name, 'New provider')
         self.assertEqual(new_provider.website, 'http://example.com/provider/')
+        self.assertEqual(new_provider.tos, 'http://example.com/provider/tos/')
 
     def test_user_can_not_modify_their_provider_with_incorrect_information(self):
         """
