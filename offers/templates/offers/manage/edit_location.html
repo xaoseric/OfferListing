@@ -7,7 +7,7 @@
 {% block page_title %}Edit Location <em>{{ location.location }}</em>{% endblock %}
 
 {% block content %}
-  <a href="#" class="btn btn-info">
+  <a href="{% url 'offer:admin_locations' %}" class="btn btn-info">
     <span class="glyphicon glyphicon-arrow-left"></span>
     Back to location list
   </a>
