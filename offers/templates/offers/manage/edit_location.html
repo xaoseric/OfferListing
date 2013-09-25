@@ -12,7 +12,9 @@
     Back to location list
   </a>
   <form action="{% url 'offer:admin_location_edit' location.pk %}" method="POST" name="location-form">
-    {% crispy form %}
+    <div class="well" style="margin-top: 20px;">
+      {% crispy form %}
+    </div>
     <h2>Test IP Addresses</h2>
     {% crispy ip_formset %}
     <h2>Test Downloads</h2>

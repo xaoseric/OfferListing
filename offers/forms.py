@@ -144,7 +144,7 @@ class LocationForm(forms.ModelForm):
 
     class Meta:
         model = Location
-        fields = ('location', 'datacenter')
+        fields = ('city', 'country', 'datacenter')
 
 
 TestIPFormsetBase = inlineformset_factory(Location, TestIP, extra=4, fields=('ip', 'ip_type'), fk_name='location')
