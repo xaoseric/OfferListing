@@ -3,6 +3,7 @@ from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpd
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django_webtest import WebTest
 
 
 class ProviderProfileViewTests(TestCase):
@@ -699,3 +700,31 @@ class ProviderAdminOfferViewTests(TestCase):
 
         response = self.client.get(reverse('offer:admin_offer_update', args=[other_offer.pk]))
         self.assertEqual(response.status_code, 404)
+
+
+class ProviderNewRequestViewTests(WebTest):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+    def test_providers_can_view_new_request_page(self):
+        """
+        Test that providers can view the request page
+        """
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+        self.assertContains(response, 'Offer Request')
+
+    def test_user_can_not_view_new_request_page(self):
+        """
+        Test that a normal user can not view the new request page
+        """
+        self.user.user_profile.provider = None
+        self.user.user_profile.save()
+        self.client.login(username='user', password='password')
+
+        response = self.client.get(reverse('offer:admin_request_new'), follow=True)
+        self.assertRedirects(response, reverse('login') + '?next=' + reverse('offer:admin_request_new'))
+
+    
