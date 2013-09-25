@@ -168,6 +168,9 @@ class Location(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __unicode__(self):
+        return self.location
+
 
 class TestIP(models.Model):
     IPV4 = 'v4'
