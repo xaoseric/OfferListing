@@ -8,6 +8,11 @@
 
 {% block content %}
   {% for offer_update in offer_updates %}
-    {{ offer_update }}
+    <div class="well">
+      <h1 class="page-header">{{ offer_update.name }}</h1>
+    </div>
+    {{ offer_update.content | safe }}
+    <h2>Plans on offer:</h2>
+    {% include 'offers/plan_set.html' with plan_set=offer_update.planupdate_set.all %}
   {% endfor %}
 {% endblock %}
