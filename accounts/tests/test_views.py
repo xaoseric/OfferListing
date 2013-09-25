@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from accounts.models import UserProfile
 from model_mommy import mommy
 from offers.models import Comment
+from captcha.models import CaptchaStore
 
 
 class LogoutViewTests(TestCase):
@@ -449,3 +450,62 @@ class CommentAccountViewTest(TestCase):
             self.assertNotContains(response, comment.content)
 
         self.assertContains(response, self.user.username)
+
+
+class RegisterViewTests(TestCase):
+    def test_logged_in_user_can_not_register(self):
+        """
+        Test that a user who is logged in can not register and is redirected home
+        """
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.user.save()
+        self.client.login(username='some_user', password='password')
+
+        response = self.client.get(reverse('register'), follow=True)
+        self.assertRedirects(response, reverse('home'))
+
+    def test_user_can_view_register_page(self):
+        """
+        Test that a user can successfully view the register page
+        """
+
+        response = self.client.get(reverse('register'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_can_register(self):
+        """
+        Test that a user can register an account
+        """
+        self.client.get(reverse('register'))
+        captcha = CaptchaStore.objects.all()[0]
+
+        self.assertEqual(User.objects.count(), 0)
+
+        data = {
+            "first_name": "Man",
+            "last_name": "Tan",
+            "email": "test2@example.com",
+            "username": "some_user2",
+            "password1": "password",
+            "password2": "password",
+            'captcha_0': captcha.hashkey,
+            'captcha_1': captcha.response,
+        }
+
+
+        response = self.client.post(reverse('register'), data=data, follow=True)
+        self.assertRedirects(response, reverse('home'))
+        self.assertEqual(User.objects.count(), 1)
+
+        user = User.objects.all()[0]
+
+        self.assertEqual(user.first_name, "Man")
+        self.assertEqual(user.last_name, "Tan")
+        self.assertEqual(user.email, "test2@example.com")
+        self.assertEqual(user.username, "some_user2")
+
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertTrue(user.is_active)
