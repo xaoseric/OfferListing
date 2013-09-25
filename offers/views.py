@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate, PlanUpdate
+from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate, Location
 from offers.forms import (
     CommentForm,
     OfferForm,
@@ -129,7 +129,7 @@ def admin_submit_request(request):
 
         if form.is_valid():
             offer = form.save(commit=False)
-            formset = PlanFormset(request.POST, instance=offer)
+            formset = PlanFormset(request.POST, instance=offer, provider=request.user.user_profile.provider)
             if formset.is_valid():
                 offer.save()
                 offer_request = OfferRequest(user=request.user, offer=offer)
@@ -137,10 +137,10 @@ def admin_submit_request(request):
                 formset.save()
                 return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer_request.pk]))
         else:
-            formset = PlanFormset(request.POST)
+            formset = PlanFormset(request.POST, provider=request.user.user_profile.provider)
     else:
         form = OfferForm()
-        formset = PlanFormset(queryset=Plan.objects.none())
+        formset = PlanFormset(queryset=Plan.objects.none(), provider=request.user.user_profile.provider)
     return render(request, 'offers/manage/new_request.html', {
         "form": form,
         "formset": formset,
