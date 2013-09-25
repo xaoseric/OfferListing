@@ -158,29 +158,16 @@ def admin_edit_request(request, request_pk):
     )
     if request.method == "POST":
         form = OfferForm(request.POST, instance=offer_request.offer)
-        formset = PlanFormset(request.POST, queryset=Plan.objects.filter(offer=offer_request.offer))
-
+        formset = PlanFormset(request.POST, instance=offer_request.offer)
         if form.is_valid() and formset.is_valid():
-            form.save()
-            for plan_form in formset:
-                if plan_form.has_changed():
-                    if plan_form.cleaned_data["DELETE"]:
-                        continue
-                    plan = plan_form.save(commit=False)
-                    plan.offer = offer_request.offer
-                    plan.is_active = True
-                    plan.save()
-            for plan_form in formset.deleted_forms:
-                if plan_form.instance.pk is not None:
-                    plan = plan_form.save(commit=False)
-                    plan.delete()
+            formset.save()
 
             # Reload form data
             form = OfferForm(instance=offer_request.offer)
-            formset = PlanFormset(queryset=Plan.objects.filter(offer=offer_request.offer))
+            formset = PlanFormset(instance=offer_request.offer)
     else:
         form = OfferForm(instance=offer_request.offer)
-        formset = PlanFormset(queryset=Plan.objects.filter(offer=offer_request.offer))
+        formset = PlanFormset(instance=offer_request.offer)
     return render(request, 'offers/manage/edit_request.html', {
         "form": form,
         "formset": formset,
