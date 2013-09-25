@@ -15,7 +15,7 @@ class ProviderForm(forms.ModelForm):
 
     class Meta:
         model = Provider
-        fields = ('name', 'start_date', 'website', 'logo')
+        fields = ('name', 'start_date', 'website', 'tos', 'logo')
 
 
 class CommentForm(forms.Form):
