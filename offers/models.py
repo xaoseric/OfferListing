@@ -343,6 +343,7 @@ class OfferUpdateManager(models.Manager):
                     plan=plan,
 
                     virtualization=plan.virtualization,
+                    location=plan.location,
 
                     # Data attributes
                     bandwidth=plan.bandwidth,
