@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'raven.contrib.django.raven_compat',
     'django_countries',
+    'captcha',
 
     # Custom applications
     'offers',
