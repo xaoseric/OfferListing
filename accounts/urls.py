@@ -5,7 +5,7 @@ from accounts.forms import BetterAuthenticationForm
 urlpatterns = patterns('accounts.views',
     url(r'^register/$', 'register', name='register'),
     url(r'^profile/$', 'self_profile', name='self_profile'),
-    url(r'^(?P<username>[\w.@+-]+)/$', 'profile', name='profile'),
+    url(r'^user/(?P<username>[\w.@+-]+)/$', 'profile', name='profile'),
     url(r'^profile/comments/$', 'comment_list', name='my_comments'),
     url(r'^update/$', 'edit_account', name='edit_account'),
     url(r'^update/password/$', 'change_password', name='change_password'),
