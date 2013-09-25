@@ -14,6 +14,7 @@
       <th>Created</th>
       <th>Test IPs</th>
       <th>Test Downloads</th>
+      <th>Management</th>
     </tr>
     {% for location in locations %}
       <td class="text-center"><img src="{{ location.country.flag }}"></td>
@@ -22,6 +23,9 @@
       <td>{{ location.created_at }}</td>
       <td>{{ location.test_ips.count }}</td>
       <td>{{ location.test_downloads.count }}</td>
+      <td class="text-center">
+        <a href="{% url 'offer:admin_location_edit' location.pk %}" class="btn btn-success">Edit</a>
+      </td>
     {% endfor %}
   </table>
 {% endblock %}
