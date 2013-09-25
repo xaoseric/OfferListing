@@ -2,6 +2,9 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from accounts.models import UserProfile
+from model_mommy import mommy
+from offers.models import Comment
+from captcha.models import CaptchaStore
 
 
 class LogoutViewTests(TestCase):
@@ -30,7 +33,7 @@ class LogoutViewTests(TestCase):
         self.assertEqual(response.redirect_chain[0][1], 302)
 
 
-class ProfileViewTests(TestCase):
+class SelfProfileViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
         self.user.first_name = 'Joe'
@@ -62,6 +65,76 @@ class ProfileViewTests(TestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assertTrue(reverse('login') in response.redirect_chain[0][0])
         self.assertEqual(response.redirect_chain[0][1], 302)
+
+
+class OtherUserViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.comments = mommy.make(Comment, commenter=self.user, _quantity=20)
+        self.user.save()
+
+    def test_can_view_other_user_profile(self):
+        """
+        Test that another user's profile can be viewed
+        """
+        response = self.client.get(reverse('profile', args=[self.user.username]))
+
+        self.assertContains(response, self.user.first_name)
+        self.assertContains(response, self.user.last_name)
+        self.assertContains(response, self.user.username)
+        self.assertContains(response, self.user.username + '\'s Profile')
+
+    def test_profile_page_contains_first_5_comments(self):
+        """
+        Test that the profile page contains only the first 5 comments
+        """
+        response = self.client.get(reverse('profile', args=[self.user.username]))
+
+        for comment in self.comments[15:20]:
+            self.assertContains(response, comment.content)
+
+        for comment in self.comments[0:15]:
+            self.assertNotContains(response, comment.content)
+
+    def test_profile_second_page_contains_next_5_comments(self):
+        """
+        Test that the next profile page contains the next 5 comments
+        """
+        response = self.client.get(reverse('profile', args=[self.user.username]) + '?page=2')
+
+        for comment in self.comments[10:15]:
+            self.assertContains(response, comment.content)
+
+        for comment in self.comments[0:10]:
+            self.assertNotContains(response, comment.content)
+
+        for comment in self.comments[15:20]:
+            self.assertNotContains(response, comment.content)
+
+    def test_profile_page_with_large_page_number(self):
+        """
+        Test that a profile page with a page number greater than the highest page gets the last page
+        """
+        response = self.client.get(reverse('profile', args=[self.user.username]) + '?page=10')
+
+        for comment in self.comments[0:5]:
+            self.assertContains(response, comment.content)
+
+        for comment in self.comments[5:20]:
+            self.assertNotContains(response, comment.content)
+
+
+class AuthenticatedOtherUserViewTests(OtherUserViewTests):
+    def setUp(self):
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.comments = mommy.make(Comment, commenter=self.user, _quantity=20)
+        self.user.save()
+
+        self.client.login(username='some_user', password='password')
 
 
 class EditAccountViewTests(TestCase):
@@ -320,7 +393,7 @@ class DeactivateAccountTests(TestCase):
         self.assertTrue(other_user.is_active)
 
 
-class UserProfileModelTests(TestCase):
+class CommentAccountViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
         self.user.first_name = 'Joe'
@@ -328,31 +401,167 @@ class UserProfileModelTests(TestCase):
         self.user.save()
         self.client.login(username='some_user', password='password')
 
-    def test_user_has_profile_on_creation(self):
+        self.comments = mommy.make(Comment, commenter=self.user, _quantity=50)
+
+    def test_user_can_view_own_comments(self):
         """
-        Test that the post_save signal creates a new UserProfile account on creation of a user
+        Test that a user can view their own comments
         """
-        self.assertNotEqual(self.user.user_profile, None)
-        self.assertEqual(UserProfile.objects.count(), 1)
+        response = self.client.get(reverse('my_comments'))
+
+        for comment in self.comments:
+            self.assertContains(response, comment.content)
+
+        self.assertContains(response, self.user.username)
+
+    def test_user_can_not_see_unpublished_comments(self):
+        """
+        Test that a user can not see unpublished or deleted comments
+        """
+
+        unpublished_comments = mommy.make(Comment, commenter=self.user, status=Comment.UNPUBLISHED, _quantity=20)
+        deleted_comments = mommy.make(Comment, commenter=self.user, status=Comment.DELETED, _quantity=20)
+
+        response = self.client.get(reverse('my_comments'))
+
+        for comment in self.comments:
+            self.assertContains(response, comment.content)
+
+        for comment in unpublished_comments:
+            self.assertNotContains(response, comment.content)
+
+        for comment in deleted_comments:
+            self.assertNotContains(response, comment.content)
+
+        self.assertContains(response, self.user.username)
+
+    def test_user_can_not_see_other_users_comments(self):
+        """
+        Test that the user can not see other user's comments on their page
+        """
+        other_comments = mommy.make(Comment, _quantity=20)
+
+        response = self.client.get(reverse('my_comments'))
+
+        for comment in self.comments:
+            self.assertContains(response, comment.content)
+
+        for comment in other_comments:
+            self.assertNotContains(response, comment.content)
+
+        self.assertContains(response, self.user.username)
+
+
+class RegisterViewTests(TestCase):
+    def test_logged_in_user_can_not_register(self):
+        """
+        Test that a user who is logged in can not register and is redirected home
+        """
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
+        self.user.save()
+        self.client.login(username='some_user', password='password')
+
+        response = self.client.get(reverse('register'), follow=True)
+        self.assertRedirects(response, reverse('home'))
+
+    def test_user_can_view_register_page(self):
+        """
+        Test that a user can successfully view the register page
+        """
+
+        response = self.client.get(reverse('register'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_can_register(self):
+        """
+        Test that a user can register an account
+        """
+        self.client.get(reverse('register'))
+        captcha = CaptchaStore.objects.all()[0]
+
+        self.assertEqual(User.objects.count(), 0)
+
+        data = {
+            "first_name": "Man",
+            "last_name": "Tan",
+            "email": "test2@example.com",
+            "username": "some_user2",
+            "password1": "password",
+            "password2": "password",
+            'captcha_0': captcha.hashkey,
+            'captcha_1': captcha.response,
+        }
+
+        response = self.client.post(reverse('register'), data=data, follow=True)
+        self.assertRedirects(response, reverse('home'))
         self.assertEqual(User.objects.count(), 1)
 
-    def test_user_save_does_not_create_new_profile(self):
-        """
-        Test that saving a user does not create a new profile
-        """
-        self.assertNotEqual(self.user.user_profile, None)
-        self.assertEqual(UserProfile.objects.count(), 1)
-        self.assertEqual(User.objects.count(), 1)
+        user = User.objects.all()[0]
 
-        self.user.first_name = "new name"
+        self.assertEqual(user.first_name, "Man")
+        self.assertEqual(user.last_name, "Tan")
+        self.assertEqual(user.email, "test2@example.com")
+        self.assertEqual(user.username, "some_user2")
+
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
+        self.assertTrue(user.is_active)
+
+    def test_user_can_not_register_with_duplicate_username(self):
+        """
+        Test that a user can not register with a duplicate username
+        """
+        self.user = User.objects.create_user('some_user', 'test@example.com', 'password')
+        self.user.first_name = 'Joe'
+        self.user.last_name = 'Bill'
         self.user.save()
 
-        self.assertNotEqual(self.user.user_profile, None)
-        self.assertEqual(UserProfile.objects.count(), 1)
+        self.client.get(reverse('register'))
+        captcha = CaptchaStore.objects.all()[0]
+
         self.assertEqual(User.objects.count(), 1)
 
-    def test_unicode_name(self):
+        data = {
+            "first_name": "Man",
+            "last_name": "Tan",
+            "email": "test2@example.com",
+            "username": "some_user",  # Duplicate user
+            "password1": "password",
+            "password2": "password",
+            'captcha_0': captcha.hashkey,
+            'captcha_1': captcha.response,
+        }
+
+        response = self.client.post(reverse('register'), data=data, follow=True)
+        self.assertContains(response, "You had errors in your details. Please fix them and submit again.")
+        self.assertFormError(response, 'form', 'username', 'A user with that username already exists.')
+
+        self.assertEqual(User.objects.count(), 1)
+
+    def test_user_can_not_register_with_mismatched_password(self):
         """
-        Test the unicode name of the profile contains the username
+        Test that a user can not register with passwords that do not match
         """
-        self.assertIn(self.user.username, self.user.user_profile.__unicode__())
+        self.client.get(reverse('register'))
+        captcha = CaptchaStore.objects.all()[0]
+
+        self.assertEqual(User.objects.count(), 0)
+
+        data = {
+            "first_name": "Man",
+            "last_name": "Tan",
+            "email": "test2@example.com",
+            "username": "some_user",
+            "password1": "password",
+            "password2": "password_mismatch",
+            'captcha_0': captcha.hashkey,
+            'captcha_1': captcha.response,
+        }
+
+        response = self.client.post(reverse('register'), data=data, follow=True)
+        self.assertContains(response, "You had errors in your details. Please fix them and submit again.")
+        self.assertFormError(response, 'form', 'password2', 'The two password fields didn\'t match.')
+
+        self.assertEqual(User.objects.count(), 0)
