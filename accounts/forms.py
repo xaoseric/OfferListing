@@ -2,6 +2,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset
+from captcha.fields import CaptchaField
 from django import forms
 
 
@@ -43,6 +44,7 @@ class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
     email = forms.EmailField()
+    captcha = CaptchaField()
 
     def __init__(self, *args, **kwargs):
         super(UserRegisterForm, self).__init__(*args, **kwargs)
@@ -59,6 +61,7 @@ class UserRegisterForm(UserCreationForm):
                 'first_name',
                 'last_name',
                 'email',
+                'captcha',
             ),
             Submit('register', 'Register')
         )
