@@ -1000,6 +1000,9 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-1-cost"].value, unicode(plan.cost))
 
     def test_edit_request_page_can_edit_offer(self):
+        """
+        Test that a user can edit the main offer content
+        """
         response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
 
         form = response.form
@@ -1018,5 +1021,32 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(offer.name, "Offer title!")
         self.assertEqual(offer.content, "Offer content!")
 
+    def test_edit_request_page_can_edit_plans(self):
+        """
+        Test that a user can edit the plans on the page
+        """
 
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
 
+        form = response.form
+
+        form["plan_set-0-bandwidth"] = 1024
+        form["plan_set-0-disk_space"] = 2048
+
+        form["plan_set-1-ipv4_space"] = 1
+        form["plan_set-1-ipv6_space"] = 16
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        plan1 = Plan.objects.order_by('id')[0]
+        plan2 = Plan.objects.order_by('id')[1]
+
+        self.assertEqual(plan1.bandwidth, 1024)
+        self.assertEqual(plan1.disk_space, 2048)
+
+        self.assertEqual(plan2.ipv4_space, 1)
+        self.assertEqual(plan2.ipv6_space, 16)
