@@ -939,3 +939,58 @@ class ProviderNewRequestViewTests(WebTest):
             self.assertNotIn(unicode(location.pk), options)
 
         self.assertEqual(len(options), 20)
+
+
+class ProviderEditRequestViewTests(WebTest):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer_request = mommy.make(OfferRequest, offer__provider=self.provider, offer__status=Offer.UNPUBLISHED)
+        self.location = mommy.make(Location, provider=self.provider)
+        self.plans = mommy.make(Plan, offer=self.offer_request.offer, _quantity=2, location=self.location, cost=20.01)
+
+    def test_edit_request_page_contains_correct_details(self):
+        """
+        Test that the edit request page contains the correct details of the offer and plans
+        """
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        self.assertEqual(form["name"].value, self.offer_request.offer.name)
+        self.assertEqual(form["content"].value, self.offer_request.offer.content)
+
+        plan = self.plans[0]
+
+        self.assertEqual(form["plan_set-0-bandwidth"].value, unicode(plan.bandwidth))
+        self.assertEqual(form["plan_set-0-disk_space"].value, unicode(plan.disk_space))
+        self.assertEqual(form["plan_set-0-memory"].value, unicode(plan.memory))
+        self.assertEqual(form["plan_set-0-virtualization"].value, plan.virtualization)
+        self.assertEqual(form["plan_set-0-location"].value, unicode(plan.location.pk))
+        self.assertEqual(form["plan_set-0-ipv4_space"].value, unicode(plan.ipv4_space))
+        self.assertEqual(form["plan_set-0-ipv6_space"].value, unicode(plan.ipv6_space))
+        self.assertEqual(form["plan_set-0-billing_time"].value, plan.billing_time)
+        self.assertEqual(form["plan_set-0-url"].value, plan.url)
+        self.assertEqual(form["plan_set-0-promo_code"].value, plan.promo_code)
+        self.assertEqual(form["plan_set-0-cost"].value, unicode(plan.cost))
+
+        plan = self.plans[1]
+
+        self.assertEqual(form["plan_set-1-bandwidth"].value, unicode(plan.bandwidth))
+        self.assertEqual(form["plan_set-1-disk_space"].value, unicode(plan.disk_space))
+        self.assertEqual(form["plan_set-1-memory"].value, unicode(plan.memory))
+        self.assertEqual(form["plan_set-1-virtualization"].value, plan.virtualization)
+        self.assertEqual(form["plan_set-1-location"].value, unicode(plan.location.pk))
+        self.assertEqual(form["plan_set-1-ipv4_space"].value, unicode(plan.ipv4_space))
+        self.assertEqual(form["plan_set-1-ipv6_space"].value, unicode(plan.ipv6_space))
+        self.assertEqual(form["plan_set-1-billing_time"].value, plan.billing_time)
+        self.assertEqual(form["plan_set-1-url"].value, plan.url)
+        self.assertEqual(form["plan_set-1-promo_code"].value, plan.promo_code)
+        self.assertEqual(form["plan_set-1-cost"].value, unicode(plan.cost))
+
+
+
