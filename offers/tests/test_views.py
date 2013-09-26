@@ -1335,6 +1335,11 @@ class ProviderLocationEditViewTests(WebTest):
         """
         Test that a user can update their own location data
         """
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
+
         response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
 
         form = response.form
@@ -1361,3 +1366,35 @@ class ProviderLocationEditViewTests(WebTest):
         self.assertEqual(ip.ip, "192.168.1.1")
         self.assertEqual(download.url, "http://example.com/test_file.zip")
         self.assertEqual(download.size, 512)
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
+
+    def test_user_can_not_update_location_with_incorrect_data(self):
+        """
+        Test that a user can not update a location with incorrect data
+        """
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
+
+        response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
+
+        form = response.form
+
+        form["city"] = ""  # Empty form
+        form["country"] = "US"
+        form["datacenter"] = "OldTech"
+
+        response = form.submit()
+        self.assertContains(response, 'This field is required.')
+
+        # Make sure the location has not changed
+        location = Location.objects.get(pk=self.location.pk)
+        self.assertEqual(location.city, self.location.city)
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
