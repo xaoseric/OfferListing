@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate, Location
+from offers.models import Offer, Provider, Plan, OfferRequest, Location, TestDownload, TestIP
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -1134,3 +1134,48 @@ class ProviderLocationsListViewTests(TestCase):
 
         for location in provider_locations:
             self.assertNotContains(response, location.city)
+
+
+class ProviderLocationNewViewTests(WebTest):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+    def test_can_view_new_provider_page(self):
+        """
+        Test that a user can view the new provider page
+        """
+        response = self.app.get(reverse('offer:admin_location_new'), user=self.user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'New Location')
+
+    def test_can_add_location_with_no_ip_no_downloads(self):
+        """
+        Test that a provider can add a location with no ips and no downloads
+        """
+
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_location_new'), user=self.user)
+
+        form = response.form
+
+        form["city"] = "New York"
+        form["country"] = "US"
+        form["datacenter"] = "NewTech"
+        form.submit()
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+        location = Location.objects.latest('created_at')
+
+        self.assertEqual(location.city, "New York")
+        self.assertEqual(location.country, "US")
+        self.assertEqual(location.datacenter, "NewTech")
