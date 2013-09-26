@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate, Location
+from offers.models import Offer, Provider, Plan, OfferRequest, Location, TestDownload, TestIP
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -898,6 +898,31 @@ class ProviderNewRequestViewTests(WebTest):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_user_can_not_submit_with_invalid_plans_form(self):
+        """
+        Test that a user can not submit a form that is not valid
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = "Offer new"
+        form["content"] = "Offer content"
+
+        # Only fill one field
+        form["plan_set-0-bandwidth"] = 1024
+
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        self.assertEqual(response.status_code, 200)
+
     def test_user_locations_are_present(self):
         """
         Test that the user's locations are present in the form
@@ -1000,6 +1025,9 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-1-cost"].value, unicode(plan.cost))
 
     def test_edit_request_page_can_edit_offer(self):
+        """
+        Test that a user can edit the main offer content
+        """
         response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
 
         form = response.form
@@ -1018,5 +1046,355 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(offer.name, "Offer title!")
         self.assertEqual(offer.content, "Offer content!")
 
+    def test_edit_request_page_can_edit_plans(self):
+        """
+        Test that a user can edit the plans on the page
+        """
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["plan_set-0-bandwidth"] = 1024
+        form["plan_set-0-disk_space"] = 2048
+
+        form["plan_set-1-ipv4_space"] = 1
+        form["plan_set-1-ipv6_space"] = 16
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        plan1 = Plan.objects.order_by('id')[0]
+        plan2 = Plan.objects.order_by('id')[1]
+
+        self.assertEqual(plan1.bandwidth, 1024)
+        self.assertEqual(plan1.disk_space, 2048)
+
+        self.assertEqual(plan2.ipv4_space, 1)
+        self.assertEqual(plan2.ipv6_space, 16)
+
+    def test_edit_request_page_can_delete_plan(self):
+        """
+        Test that a user can delete a plan
+        """
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["plan_set-0-DELETE"] = True
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 1)
+
+    def test_edit_request_page_can_delete_multiple_plans(self):
+        """
+        Test that a user can delete a plan
+        """
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["plan_set-0-DELETE"] = True
+        form["plan_set-1-DELETE"] = True
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 0)
+
+    def test_edit_request_can_not_edit_with_invalid_data(self):
+        """
+        Test that editing a request with incorrect data does not save
+        """
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["name"] = ""  # Empty title
+        form["content"] = "Offer content!"
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        offer = Offer.objects.get(pk=self.offer_request.offer.pk)
+
+        self.assertEqual(offer.name, self.offer_request.offer.name)
+        self.assertEqual(offer.content, self.offer_request.offer.content)
+        self.assertNotEqual(offer.name, "")
+        self.assertNotEqual(offer.content, "Offer content!")
 
 
+class ProviderLocationsListViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+        self.client.login(username='user', password='password')
+
+        self.locations = mommy.make(Location, provider=self.provider, _quantity=10)
+
+    def test_locations_list_contains_all_of_own_locations(self):
+        """
+        Test that the locations list contains all of the user's locations
+        """
+
+        response = self.client.get(reverse('offer:admin_locations'))
+
+        for location in self.locations:
+            self.assertContains(response, location.country.flag)
+            self.assertContains(response, location.city)
+
+    def test_locations_list_does_not_contain_other_provider_locations(self):
+        """
+        Test that the locations list does not contain other provider locations
+        """
+
+        provider_locations = mommy.make(Location, _quantity=10)
+
+        response = self.client.get(reverse('offer:admin_locations'))
+
+        for location in provider_locations:
+            self.assertNotContains(response, location.city)
+
+
+class ProviderLocationNewViewTests(WebTest):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+    def test_can_view_new_provider_page(self):
+        """
+        Test that a user can view the new provider page
+        """
+        response = self.app.get(reverse('offer:admin_location_new'), user=self.user)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'New Location')
+
+    def test_can_add_location_with_no_ip_no_downloads(self):
+        """
+        Test that a provider can add a location with no ips and no downloads
+        """
+
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_location_new'), user=self.user)
+
+        form = response.form
+
+        form["city"] = "New York"
+        form["country"] = "US"
+        form["datacenter"] = "NewTech"
+        form.submit()
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+        location = Location.objects.latest('created_at')
+
+        self.assertEqual(location.city, "New York")
+        self.assertEqual(location.country, "US")
+        self.assertEqual(location.datacenter, "NewTech")
+
+    def test_can_not_add_location_with_incorrect_details(self):
+        """
+        Test that a provider can add a location with no ips and no downloads
+        """
+
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_location_new'), user=self.user)
+
+        form = response.form
+
+        form["city"] = ""  # Empty
+        form["country"] = "US"
+        form["datacenter"] = "NewTech"
+        form.submit()
+
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+    def test_can_add_location_with_ip_and_download(self):
+        """
+        Test that a provider can add a location with no ips and no downloads
+        """
+
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_location_new'), user=self.user)
+
+        form = response.form
+
+        form["city"] = "New York"
+        form["country"] = "US"
+        form["datacenter"] = "NewTech"
+
+        # IP
+        form["test_ips-0-ip"] = "127.0.0.1"
+        form["test_ips-0-ip_type"] = TestIP.IPV4
+
+        # Download
+        form["test_downloads-0-url"] = "http://example.com/download.zip"
+        form["test_downloads-0-size"] = 1024
+        form.submit()
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 1)
+        self.assertEqual(TestDownload.objects.count(), 1)
+
+        location = Location.objects.latest('created_at')
+        ip = TestIP.objects.latest('created_at')
+        download = TestDownload.objects.latest('created_at')
+
+        self.assertEqual(location.city, "New York")
+        self.assertEqual(location.country, "US")
+        self.assertEqual(location.datacenter, "NewTech")
+
+        self.assertEqual(ip.ip, "127.0.0.1")
+        self.assertEqual(ip.ip_type, TestIP.IPV4)
+        self.assertEqual(ip.location, location)
+
+        self.assertEqual(download.url, "http://example.com/download.zip")
+        self.assertEqual(download.size, 1024)
+        self.assertEqual(download.location, location)
+
+
+class ProviderLocationEditViewTests(WebTest):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.location = mommy.make(Location, provider=self.provider)
+        self.ips = mommy.make(TestIP, _quantity=2, location=self.location, ip='127.0.0.1')
+        self.downloads = mommy.make(TestDownload, _quantity=2, location=self.location, url='http://example.com/big.zip')
+
+    def test_edit_location_page_contains_correct_data(self):
+        """
+        Test that the edit page shows all the correct data initially
+        """
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
+
+        response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
+
+        form = response.form
+
+        self.assertEqual(form["city"].value, self.location.city)
+        self.assertEqual(form["country"].value, self.location.country)
+        self.assertEqual(form["datacenter"].value, self.location.datacenter)
+
+        self.assertEqual(form["test_ips-0-ip"].value, self.ips[0].ip)
+        self.assertEqual(form["test_ips-0-ip_type"].value, self.ips[0].ip_type)
+        self.assertEqual(form["test_ips-1-ip"].value, self.ips[1].ip)
+        self.assertEqual(form["test_ips-1-ip_type"].value, self.ips[1].ip_type)
+
+        # Download
+        self.assertEqual(form["test_downloads-0-url"].value, self.downloads[0].url)
+        self.assertEqual(form["test_downloads-0-size"].value, unicode(self.downloads[0].size))
+        self.assertEqual(form["test_downloads-1-url"].value, self.downloads[1].url)
+        self.assertEqual(form["test_downloads-1-size"].value, unicode(self.downloads[1].size))
+
+    def test_user_can_update_location_data(self):
+        """
+        Test that a user can update their own location data
+        """
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
+
+        response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
+
+        form = response.form
+
+        form["city"] = "New City"
+        form["country"] = "US"
+        form["datacenter"] = "OldTech"
+
+        form["test_ips-0-ip"] = "192.168.1.1"
+
+        form["test_downloads-0-url"] = "http://example.com/test_file.zip"
+        form["test_downloads-0-size"] = 512
+
+        form.submit()
+
+        location = Location.objects.get(pk=self.location.pk)
+        ip = TestIP.objects.get(pk=self.ips[0].pk)
+        download = TestDownload.objects.get(pk=self.downloads[0].pk)
+
+        self.assertEqual(location.city, "New City")
+        self.assertEqual(location.country, "US")
+        self.assertEqual(location.datacenter, "OldTech")
+
+        self.assertEqual(ip.ip, "192.168.1.1")
+        self.assertEqual(download.url, "http://example.com/test_file.zip")
+        self.assertEqual(download.size, 512)
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
+
+    def test_user_can_not_update_location_with_incorrect_data(self):
+        """
+        Test that a user can not update a location with incorrect data
+        """
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
+
+        response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
+
+        form = response.form
+
+        form["city"] = ""  # Empty form
+        form["country"] = "US"
+        form["datacenter"] = "OldTech"
+
+        response = form.submit()
+        self.assertContains(response, 'This field is required.')
+
+        # Make sure the location has not changed
+        location = Location.objects.get(pk=self.location.pk)
+        self.assertEqual(location.city, self.location.city)
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
