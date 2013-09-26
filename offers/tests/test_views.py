@@ -950,7 +950,14 @@ class ProviderEditRequestViewTests(WebTest):
 
         self.offer_request = mommy.make(OfferRequest, offer__provider=self.provider, offer__status=Offer.UNPUBLISHED)
         self.location = mommy.make(Location, provider=self.provider)
-        self.plans = mommy.make(Plan, offer=self.offer_request.offer, _quantity=2, location=self.location, cost=20.01)
+        self.plans = mommy.make(
+            Plan,
+            offer=self.offer_request.offer,
+            _quantity=2,
+            location=self.location,
+            cost=20.01,
+            url="http://example.com/"
+        )
 
     def test_edit_request_page_contains_correct_details(self):
         """
@@ -991,6 +998,25 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-1-url"].value, plan.url)
         self.assertEqual(form["plan_set-1-promo_code"].value, plan.promo_code)
         self.assertEqual(form["plan_set-1-cost"].value, unicode(plan.cost))
+
+    def test_edit_request_page_can_edit_offer(self):
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["name"] = "Offer title!"
+        form["content"] = "Offer content!"
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        offer = Offer.objects.get(pk=self.offer_request.offer.pk)
+
+        self.assertEqual(offer.name, "Offer title!")
+        self.assertEqual(offer.content, "Offer content!")
 
 
 

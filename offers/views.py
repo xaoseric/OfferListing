@@ -164,6 +164,7 @@ def admin_edit_request(request, request_pk):
         form = OfferForm(request.POST, instance=offer_request.offer)
         formset = PlanFormset(request.POST, instance=offer_request.offer, provider=request.user.user_profile.provider)
         if form.is_valid() and formset.is_valid():
+            form.save()
             formset.save()
 
             # Reload form data
