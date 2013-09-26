@@ -561,6 +561,11 @@ class Comment(models.Model):
     class Meta:
         ordering = ['created_at']
 
+    def is_reply(self):
+        if self.reply_to is None:
+            return False
+        return True
+
 
 def clean_comment_on_save(sender, instance, raw, **kwargs):
     instance.content = super_clean(instance.content)
