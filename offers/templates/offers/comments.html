@@ -50,7 +50,7 @@
           </h4>
           {% if comment.is_reply %}
             <div class="well">
-              <h5>In reply to {{ comment.reply_to.commenter.username }}'s comment:</h5>
+              <h5>In reply to <a href="#comment-{{ comment.reply_to.pk }}">{{ comment.reply_to.commenter.username }}'s comment</a>:</h5>
               {{ comment.reply_to.content | safe }}
             </div>
           {% endif %}
