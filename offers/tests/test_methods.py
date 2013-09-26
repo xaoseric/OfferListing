@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate
+from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate, Location
 from model_mommy import mommy
 from django.core.files import File
 from django.conf import settings
@@ -536,3 +536,22 @@ class OfferUpdateMethodTests(TestCase):
         # Assert final database data
         self.assertEqual(OfferUpdate.objects.count(), 1)
         self.assertEqual(PlanUpdate.objects.count(), 4)
+
+
+class LocationMethodTests(TestCase):
+    def setUp(self):
+        self.location = mommy.make(Location)
+
+    def test_location_name_with_unicode_name(self):
+        """
+        Test that the locations still work with unicode country names
+        """
+        location = mommy.make(Location, country='AX')
+        self.assertIn(location.country.name.__unicode__(), location.__unicode__())
+
+    def test_location_name_with_non_unicode_name(self):
+        """
+        Test that the location name works with a non unicode country name
+        """
+        location = mommy.make(Location, country='US')
+        self.assertIn(location.country.name.__unicode__(), location.__unicode__())

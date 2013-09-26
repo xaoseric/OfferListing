@@ -1,8 +1,9 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate
+from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate, Location
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django_webtest import WebTest
 
 
 class ProviderProfileViewTests(TestCase):
@@ -699,3 +700,323 @@ class ProviderAdminOfferViewTests(TestCase):
 
         response = self.client.get(reverse('offer:admin_offer_update', args=[other_offer.pk]))
         self.assertEqual(response.status_code, 404)
+
+
+class ProviderNewRequestViewTests(WebTest):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.location = mommy.make(Location, provider=self.provider)
+
+    def test_providers_can_view_new_request_page(self):
+        """
+        Test that providers can view the request page
+        """
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+        self.assertContains(response, 'Offer Request')
+
+    def test_user_can_not_view_new_request_page(self):
+        """
+        Test that a normal user can not view the new request page
+        """
+        self.user.user_profile.provider = None
+        self.user.user_profile.save()
+        self.client.login(username='user', password='password')
+
+        response = self.client.get(reverse('offer:admin_request_new'), follow=True)
+        self.assertRedirects(response, reverse('login') + '?next=' + reverse('offer:admin_request_new'))
+
+    def test_user_can_submit_no_plans_request(self):
+        """
+        Test that a user can submit an empty request (one without plans)
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = "Offer name!"
+        form["content"] = "Offer content"
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        offer_request = OfferRequest.objects.latest('created_at')
+
+        self.assertEqual(offer_request.user, self.user)
+        self.assertEqual(offer_request.offer.name, 'Offer name!')
+        self.assertEqual(offer_request.offer.content, 'Offer content')
+        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer_request.offer.is_active, True)
+
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+
+    def test_user_can_submit_with_plan_request(self):
+        """
+        Test that a user can submit a full request with plans
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = "Offer name!"
+        form["content"] = "Offer content"
+
+        form["plan_set-0-bandwidth"] = 1024
+        form["plan_set-0-disk_space"] = 2048
+        form["plan_set-0-memory"] = 512
+        form["plan_set-0-virtualization"] = Plan.KVM
+        form["plan_set-0-location"] = self.location.pk
+        form["plan_set-0-ipv4_space"] = 16
+        form["plan_set-0-ipv6_space"] = 256
+        form["plan_set-0-billing_time"] = Plan.YEARLY
+        form["plan_set-0-url"] = 'http://example.com/offer1/'
+        form["plan_set-0-promo_code"] = '#PROMO'
+        form["plan_set-0-cost"] = 20.00
+
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 1)
+
+        offer_request = OfferRequest.objects.latest('created_at')
+
+        # Test offer content
+        self.assertEqual(offer_request.user, self.user)
+        self.assertEqual(offer_request.offer.name, 'Offer name!')
+        self.assertEqual(offer_request.offer.content, 'Offer content')
+        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer_request.offer.is_active, True)
+
+        # Test plan content
+        plan = Plan.objects.latest('created_at')
+        self.assertEqual(plan.bandwidth, 1024)
+        self.assertEqual(plan.disk_space, 2048)
+        self.assertEqual(plan.memory, 512)
+        self.assertEqual(plan.virtualization, Plan.KVM)
+        self.assertEqual(plan.location.pk, self.location.pk)
+        self.assertEqual(plan.ipv4_space, 16)
+        self.assertEqual(plan.ipv6_space, 256)
+        self.assertEqual(plan.billing_time, Plan.YEARLY)
+        self.assertEqual(plan.url, 'http://example.com/offer1/')
+        self.assertEqual(plan.promo_code, "#PROMO")
+        self.assertEqual(plan.cost, 20.00)
+
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+
+    def test_user_can_submit_with_multiple_plans_request(self):
+        """
+        Test that a user can submit a full request with multiple plans
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = "Offer name!"
+        form["content"] = "Offer content"
+
+        form["plan_set-0-bandwidth"] = 1024
+        form["plan_set-0-disk_space"] = 2048
+        form["plan_set-0-memory"] = 512
+        form["plan_set-0-virtualization"] = Plan.KVM
+        form["plan_set-0-location"] = self.location.pk
+        form["plan_set-0-ipv4_space"] = 16
+        form["plan_set-0-ipv6_space"] = 256
+        form["plan_set-0-billing_time"] = Plan.YEARLY
+        form["plan_set-0-url"] = 'http://example.com/offer1/'
+        form["plan_set-0-promo_code"] = '#PROMO'
+        form["plan_set-0-cost"] = 20.00
+
+        form["plan_set-1-bandwidth"] = 2099
+        form["plan_set-1-disk_space"] = 2048
+        form["plan_set-1-memory"] = 512
+        form["plan_set-1-virtualization"] = Plan.KVM
+        form["plan_set-1-location"] = self.location.pk
+        form["plan_set-1-ipv4_space"] = 16
+        form["plan_set-1-ipv6_space"] = 256
+        form["plan_set-1-billing_time"] = Plan.YEARLY
+        form["plan_set-1-url"] = 'http://example.com/offer1/'
+        form["plan_set-1-promo_code"] = '#PROMO'
+        form["plan_set-1-cost"] = 20.00
+
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        offer_request = OfferRequest.objects.latest('created_at')
+
+        # Test offer content
+        self.assertEqual(offer_request.user, self.user)
+        self.assertEqual(offer_request.offer.name, 'Offer name!')
+        self.assertEqual(offer_request.offer.content, 'Offer content')
+        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer_request.offer.is_active, True)
+
+        # Test plan content
+        plan1 = Plan.objects.order_by('id')[0]
+        plan2 = Plan.objects.order_by('id')[1]
+
+        self.assertEqual(plan1.bandwidth, 1024)
+        self.assertEqual(plan2.bandwidth, 2099)
+
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+
+    def test_user_can_not_submit_invalid_form(self):
+        """
+        Test that a user can not submit a form that is not valid
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = ""  # Empty name
+        form["content"] = "Offer content"
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_locations_are_present(self):
+        """
+        Test that the user's locations are present in the form
+        """
+
+        self.location.delete()
+        locations = mommy.make(Location, provider=self.provider, _quantity=20)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        # Exclude the first option, as it is the blank one
+        options = response.html.select('select#id_plan_set-0-location')[0].find_all("option")[1:]
+        options = [option.get('value') for option in options]
+
+        for location in locations:
+            self.assertIn(unicode(location.pk), options)
+
+        self.assertEqual(len(options), 20)
+
+    def test_other_user_locations_are_not_present(self):
+        """
+        Test that another user's locations are present in the form
+        """
+
+        self.location.delete()
+        locations = mommy.make(Location, provider=self.provider, _quantity=20)
+        other_locations = mommy.make(Location, _quantity=20)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        # Exclude the first option, as it is the blank one
+        options = response.html.select('select#id_plan_set-0-location')[0].find_all("option")[1:]
+        options = [option.get('value') for option in options]
+
+        for location in locations:
+            self.assertIn(unicode(location.pk), options)
+
+        for location in other_locations:
+            self.assertNotIn(unicode(location.pk), options)
+
+        self.assertEqual(len(options), 20)
+
+
+class ProviderEditRequestViewTests(WebTest):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.offer_request = mommy.make(OfferRequest, offer__provider=self.provider, offer__status=Offer.UNPUBLISHED)
+        self.location = mommy.make(Location, provider=self.provider)
+        self.plans = mommy.make(
+            Plan,
+            offer=self.offer_request.offer,
+            _quantity=2,
+            location=self.location,
+            cost=20.01,
+            url="http://example.com/"
+        )
+
+    def test_edit_request_page_contains_correct_details(self):
+        """
+        Test that the edit request page contains the correct details of the offer and plans
+        """
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        self.assertEqual(form["name"].value, self.offer_request.offer.name)
+        self.assertEqual(form["content"].value, self.offer_request.offer.content)
+
+        plan = self.plans[0]
+
+        self.assertEqual(form["plan_set-0-bandwidth"].value, unicode(plan.bandwidth))
+        self.assertEqual(form["plan_set-0-disk_space"].value, unicode(plan.disk_space))
+        self.assertEqual(form["plan_set-0-memory"].value, unicode(plan.memory))
+        self.assertEqual(form["plan_set-0-virtualization"].value, plan.virtualization)
+        self.assertEqual(form["plan_set-0-location"].value, unicode(plan.location.pk))
+        self.assertEqual(form["plan_set-0-ipv4_space"].value, unicode(plan.ipv4_space))
+        self.assertEqual(form["plan_set-0-ipv6_space"].value, unicode(plan.ipv6_space))
+        self.assertEqual(form["plan_set-0-billing_time"].value, plan.billing_time)
+        self.assertEqual(form["plan_set-0-url"].value, plan.url)
+        self.assertEqual(form["plan_set-0-promo_code"].value, plan.promo_code)
+        self.assertEqual(form["plan_set-0-cost"].value, unicode(plan.cost))
+
+        plan = self.plans[1]
+
+        self.assertEqual(form["plan_set-1-bandwidth"].value, unicode(plan.bandwidth))
+        self.assertEqual(form["plan_set-1-disk_space"].value, unicode(plan.disk_space))
+        self.assertEqual(form["plan_set-1-memory"].value, unicode(plan.memory))
+        self.assertEqual(form["plan_set-1-virtualization"].value, plan.virtualization)
+        self.assertEqual(form["plan_set-1-location"].value, unicode(plan.location.pk))
+        self.assertEqual(form["plan_set-1-ipv4_space"].value, unicode(plan.ipv4_space))
+        self.assertEqual(form["plan_set-1-ipv6_space"].value, unicode(plan.ipv6_space))
+        self.assertEqual(form["plan_set-1-billing_time"].value, plan.billing_time)
+        self.assertEqual(form["plan_set-1-url"].value, plan.url)
+        self.assertEqual(form["plan_set-1-promo_code"].value, plan.promo_code)
+        self.assertEqual(form["plan_set-1-cost"].value, unicode(plan.cost))
+
+    def test_edit_request_page_can_edit_offer(self):
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["name"] = "Offer title!"
+        form["content"] = "Offer content!"
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        offer = Offer.objects.get(pk=self.offer_request.offer.pk)
+
+        self.assertEqual(offer.name, "Offer title!")
+        self.assertEqual(offer.content, "Offer content!")
+
+
+
