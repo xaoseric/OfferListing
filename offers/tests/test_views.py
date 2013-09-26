@@ -1290,3 +1290,38 @@ class ProviderLocationNewViewTests(WebTest):
         self.assertEqual(download.url, "http://example.com/download.zip")
         self.assertEqual(download.size, 1024)
         self.assertEqual(download.location, location)
+
+
+class ProviderLocationEditViewTests(WebTest):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+
+        self.location = mommy.make(Location, provider=self.provider)
+        self.ips = mommy.make(TestIP, _quantity=2, location=self.location, ip='127.0.0.1')
+        self.downloads = mommy.make(TestDownload, _quantity=2, location=self.location, url='http://example.com/big.zip')
+
+    def test_edit_page_contains_correct_data(self):
+        """
+        Test that the edit page shows all the correct data initially
+        """
+        response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
+
+        form = response.form
+
+        self.assertEqual(form["city"].value, self.location.city)
+        self.assertEqual(form["country"].value, self.location.country)
+        self.assertEqual(form["datacenter"].value, self.location.datacenter)
+
+        self.assertEqual(form["test_ips-0-ip"].value, self.ips[0].ip)
+        self.assertEqual(form["test_ips-0-ip_type"].value, self.ips[0].ip_type)
+        self.assertEqual(form["test_ips-1-ip"].value, self.ips[1].ip)
+        self.assertEqual(form["test_ips-1-ip_type"].value, self.ips[1].ip_type)
+
+        # Download
+        self.assertEqual(form["test_downloads-0-url"].value, self.downloads[0].url)
+        self.assertEqual(form["test_downloads-0-size"].value, unicode(self.downloads[0].size))
+        self.assertEqual(form["test_downloads-1-url"].value, self.downloads[1].url)
+        self.assertEqual(form["test_downloads-1-size"].value, unicode(self.downloads[1].size))
