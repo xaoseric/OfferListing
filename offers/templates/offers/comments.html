@@ -2,7 +2,7 @@
 {% if comments %}
   <ul class="media-list">
     {% for comment in comments %}
-      <li class="media" id="comment-{{ comment.pk }}">
+      <li class="media media-comment-main" id="comment-{{ comment.pk }}">
         <a class="pull-left" href="{% url 'profile' comment.commenter.username %}">
           <img height="64" class="media-object" src="{% gravatar_url comment.commenter.email 64 %}" width="64">
         </a>
@@ -41,9 +41,19 @@
                 </small>
               {% else %}
                 <small>Commented on {{ comment.created_at }}</small>
+
               {% endif %}
             </a>
+            {% if not is_profile %}
+              <a href="#new-comment" class="reply-link" onclick="setReply({{ comment.json_data }})">Reply</a>
+            {% endif %}
           </h4>
+          {% if comment.is_reply %}
+            <div class="well">
+              <h5>In reply to <a href="#comment-{{ comment.reply_to.pk }}">{{ comment.reply_to.commenter.username }}'s comment</a>:</h5>
+              {{ comment.reply_to.content | safe }}
+            </div>
+          {% endif %}
           {{ comment.content | safe }}
         </div>
         {% endspaceless %}

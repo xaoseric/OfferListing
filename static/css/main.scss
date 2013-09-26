@@ -12,3 +12,12 @@ div {
         font-weight: bold;
     }
 }
+
+.media-comment-main {
+    border-bottom: solid 1px #ddd;
+    padding-bottom: 10px;
+    .reply-link {
+        margin-left: 10px;
+        font-size: 15px;
+    }
+}

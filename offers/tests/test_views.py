@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, OfferRequest, Location, TestDownload, TestIP
+from offers.models import Offer, Comment, Provider, Plan, OfferRequest, Location, TestDownload, TestIP
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -66,34 +66,33 @@ class ProviderProfileViewTests(TestCase):
 
 class OfferViewTests(TestCase):
     def setUp(self):
-        self.offers = mommy.make(Offer, _quantity=10)
+        self.offer = mommy.make(Offer)
 
     def test_can_view_published_offers(self):
         """
         Test that you can view an offer that is published
         """
-        for offer in self.offers:
-            offer.status = offer.PUBLISHED
-            offer.save()
-            response = self.client.get(offer.get_absolute_url())
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+        response = self.client.get(self.offer.get_absolute_url())
 
-            self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.offer.content)
 
     def test_can_not_view_unpublished_offers(self):
         """
         Test that you can not view an offer that is not published
         """
-        for offer in self.offers:
-            offer.status = offer.UNPUBLISHED
-            offer.save()
-            response = self.client.get(offer.get_absolute_url())
+        self.offer.status = Offer.UNPUBLISHED
+        self.offer.save()
+        response = self.client.get(self.offer.get_absolute_url())
 
-            self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
 
 class OfferAuthenticatedViewTests(OfferViewTests):
     def setUp(self):
-        self.offers = mommy.make(Offer, _quantity=10, status=Offer.PUBLISHED)
+        self.offer = mommy.make(Offer, status=Offer.PUBLISHED)
         self.user = User.objects.create_user(username='user', email='example@example.com', password='password')
         self.client.login(username='user', password='password')
 
@@ -103,14 +102,15 @@ class OfferAuthenticatedViewTests(OfferViewTests):
         """
         post_data = {
             "comment": '',
+            "reply_to": -1,
         }
 
-        for offer in self.offers:
-            # Assert initial values
-            self.assertEqual(offer.get_comments().count(), 0)
-            response = self.client.post(offer.get_absolute_url(), post_data)
-            self.assertEqual(offer.get_comments().count(), 0)
-            self.assertEqual(response.status_code, 200)
+        # Assert initial value
+        self.assertEqual(self.offer.get_comments().count(), 0)
+
+        response = self.client.post(self.offer.get_absolute_url(), post_data)
+        self.assertEqual(self.offer.get_comments().count(), 0)
+        self.assertEqual(response.status_code, 200)
 
     def test_user_cannot_post_comment_when_logged_out(self):
         """
@@ -118,14 +118,16 @@ class OfferAuthenticatedViewTests(OfferViewTests):
         """
         post_data = {
             "comment": 'Some content',
+            "reply_to": -1,
         }
         self.client.logout()
-        for offer in self.offers:
-            # Assert initial values
-            self.assertEqual(offer.get_comments().count(), 0)
-            response = self.client.post(offer.get_absolute_url(), post_data)
-            self.assertEqual(offer.get_comments().count(), 0)
-            self.assertEqual(response.status_code, 200)
+
+        # Assert initial value
+        self.assertEqual(self.offer.get_comments().count(), 0)
+
+        response = self.client.post(self.offer.get_absolute_url(), post_data)
+        self.assertEqual(self.offer.get_comments().count(), 0)
+        self.assertEqual(response.status_code, 200)
 
     def test_user_can_post_comment(self):
         """
@@ -133,14 +135,15 @@ class OfferAuthenticatedViewTests(OfferViewTests):
         """
         post_data = {
             "comment": 'Some content',
+            "reply_to": -1,
         }
 
-        for offer in self.offers:
-            # Assert initial values
-            self.assertEqual(offer.get_comments().count(), 0)
-            response = self.client.post(offer.get_absolute_url(), post_data)
-            self.assertEqual(offer.get_comments().count(), 1)
-            self.assertEqual(response.status_code, 200)
+        # Assert initial value
+        self.assertEqual(self.offer.get_comments().count(), 0)
+
+        response = self.client.post(self.offer.get_absolute_url(), post_data)
+        self.assertEqual(self.offer.get_comments().count(), 1)
+        self.assertEqual(response.status_code, 200)
 
     def test_user_can_post_multiple_comments(self):
         """
@@ -148,16 +151,53 @@ class OfferAuthenticatedViewTests(OfferViewTests):
         """
         post_data = {
             "comment": 'Some content',
+            "reply_to": -1,
         }
 
-        for i, offer in enumerate(self.offers):
-            # Assert initial values
-            self.assertEqual(offer.get_comments().count(), 0)
+        # Assert initial value
+        self.assertEqual(self.offer.get_comments().count(), 0)
 
-            for x in range(i):
-                response = self.client.post(offer.get_absolute_url(), post_data)
-                self.assertEqual(offer.get_comments().count(), x+1)
-                self.assertEqual(response.status_code, 200)
+        for i in range(4):  # Make four comments
+            response = self.client.post(self.offer.get_absolute_url(), post_data)
+
+            self.assertEqual(self.offer.get_comments().count(), i+1)
+            self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(self.offer.get_comments().count(), 4)
+
+    def test_user_can_post_reply_to_another_comment(self):
+        """
+        Test that a user can post a reply to another comment
+        """
+
+        another_comment = mommy.make(Comment, offer=self.offer)
+
+        post_data = {
+            "comment": 'Some content',
+            "reply_to": another_comment.pk,
+        }
+        response = self.client.post(self.offer.get_absolute_url(), post_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.offer.get_comments().count(), 2)
+        new_comment = Comment.objects.order_by('id')[1]
+
+        self.assertEqual(new_comment.reply_to, another_comment)
+
+    def test_user_can_not_post_reply_to_comment_on_another_offer(self):
+        """
+        Test that a user can not post a reply to a comment on another offer
+        """
+        another_comment = mommy.make(Comment)
+
+        post_data = {
+            "comment": 'Some content',
+            "reply_to": another_comment.pk,
+        }
+        response = self.client.post(self.offer.get_absolute_url(), post_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.offer.get_comments().count(), 1)
 
 
 class OfferListViewTests(TestCase):

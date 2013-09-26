@@ -11,6 +11,7 @@ from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
 from template_helpers.cleaners import clean, super_clean
 from django_countries import CountryField
+import json
 
 ############
 # Managers #
@@ -550,6 +551,7 @@ class Comment(models.Model):
 
     commenter = models.ForeignKey(User)
     offer = models.ForeignKey(Offer)
+    reply_to = models.ForeignKey('self', blank=True, null=True)
 
     content = models.TextField()
     status = models.CharField(max_length=1, choices=STATE_CHOICES, default=PUBLISHED)
@@ -559,6 +561,21 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['created_at']
+
+    def is_reply(self):
+        if self.reply_to is None:
+            return False
+        else:
+            if self.reply_to.status == Comment.PUBLISHED:
+                return True
+            return False
+
+    def json_data(self):
+        return json.dumps({
+            "content": self.content,
+            "commenter": self.commenter.username,
+            "comment_id": self.pk,
+        })
 
 
 def clean_comment_on_save(sender, instance, raw, **kwargs):

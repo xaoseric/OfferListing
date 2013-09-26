@@ -26,6 +26,7 @@
   <h2>Comments:</h2>
   {% include 'offers/comments.html' with comments=offer.get_comments %}
   {% if request.user.is_authenticated %}
+    <a name="new-comment"></a>
     <h3>Add a comment</h3>
     {% crispy form %}
   {% endif %}
@@ -33,7 +34,6 @@
 
 {% block extra_js %}
 <script type="text/javascript">
-  {% if not is_test %}
   $(document).ready(function(){
     CKEDITOR.replace("comment", {
       toolbar: [
@@ -45,6 +45,19 @@
       ]
   });
   });
-  {% endif %}
+
+  function setReply(data){
+    $("#id_reply_to").val(data["comment_id"]);
+    $("#comment_reply_to").html('<div class="well">' +
+            '<h5>Replying to comment by ' + data["commenter"] + ': </h5>' +
+            data["content"] +
+            '<br><br>' +
+            '<a href="#new-comment" class="btn btn-danger" onclick="cancelReply()">Cancel Reply</a>' +
+            '</div>');
+  }
+  function cancelReply(){
+    $("#id_reply_to").val(-1);
+    $("#comment_reply_to").html("")
+  }
 </script>
 {% endblock %}
