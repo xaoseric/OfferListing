@@ -4,7 +4,7 @@ django-crispy-forms==1.4.0
 pytz==2013d
 model_mommy
 django-gravatar2
-PIL
+pillow
 easy-thumbnails
 coverage
 django-jenkins
