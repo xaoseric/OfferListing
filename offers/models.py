@@ -171,7 +171,7 @@ class Location(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return "{0}, {1}".format(self.city, self.country.name.__unicode__())
+        return u"{0}, {1}".format(self.city, self.country.name.__unicode__())
 
 
 class TestIP(models.Model):
