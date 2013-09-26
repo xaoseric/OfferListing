@@ -1075,3 +1075,28 @@ class ProviderEditRequestViewTests(WebTest):
 
         self.assertEqual(plan2.ipv4_space, 1)
         self.assertEqual(plan2.ipv6_space, 16)
+
+    def test_edit_request_can_not_edit_with_invalid_data(self):
+        """
+        Test that editing a request with incorrect data does not save
+        """
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["name"] = ""  # Empty title
+        form["content"] = "Offer content!"
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        offer = Offer.objects.get(pk=self.offer_request.offer.pk)
+
+        self.assertEqual(offer.name, self.offer_request.offer.name)
+        self.assertEqual(offer.content, self.offer_request.offer.content)
+        self.assertNotEqual(offer.name, "")
+        self.assertNotEqual(offer.content, "Offer content!")
