@@ -1179,3 +1179,49 @@ class ProviderLocationNewViewTests(WebTest):
         self.assertEqual(location.city, "New York")
         self.assertEqual(location.country, "US")
         self.assertEqual(location.datacenter, "NewTech")
+
+    def test_can_add_location_with_ip_and_download(self):
+        """
+        Test that a provider can add a location with no ips and no downloads
+        """
+
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_location_new'), user=self.user)
+
+        form = response.form
+
+        form["city"] = "New York"
+        form["country"] = "US"
+        form["datacenter"] = "NewTech"
+
+        # IP
+        form["test_ips-0-ip"] = "127.0.0.1"
+        form["test_ips-0-ip_type"] = TestIP.IPV4
+
+        # Download
+        form["test_downloads-0-url"] = "http://example.com/download.zip"
+        form["test_downloads-0-size"] = 1024
+        form.submit()
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 1)
+        self.assertEqual(TestDownload.objects.count(), 1)
+
+        location = Location.objects.latest('created_at')
+        ip = TestIP.objects.latest('created_at')
+        download = TestDownload.objects.latest('created_at')
+
+        self.assertEqual(location.city, "New York")
+        self.assertEqual(location.country, "US")
+        self.assertEqual(location.datacenter, "NewTech")
+
+        self.assertEqual(ip.ip, "127.0.0.1")
+        self.assertEqual(ip.ip_type, TestIP.IPV4)
+        self.assertEqual(ip.location, location)
+
+        self.assertEqual(download.url, "http://example.com/download.zip")
+        self.assertEqual(download.size, 1024)
+        self.assertEqual(download.location, location)
