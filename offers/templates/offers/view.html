@@ -26,6 +26,7 @@
   <h2>Comments:</h2>
   {% include 'offers/comments.html' with comments=offer.get_comments %}
   {% if request.user.is_authenticated %}
+    <a name="new-comment"></a>
     <h3>Add a comment</h3>
     {% crispy form %}
   {% endif %}

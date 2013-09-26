@@ -41,9 +41,12 @@
                 </small>
               {% else %}
                 <small>Commented on {{ comment.created_at }}</small>
-                <a onclick="setReply('{{ comment.pk }}', '{{ comment.commenter.username }}')">Reply</a>
+
               {% endif %}
             </a>
+            {% if not is_profile %}
+              <a href="#new-comment" class="reply-link" onclick="setReply('{{ comment.pk }}', '{{ comment.commenter.username }}')">Reply</a>
+            {% endif %}
           </h4>
           {% if comment.is_reply %}
             <div class="well">
