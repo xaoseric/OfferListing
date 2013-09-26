@@ -48,7 +48,15 @@
 
   function setReply(data){
     $("#id_reply_to").val(data["comment_id"]);
-    $("#comment_reply_to").html('<strong>Replying to comment by ' + data["commenter"] + '</strong>');
+    $("#comment_reply_to").html('<div class="well">' +
+            '<h5>Replying to comment by ' + data["commenter"] + ': </h5>' +
+            data["content"] +
+            '<a href="#new-comment" class="btn btn-danger" onclick="cancelReply()">Cancel Reply</a>' +
+            '</div>');
+  }
+  function cancelReply(){
+    $("#id_reply_to").val(-1);
+    $("#comment_reply_to").html("")
   }
 </script>
 {% endblock %}
