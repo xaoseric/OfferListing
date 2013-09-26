@@ -1076,6 +1076,49 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(plan2.ipv4_space, 1)
         self.assertEqual(plan2.ipv6_space, 16)
 
+    def test_edit_request_page_can_delete_plan(self):
+        """
+        Test that a user can delete a plan
+        """
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["plan_set-0-DELETE"] = True
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 1)
+
+    def test_edit_request_page_can_delete_multiple_plans(self):
+        """
+        Test that a user can delete a plan
+        """
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+
+        form = response.form
+
+        form["plan_set-0-DELETE"] = True
+        form["plan_set-1-DELETE"] = True
+
+        form.submit()
+
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 0)
+
     def test_edit_request_can_not_edit_with_invalid_data(self):
         """
         Test that editing a request with incorrect data does not save
