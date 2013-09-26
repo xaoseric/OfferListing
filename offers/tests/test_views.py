@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, OfferRequest, Location, TestDownload, TestIP
+from offers.models import Offer, Comment, Provider, Plan, OfferRequest, Location, TestDownload, TestIP
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -164,6 +164,40 @@ class OfferAuthenticatedViewTests(OfferViewTests):
             self.assertEqual(response.status_code, 200)
 
         self.assertEqual(self.offer.get_comments().count(), 4)
+
+    def test_user_can_post_reply_to_another_comment(self):
+        """
+        Test that a user can post a reply to another comment
+        """
+
+        another_comment = mommy.make(Comment, offer=self.offer)
+
+        post_data = {
+            "comment": 'Some content',
+            "reply_to": another_comment.pk,
+        }
+        response = self.client.post(self.offer.get_absolute_url(), post_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.offer.get_comments().count(), 2)
+        new_comment = Comment.objects.order_by('id')[1]
+
+        self.assertEqual(new_comment.reply_to, another_comment)
+
+    def test_user_can_not_post_reply_to_comment_on_another_offer(self):
+        """
+        Test that a user can not post a reply to a comment on another offer
+        """
+        another_comment = mommy.make(Comment)
+
+        post_data = {
+            "comment": 'Some content',
+            "reply_to": another_comment.pk,
+        }
+        response = self.client.post(self.offer.get_absolute_url(), post_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.offer.get_comments().count(), 1)
 
 
 class OfferListViewTests(TestCase):
