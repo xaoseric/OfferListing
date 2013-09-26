@@ -45,7 +45,7 @@
               {% endif %}
             </a>
             {% if not is_profile %}
-              <a href="#new-comment" class="reply-link" onclick="setReply('{{ comment.pk }}', '{{ comment.commenter.username }}')">Reply</a>
+              <a href="#new-comment" class="reply-link" onclick="setReply({{ comment.json_data }})">Reply</a>
             {% endif %}
           </h4>
           {% if comment.is_reply %}

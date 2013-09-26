@@ -11,6 +11,7 @@ from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
 from template_helpers.cleaners import clean, super_clean
 from django_countries import CountryField
+import json
 
 ############
 # Managers #
@@ -565,6 +566,13 @@ class Comment(models.Model):
         if self.reply_to is None:
             return False
         return True
+
+    def json_data(self):
+        return json.dumps({
+            "content": self.content,
+            "commenter": self.commenter.username,
+            "comment_id": self.pk,
+        })
 
 
 def clean_comment_on_save(sender, instance, raw, **kwargs):
