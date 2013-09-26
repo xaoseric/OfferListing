@@ -1223,6 +1223,28 @@ class ProviderLocationNewViewTests(WebTest):
         self.assertEqual(location.country, "US")
         self.assertEqual(location.datacenter, "NewTech")
 
+    def test_can_not_add_location_with_incorrect_details(self):
+        """
+        Test that a provider can add a location with no ips and no downloads
+        """
+
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_location_new'), user=self.user)
+
+        form = response.form
+
+        form["city"] = ""  # Empty
+        form["country"] = "US"
+        form["datacenter"] = "NewTech"
+        form.submit()
+
+        self.assertEqual(Location.objects.count(), 0)
+        self.assertEqual(TestIP.objects.count(), 0)
+        self.assertEqual(TestDownload.objects.count(), 0)
+
     def test_can_add_location_with_ip_and_download(self):
         """
         Test that a provider can add a location with no ips and no downloads
