@@ -565,7 +565,10 @@ class Comment(models.Model):
     def is_reply(self):
         if self.reply_to is None:
             return False
-        return True
+        else:
+            if self.reply_to.status == Comment.PUBLISHED:
+                return True
+            return False
 
     def json_data(self):
         return json.dumps({

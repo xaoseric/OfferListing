@@ -51,6 +51,7 @@
     $("#comment_reply_to").html('<div class="well">' +
             '<h5>Replying to comment by ' + data["commenter"] + ': </h5>' +
             data["content"] +
+            '<br><br>' +
             '<a href="#new-comment" class="btn btn-danger" onclick="cancelReply()">Cancel Reply</a>' +
             '</div>');
   }
