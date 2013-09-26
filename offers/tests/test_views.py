@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate
+from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate, Location
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -709,6 +709,8 @@ class ProviderNewRequestViewTests(WebTest):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
+        self.location = mommy.make(Location, provider=self.provider)
+
     def test_providers_can_view_new_request_page(self):
         """
         Test that providers can view the request page
@@ -753,5 +755,62 @@ class ProviderNewRequestViewTests(WebTest):
         self.assertEqual(offer_request.offer.content, 'Offer content')
         self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
         self.assertEqual(offer_request.offer.is_active, True)
+
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+
+    def test_user_can_submit_with_plans_request(self):
+        """
+        Test that a user can submit a full request with plans
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = "Offer name!"
+        form["content"] = "Offer content"
+
+        form["plan_set-0-bandwidth"] = 1024
+        form["plan_set-0-disk_space"] = 2048
+        form["plan_set-0-memory"] = 512
+        form["plan_set-0-virtualization"] = Plan.KVM
+        form["plan_set-0-location"] = self.location.pk
+        form["plan_set-0-ipv4_space"] = 16
+        form["plan_set-0-ipv6_space"] = 256
+        form["plan_set-0-billing_time"] = Plan.YEARLY
+        form["plan_set-0-url"] = 'http://example.com/offer1/'
+        form["plan_set-0-promo_code"] = '#PROMO'
+        form["plan_set-0-cost"] = 20.00
+
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 1)
+
+        offer_request = OfferRequest.objects.latest('created_at')
+
+        # Test offer content
+        self.assertEqual(offer_request.user, self.user)
+        self.assertEqual(offer_request.offer.name, 'Offer name!')
+        self.assertEqual(offer_request.offer.content, 'Offer content')
+        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer_request.offer.is_active, True)
+
+        # Test plan content
+        plan = Plan.objects.latest('created_at')
+        self.assertEqual(plan.bandwidth, 1024)
+        self.assertEqual(plan.disk_space, 2048)
+        self.assertEqual(plan.memory, 512)
+        self.assertEqual(plan.virtualization, Plan.KVM)
+        self.assertEqual(plan.location.pk, self.location.pk)
+        self.assertEqual(plan.ipv4_space, 16)
+        self.assertEqual(plan.ipv6_space, 256)
+        self.assertEqual(plan.billing_time, Plan.YEARLY)
+        self.assertEqual(plan.url, 'http://example.com/offer1/')
+        self.assertEqual(plan.promo_code, "#PROMO")
+        self.assertEqual(plan.cost, 20.00)
 
         self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
