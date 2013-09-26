@@ -1303,10 +1303,15 @@ class ProviderLocationEditViewTests(WebTest):
         self.ips = mommy.make(TestIP, _quantity=2, location=self.location, ip='127.0.0.1')
         self.downloads = mommy.make(TestDownload, _quantity=2, location=self.location, url='http://example.com/big.zip')
 
-    def test_edit_page_contains_correct_data(self):
+    def test_edit_location_page_contains_correct_data(self):
         """
         Test that the edit page shows all the correct data initially
         """
+
+        self.assertEqual(Location.objects.count(), 1)
+        self.assertEqual(TestIP.objects.count(), 2)
+        self.assertEqual(TestDownload.objects.count(), 2)
+
         response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
 
         form = response.form
@@ -1325,3 +1330,34 @@ class ProviderLocationEditViewTests(WebTest):
         self.assertEqual(form["test_downloads-0-size"].value, unicode(self.downloads[0].size))
         self.assertEqual(form["test_downloads-1-url"].value, self.downloads[1].url)
         self.assertEqual(form["test_downloads-1-size"].value, unicode(self.downloads[1].size))
+
+    def test_user_can_update_location_data(self):
+        """
+        Test that a user can update their own location data
+        """
+        response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
+
+        form = response.form
+
+        form["city"] = "New City"
+        form["country"] = "US"
+        form["datacenter"] = "OldTech"
+
+        form["test_ips-0-ip"] = "192.168.1.1"
+
+        form["test_downloads-0-url"] = "http://example.com/test_file.zip"
+        form["test_downloads-0-size"] = 512
+
+        form.submit()
+
+        location = Location.objects.get(pk=self.location.pk)
+        ip = TestIP.objects.get(pk=self.ips[0].pk)
+        download = TestDownload.objects.get(pk=self.downloads[0].pk)
+
+        self.assertEqual(location.city, "New City")
+        self.assertEqual(location.country, "US")
+        self.assertEqual(location.datacenter, "OldTech")
+
+        self.assertEqual(ip.ip, "192.168.1.1")
+        self.assertEqual(download.url, "http://example.com/test_file.zip")
+        self.assertEqual(download.size, 512)
