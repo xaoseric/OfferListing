@@ -898,6 +898,31 @@ class ProviderNewRequestViewTests(WebTest):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_user_can_not_submit_with_invalid_plans_form(self):
+        """
+        Test that a user can not submit a form that is not valid
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = "Offer new"
+        form["content"] = "Offer content"
+
+        # Only fill one field
+        form["plan_set-0-bandwidth"] = 1024
+
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        self.assertEqual(response.status_code, 200)
+
     def test_user_locations_are_present(self):
         """
         Test that the user's locations are present in the form
