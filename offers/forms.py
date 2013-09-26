@@ -20,6 +20,7 @@ class ProviderForm(forms.ModelForm):
 
 class CommentForm(forms.Form):
     comment = forms.CharField(widget=forms.Textarea())
+    reply_to = forms.IntegerField(widget=forms.HiddenInput(), initial=-1)
 
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)

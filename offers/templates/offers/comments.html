@@ -40,7 +40,7 @@
                   Commented on {{ comment.created_at }} on the offer <em>{{ comment.offer.name }}</em>
                 </small>
               {% else %}
-                <small>Commented on {{ comment.created_at }}</small>
+                <small>Commented on {{ comment.created_at }}</small> <a onclick="setReply('{{ comment.pk }}')">Reply</a>
               {% endif %}
             </a>
           </h4>

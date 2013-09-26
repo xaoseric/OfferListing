@@ -33,7 +33,6 @@
 
 {% block extra_js %}
 <script type="text/javascript">
-  {% if not is_test %}
   $(document).ready(function(){
     CKEDITOR.replace("comment", {
       toolbar: [
@@ -45,6 +44,9 @@
       ]
   });
   });
-  {% endif %}
+
+  function setReply(comment_id){
+    $("#id_reply_to").val(comment_id);
+  }
 </script>
 {% endblock %}
