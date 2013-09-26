@@ -551,7 +551,7 @@ class Comment(models.Model):
     commenter = models.ForeignKey(User)
     offer = models.ForeignKey(Offer)
     parent = models.ForeignKey('self', blank=True, null=True)
-    depth = models.IntegerField(max_length=1)
+    depth = models.IntegerField(max_length=1, default=0)
 
     content = models.TextField()
     status = models.CharField(max_length=1, choices=STATE_CHOICES, default=PUBLISHED)
