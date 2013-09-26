@@ -895,3 +895,26 @@ class ProviderNewRequestViewTests(WebTest):
             self.assertIn(unicode(location.pk), options)
 
         self.assertEqual(len(options), 20)
+
+    def test_other_user_locations_are_not_present(self):
+        """
+        Test that another user's locations are present in the form
+        """
+
+        self.location.delete()
+        locations = mommy.make(Location, provider=self.provider, _quantity=20)
+        other_locations = mommy.make(Location, _quantity=20)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        # Exclude the first option, as it is the blank one
+        options = response.html.select('select#id_plan_set-0-location')[0].find_all("option")[1:]
+        options = [option.get('value') for option in options]
+
+        for location in locations:
+            self.assertIn(unicode(location.pk), options)
+
+        for location in other_locations:
+            self.assertNotIn(unicode(location.pk), options)
+
+        self.assertEqual(len(options), 20)
