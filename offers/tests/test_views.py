@@ -1100,3 +1100,37 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(offer.content, self.offer_request.offer.content)
         self.assertNotEqual(offer.name, "")
         self.assertNotEqual(offer.content, "Offer content!")
+
+
+class ProviderLocationsListViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
+        self.provider = mommy.make(Provider)
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
+        self.client.login(username='user', password='password')
+
+        self.locations = mommy.make(Location, provider=self.provider, _quantity=10)
+
+    def test_locations_list_contains_all_of_own_locations(self):
+        """
+        Test that the locations list contains all of the user's locations
+        """
+
+        response = self.client.get(reverse('offer:admin_locations'))
+
+        for location in self.locations:
+            self.assertContains(response, location.country.flag)
+            self.assertContains(response, location.city)
+
+    def test_locations_list_does_not_contain_other_provider_locations(self):
+        """
+        Test that the locations list does not contain other provider locations
+        """
+
+        provider_locations = mommy.make(Location, _quantity=10)
+
+        response = self.client.get(reverse('offer:admin_locations'))
+
+        for location in provider_locations:
+            self.assertNotContains(response, location.city)
