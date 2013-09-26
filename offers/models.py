@@ -550,6 +550,7 @@ class Comment(models.Model):
 
     commenter = models.ForeignKey(User)
     offer = models.ForeignKey(Offer)
+    parent = models.ForeignKey('self', blank=True, null=True)
 
     content = models.TextField()
     status = models.CharField(max_length=1, choices=STATE_CHOICES, default=PUBLISHED)
