@@ -876,3 +876,22 @@ class ProviderNewRequestViewTests(WebTest):
         self.assertEqual(plan2.bandwidth, 2099)
 
         self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+
+    def test_user_locations_are_present(self):
+        """
+        Test that the user's locations are present in the form
+        """
+
+        self.location.delete()
+        locations = mommy.make(Location, provider=self.provider, _quantity=20)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        # Exclude the first option, as it is the blank one
+        options = response.html.select('select#id_plan_set-0-location')[0].find_all("option")[1:]
+        options = [option.get('value') for option in options]
+
+        for location in locations:
+            self.assertIn(unicode(location.pk), options)
+
+        self.assertEqual(len(options), 20)
