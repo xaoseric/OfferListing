@@ -758,7 +758,7 @@ class ProviderNewRequestViewTests(WebTest):
 
         self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
 
-    def test_user_can_submit_with_plans_request(self):
+    def test_user_can_submit_with_plan_request(self):
         """
         Test that a user can submit a full request with plans
         """
@@ -812,5 +812,67 @@ class ProviderNewRequestViewTests(WebTest):
         self.assertEqual(plan.url, 'http://example.com/offer1/')
         self.assertEqual(plan.promo_code, "#PROMO")
         self.assertEqual(plan.cost, 20.00)
+
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+
+    def test_user_can_submit_with_multiple_plans_request(self):
+        """
+        Test that a user can submit a full request with multiple plans
+        """
+        self.assertEqual(OfferRequest.objects.count(), 0)
+        self.assertEqual(Offer.objects.count(), 0)
+        self.assertEqual(Plan.objects.count(), 0)
+
+        response = self.app.get(reverse('offer:admin_request_new'), user=self.user)
+
+        form = response.form
+        form["name"] = "Offer name!"
+        form["content"] = "Offer content"
+
+        form["plan_set-0-bandwidth"] = 1024
+        form["plan_set-0-disk_space"] = 2048
+        form["plan_set-0-memory"] = 512
+        form["plan_set-0-virtualization"] = Plan.KVM
+        form["plan_set-0-location"] = self.location.pk
+        form["plan_set-0-ipv4_space"] = 16
+        form["plan_set-0-ipv6_space"] = 256
+        form["plan_set-0-billing_time"] = Plan.YEARLY
+        form["plan_set-0-url"] = 'http://example.com/offer1/'
+        form["plan_set-0-promo_code"] = '#PROMO'
+        form["plan_set-0-cost"] = 20.00
+
+        form["plan_set-1-bandwidth"] = 2099
+        form["plan_set-1-disk_space"] = 2048
+        form["plan_set-1-memory"] = 512
+        form["plan_set-1-virtualization"] = Plan.KVM
+        form["plan_set-1-location"] = self.location.pk
+        form["plan_set-1-ipv4_space"] = 16
+        form["plan_set-1-ipv6_space"] = 256
+        form["plan_set-1-billing_time"] = Plan.YEARLY
+        form["plan_set-1-url"] = 'http://example.com/offer1/'
+        form["plan_set-1-promo_code"] = '#PROMO'
+        form["plan_set-1-cost"] = 20.00
+
+        response = form.submit()
+
+        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.count(), 1)
+        self.assertEqual(Plan.objects.count(), 2)
+
+        offer_request = OfferRequest.objects.latest('created_at')
+
+        # Test offer content
+        self.assertEqual(offer_request.user, self.user)
+        self.assertEqual(offer_request.offer.name, 'Offer name!')
+        self.assertEqual(offer_request.offer.content, 'Offer content')
+        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer_request.offer.is_active, True)
+
+        # Test plan content
+        plan1 = Plan.objects.order_by('id')[0]
+        plan2 = Plan.objects.order_by('id')[1]
+
+        self.assertEqual(plan1.bandwidth, 1024)
+        self.assertEqual(plan2.bandwidth, 2099)
 
         self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
