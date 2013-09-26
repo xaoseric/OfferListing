@@ -25,8 +25,12 @@ class CommentForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(CommentForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-
-        self.helper.add_input(Submit('submit', 'Comment!'))
+        self.helper.layout = Layout(
+            'comment',
+            'reply_to',
+            Div('', css_id='comment_reply_to'),
+            Submit('submit', 'Comment!')
+        )
 
 
 # Plans and offers

@@ -45,8 +45,9 @@
   });
   });
 
-  function setReply(comment_id){
+  function setReply(comment_id, comment_author){
     $("#id_reply_to").val(comment_id);
+    $("#comment_reply_to").html('<strong>Replying to comment by ' + comment_author + '</strong>')
   }
 </script>
 {% endblock %}

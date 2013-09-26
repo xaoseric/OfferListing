@@ -34,11 +34,19 @@ def view_offer(request, offer_pk):
         form = CommentForm(request.POST)
         if form.is_valid():
             if request.user.is_authenticated():
+                if form.cleaned_data["reply_to"] != -1:
+                    if Comment.objects.filter(pk=form.cleaned_data["reply_to"], offer=offer).exists():
+                        reply_to = Comment.objects.get(pk=form.cleaned_data["reply_to"])
+                    else:
+                        reply_to = None
+                else:
+                    reply_to = None
                 Comment(
                     commenter=request.user,
                     offer=offer,
                     content=form.cleaned_data["comment"],
-                    status=Comment.PUBLISHED
+                    status=Comment.PUBLISHED,
+                    reply_to=reply_to,
                 ).save()
                 messages.success(request, "Thank you for commenting!")
                 form = CommentForm()
