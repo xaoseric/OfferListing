@@ -1,0 +1,20 @@
+Hello {{ comment.reply_to.commenter.first_name }} {{ comment.reply_to.commenter.last_name }},
+
+The user {{ comment.commenter.username }} has just replied to your comment on the offer:
+{{ comment.reply_to.offer.name }}
+at {{ comment.created_at }}.
+
+============= Your Comment =============
+{{ comment.reply_to.content | safe }}
+
+============= {{ comment.commenter.username }}'s Reply =============
+{{ comment.content | safe }}
+
+
+------- Links back -------
+
+You can visit your comment or the comment reply with the following links:
+
+Your Comment:  {{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.reply_to.pk }}
+Comment Reply: {{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}
+Offer:         {{ site_url }}{{ comment.offer.get_absolute_url }}

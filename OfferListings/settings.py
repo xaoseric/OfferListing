@@ -176,6 +176,9 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'test@example.com'
+
+SITE_URL = 'example.com'
 
 FOOTER_EXTRA = ''
 

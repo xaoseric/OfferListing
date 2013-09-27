@@ -12,6 +12,7 @@ LOCAL_SETTINGS = """DATABASES = {{
 }}
 
 ALLOWED_HOSTS = ['{site_name}']
+SITE_URL = '{site_name}'
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
