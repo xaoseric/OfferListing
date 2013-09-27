@@ -80,6 +80,11 @@ class PlanFormset(PlanFormsetBase):
         for form in self:
             form.fields["location"].queryset = Location.objects.filter(provider=provider)
 
+            form.fields["ipv4_space"].help_text = "The number of IPv4 addresses that this plan has."
+            form.fields["ipv6_space"].help_text = "The number of IPv6 addresses that this plan has."
+            form.fields["url"].help_text = "The url to purchase this plan."
+            form.fields["promo_code"].help_text = "The optional promo code the client needs to enter to get a discount."
+
 
 PlanFormsetHelper = FormHelper()
 PlanFormsetHelper.form_tag = False
@@ -139,6 +144,11 @@ class PlanUpdateFormset(PlanUpdateFormsetBase):
 
         for form in self:
             form.fields["location"].queryset = Location.objects.filter(provider=provider)
+
+            form.fields["ipv4_space"].help_text = "The number of IPv4 addresses that this plan has."
+            form.fields["ipv6_space"].help_text = "The number of IPv6 addresses that this plan has."
+            form.fields["url"].help_text = "The url to purchase this plan."
+            form.fields["promo_code"].help_text = "The optional promo code the client needs to enter to get a discount."
 
 
 # Locations
