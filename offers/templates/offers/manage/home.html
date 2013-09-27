@@ -10,3 +10,11 @@
   <h2>Edit {{ provider.name }}</h2>
   {% crispy form %}
 {% endblock %}
+
+{% block extra_js %}
+  <script>
+    $('#id_start_date').datepicker({
+      format: "yyyy-mm-dd"
+    });
+  </script>
+{% endblock %}
