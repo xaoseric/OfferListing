@@ -1,12 +1,16 @@
 from django.conf.urls import patterns, url, include
-from offers.api import PlanResource
+from offers.api import OfferResource, PlanResource
+from tastypie.api import Api
 
-plan_resource = PlanResource()
+
+main_api = Api(api_name='main')
+main_api.register(OfferResource())
+main_api.register(PlanResource())
 
 
 urlpatterns = patterns('offers.views',
     url(r'^view/(?P<offer_pk>\d+)/$', 'view_offer', name='view'),
-    url(r'^find/data/', include(plan_resource.urls)),
+    url(r'^find/data/', include(main_api.urls)),
 
     url(r'^providers/$', 'provider_list', name='providers'),
     url(r'^provider/(?P<provider_pk>\d+)/$', 'provider_profile', name='provider'),
