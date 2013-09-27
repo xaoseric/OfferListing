@@ -21,3 +21,4 @@ django-simple-captcha
 webtest
 django-webtest
 beautifulsoup4
+django-tastypie
