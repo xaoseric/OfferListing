@@ -2,13 +2,14 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.conf import settings
 
-from offers.api import OfferResource, PlanResource
+from offers.api import OfferResource, PlanResource, LocationResource
 from tastypie.api import Api
 admin.autodiscover()
 
 main_api = Api(api_name='main')
 main_api.register(OfferResource())
 main_api.register(PlanResource())
+main_api.register(LocationResource())
 
 urlpatterns = patterns('',
     url(r'^$', 'offers.views.list_offers', name='home'),
