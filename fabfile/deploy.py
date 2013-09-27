@@ -62,8 +62,9 @@ def create_virtual_environment():
 
 @task
 def create_local_settings():
-    rmdir(env.hosts_data.local_settings_path())
-    put(StringIO(env.hosts_data.local_settings()), env.hosts_data.local_settings_path())
+    #rmdir(env.hosts_data.local_settings_path())
+    #put(StringIO(env.hosts_data.local_settings()), env.hosts_data.local_settings_path())
+    print env.hosts_data.local_settings()
 
 
 @task
