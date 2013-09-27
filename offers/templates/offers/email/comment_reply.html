@@ -36,8 +36,8 @@ body {
   <hr >
   You can visit your comment or the comment reply with the following links:
   <ul class="comment-links">
-    <li><span>Your Comment: </span><a href="#">http://example.com/my_comment/</a></li>
-    <li><span>Comment Reply: </span><a href="#">http://example.com/other_comment/</a></li>
+    <li><span>Your Comment: </span><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.reply_to.pk }}">{{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.reply_to.pk }}</a></li>
+    <li><span>Comment Reply: </span><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}">{{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}</a></li>
     <li><span>Offer: </span><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}">{{ site_url }}{{ comment.offer.get_absolute_url }}</a></li>
   </ul>
 {% endblock %}

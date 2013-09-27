@@ -15,6 +15,6 @@ at {{ comment.created_at }}.
 
 You can visit your comment or the comment reply with the following links:
 
-Your Comment:  http://example.com/my_comment/
-Comment Reply: http://example.com/other_comment/
-Offer:         http://example.com/offer/
+Your Comment:  {{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.reply_to.pk }}
+Comment Reply: {{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}
+Offer:         {{ site_url }}{{ comment.offer.get_absolute_url }}
