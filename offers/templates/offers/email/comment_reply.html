@@ -23,7 +23,7 @@ body {
   Hello {{ comment.reply_to.commenter.first_name }} {{ comment.reply_to.commenter.last_name }},
   <br><br>
   The user {{ comment.commenter.username }} has just replied to your comment on
-  <strong><a href="#">{{ comment.reply_to.offer.name }}</a></strong> at {{ comment.created_at }}.
+  <strong><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}">{{ comment.reply_to.offer.name }}</a></strong> at {{ comment.created_at }}.
   <br>
   Your comment was:
   <div class="comment-block">
@@ -38,6 +38,6 @@ body {
   <ul class="comment-links">
     <li><span>Your Comment: </span><a href="#">http://example.com/my_comment/</a></li>
     <li><span>Comment Reply: </span><a href="#">http://example.com/other_comment/</a></li>
-    <li><span>Offer: </span><a href="#">http://example.com/offer/</a></li>
+    <li><span>Offer: </span><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}">{{ site_url }}{{ comment.offer.get_absolute_url }}</a></li>
   </ul>
 {% endblock %}
