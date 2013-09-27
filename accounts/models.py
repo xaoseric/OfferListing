@@ -7,7 +7,7 @@ from offers.models import Provider
 class UserProfile(models.Model):
     birthday = models.DateField(blank=True, null=True)
     user = models.OneToOneField(User, related_name='user_profile')
-    provider = models.OneToOneField(Provider, blank=True, null=True, related_name="owners")
+    provider = models.ForeignKey(Provider, blank=True, null=True, related_name="owners")
 
     def __unicode__(self):
         return "{0} profile".format(self.user.username)
