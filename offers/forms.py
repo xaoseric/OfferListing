@@ -10,7 +10,7 @@ class ProviderForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProviderForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-
+        self.fields["start_date"].help_text = "The date your company started."
         self.helper.add_input(Submit('save', 'Save Profile'))
 
     class Meta:
