@@ -22,3 +22,7 @@ webtest
 django-webtest
 beautifulsoup4
 django-tastypie
+python-mimeparse
+python-dateutil
+lxml
+pyyaml
