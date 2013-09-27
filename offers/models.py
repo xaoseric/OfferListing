@@ -139,6 +139,19 @@ class Provider(models.Model):
         options = {'size': (400, 400), 'crop': True}
         return get_thumbnailer(self.logo).get_thumbnail(options).url
 
+    def get_small_image_url(self):
+        """
+        Get the url of the providers small logo. This defaults to a no_logo.png static image if the logo for the
+        provider is not set.
+
+        The dimensions of the image are 200 by 200.
+        """
+        if self.logo == '' or self.logo is None:
+            return settings.STATIC_URL + 'img/no_logo.png'
+
+        options = {'size': (200, 200), 'crop': True}
+        return get_thumbnailer(self.logo).get_thumbnail(options).url
+
     def offer_count(self):
         """
         Gets the total count of all the offers related to this provider. It only returns the number of published

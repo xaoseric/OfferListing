@@ -7,7 +7,14 @@
     </h3>
   </div>
   <div class="panel-body">
-    {{ offer.content|truncatewords_html:100|safe }}
+    <div class="row">
+      <div class="col-lg-10 col-sm-9">
+        {{ offer.content|truncatewords_html:200|safe }}
+      </div>
+      <div class="col-lg-2 col-sm-3 text-center">
+        <img src="{{ offer.provider.get_small_image_url }}" class="img-responsive img-thumbnail" />
+      </div>
+    </div>
   </div>
   <ul class="list-group">
     <li class="list-group-item">
