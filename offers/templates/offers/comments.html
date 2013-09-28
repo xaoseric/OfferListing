@@ -14,7 +14,7 @@
 
               <a
                       class="tooltipify text-danger"
-                      href="#" data-toggle="tooltip"
+                      href="{% url 'profile' comment.commenter.username %}" data-toggle="tooltip"
                       title="This user is an admin. Don't mess with them!"
                       style="text-decoration: none"
               >
@@ -24,7 +24,7 @@
             {% if comment.commenter.user_profile.is_provider %}
               <a
                       class="tooltipify text-success"
-                      href="#" data-toggle="tooltip"
+                      href="{% url 'offer:provider' comment.commenter.user_profile.provider.pk %}" data-toggle="tooltip"
                       title="This user is a manager of the provider {{ comment.commenter.user_profile.provider.name }}."
                       style="text-decoration: none"
               >
