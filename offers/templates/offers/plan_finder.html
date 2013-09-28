@@ -230,9 +230,13 @@
       urlOptions["cost__lte"] = costMax.val();
     }
 
-    console.log(urlOptions);
     var urlParameters = $.param(urlOptions);
-    console.log(urlParameters);
+    $.get(
+      '/find/data/main/plan/?' + urlParameters,
+       function(data) {
+         console.log(data);
+       }
+    );
   }
 </script>
 {% endblock %}
