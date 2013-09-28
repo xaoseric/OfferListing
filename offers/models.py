@@ -115,7 +115,9 @@ def get_file_path(instance, filename):
 
 
 class Provider(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=250, unique=True)
+    name_slug = models.SlugField(max_length=255, unique=True, editable=False)
+
     start_date = models.DateField()
     website = models.URLField(max_length=255)
     logo = models.ImageField(upload_to=get_file_path, blank=True, max_length=255)
@@ -176,6 +178,11 @@ class Provider(models.Model):
         (and article with the status PUBLISHED).
         """
         return Plan.active_plans.for_provider(self).count()
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.name_slug = slugify(self.name)
+        super(Provider, self).save(force_insert, force_update, using, update_fields)
 
 
 class Location(models.Model):
