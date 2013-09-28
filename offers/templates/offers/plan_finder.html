@@ -139,7 +139,10 @@
 {% block extra_js %}
 <script type="text/javascript">
   function filterPlans(){
-    var urlOptions = {};
+    var urlOptions = {
+      "limit": 0,
+      "format": "json"
+    };
 
     var country = $("#countrySelect");
     var provider = $("#providerSelect");
