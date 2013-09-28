@@ -94,11 +94,11 @@ def provider_list(request):
     })
 
 
-def provider_profile(request, provider_pk):
+def provider_profile(request, provider_name):
     """
     Displays the profile of a provider, including recent offers
     """
-    provider = get_object_or_404(Provider, pk=provider_pk)
+    provider = get_object_or_404(Provider, name_slug=provider_name)
     offer_list = Offer.visible_offers.for_provider(provider)
 
     paginator = Paginator(offer_list, 5)

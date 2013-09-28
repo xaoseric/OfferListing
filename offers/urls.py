@@ -8,7 +8,7 @@ urlpatterns = patterns('offers.views',
     url(r'^view/(?P<offer_pk>\d+)-(?P<slug>[-\w]+)/$', 'view_offer', name='view_slug'),
 
     url(r'^providers/$', 'provider_list', name='providers'),
-    url(r'^provider/(?P<provider_pk>\d+)/$', 'provider_profile', name='provider'),
+    url(r'^provider/(?P<provider_name>[-\w]+)/$', 'provider_profile', name='provider'),
 
     url(r'^manage/$', 'admin_provider_home', name="admin_home"),
 
