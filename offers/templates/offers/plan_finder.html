@@ -207,13 +207,19 @@
 
     return '<ul class="pagination">\
             <li class="' + previous_disabled + '">\
-              <a data-nav-prev="' + previous_data +'">&laquo;</a>\
+              <a onclick="paginationNavigate(\'' + previous_data +'\')">&laquo;</a>\
             </li>\
             <li><a>Page ' + current_page + ' of ' + total_pages + '</a></li>\
             <li class="' + next_disabled + '">\
-              <a data-nav-prev="' + next_data + '">&raquo;</a>\
+              <a onclick="paginationNavigate(\'' + next_data + '\')">&raquo;</a>\
             </li>\
         </ul>'
+  }
+
+  function paginationNavigate(url){
+    if(url.length > 0){
+      getAndRender(url);
+    }
   }
 
   function getAndRender(url){
@@ -224,6 +230,11 @@
        function(data) {
          var endpoint_data = $("#plan_list");
          endpoint_data.html("");
+
+         if (data.meta.total_count == 0){
+           endpoint_data.html("No plans with your filtering found!");
+           return;
+         }
 
          for (var counter=0; counter < data["objects"].length; counter++){
            var plan = data["objects"][counter];
@@ -236,7 +247,7 @@
 
   function filterPlans(){
     var urlOptions = {
-      "limit": 1,
+      "limit": 5,
       "format": "json"
     };
 
