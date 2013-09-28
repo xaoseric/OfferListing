@@ -129,6 +129,16 @@
           </div>
         </div>
 
+        {# Ordering #}
+        <div class="form-group">
+          <label for="orderingSelect">Ordering</label>
+          <select class="form-control" id="orderingSelect">
+            <option value="ALL">No Ordering</option>
+            <option value="memory">RAM Ascending</option>
+            <option value="-memory">RAM Descending</option>
+          </select>
+        </div>
+
         <a onclick="filterPlans()" class="btn btn-success">Filter</a>
 
       </div>
@@ -165,6 +175,8 @@
 
     var costMin = $("#planCostMin");
     var costMax = $("#planCostMax");
+
+    var ordering = $("#orderingSelect");
 
     // Country
     if (country.val() != "ALL"){
@@ -233,6 +245,11 @@
 
     if(costMax.val().length > 0){
       urlOptions["cost__lte"] = costMax.val();
+    }
+
+    // Ordering
+    if (ordering.val() != "ALL"){
+      urlOptions["order_by"] = ordering.val();
     }
 
     var urlParameters = $.param(urlOptions);
