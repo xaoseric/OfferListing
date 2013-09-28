@@ -21,3 +21,16 @@ div {
         font-size: 15px;
     }
 }
+
+.provider-listing {
+    tr {
+        td:first-child {
+            font-weight: bold;
+        }
+    }
+    tr:first-child {
+        td {
+            border-top: none;
+        }
+    }
+}
