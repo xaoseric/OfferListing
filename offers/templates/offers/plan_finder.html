@@ -134,8 +134,41 @@
           <label for="orderingSelect">Ordering</label>
           <select class="form-control" id="orderingSelect">
             <option value="ALL">No Ordering</option>
-            <option value="memory">RAM Ascending</option>
-            <option value="-memory">RAM Descending</option>
+
+            <optgroup label="Cost Ordering">
+              <option value="cost">Cost Ascending</option>
+              <option value="-cost">Cost Descending</option>
+            </optgroup>
+
+            <optgroup label="RAM Ordering">
+              <option value="memory">RAM Ascending</option>
+              <option value="-memory">RAM Descending</option>
+            </optgroup>
+
+            <optgroup label="Bandwidth Ordering">
+              <option value="bandwidth">Bandwidth Ascending</option>
+              <option value="-bandwidth">Bandwidth Descending</option>
+            </optgroup>
+
+            <optgroup label="HDD Ordering">
+              <option value="disk_space">HDD Ascending</option>
+              <option value="-disk_space">HDD Descending</option>
+            </optgroup>
+
+            <optgroup label="IPv4 Ordering">
+              <option value="ipv4_space">IPv4 Ascending</option>
+              <option value="-ipv4_space">IPv4 Descending</option>
+            </optgroup>
+
+            <optgroup label="IPv6 Ordering">
+              <option value="ipv6_space">IPv6 Ascending</option>
+              <option value="-ipv6_space">IPv6 Descending</option>
+            </optgroup>
+
+            <optgroup label="Date Created">
+              <option value="created_at">Date Created Ascending</option>
+              <option value="-created_at">Date Created Descending</option>
+            </optgroup>
           </select>
         </div>
 
