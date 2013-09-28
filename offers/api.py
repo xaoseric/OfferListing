@@ -75,3 +75,5 @@ class PlanResource(ModelResource):
             "location": ALL_WITH_RELATIONS,
             "offer": ALL_WITH_RELATIONS,
         }
+
+        ordering = ['bandwidth', 'disk_space', 'memory', 'ipv4_space', 'ipv6_space', 'cost', 'created_at']
