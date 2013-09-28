@@ -12,6 +12,7 @@ class ProviderResource(ModelResource):
 
         filtering = {
             "name": ALL,
+            "pk": ALL,
         }
 
 
