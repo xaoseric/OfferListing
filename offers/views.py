@@ -25,7 +25,7 @@ from django_countries.countries import COUNTRIES
 logger = logging.getLogger(__name__)
 
 
-def view_offer(request, offer_pk):
+def view_offer(request, offer_pk, slug=None):
     """
     The view that displays an offer. This view is only accessible if the offer exists and the offer status
     is published. It is still possible to view an inactive offer.

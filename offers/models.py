@@ -9,6 +9,7 @@ import os
 import uuid
 from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
+from django.utils.text import slugify
 from template_helpers.cleaners import clean, super_clean
 from django_countries import CountryField
 import json
@@ -264,7 +265,7 @@ class Offer(OfferBase):
         """
         Returns the absolute url of the offer. This is a link to the page about the offer.
         """
-        return reverse('offer:view', args=[self.pk])
+        return reverse('offer:view_slug', args=[self.pk, slugify(self.name)])
 
     def get_comments(self):
         """
