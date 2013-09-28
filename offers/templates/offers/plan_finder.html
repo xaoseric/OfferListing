@@ -233,6 +233,9 @@
     }
 
     var urlParameters = $.param(urlOptions);
+
+    $("#plan_list").html('<h1>Loading ...</h1>');
+
     $.get(
       '/find/data/main/plan/?' + urlParameters,
        function(data) {
