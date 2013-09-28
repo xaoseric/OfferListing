@@ -34,7 +34,7 @@
 
 
             <br />
-            <a href="{% url 'offer:view' comment.offer.pk %}#comment-{{ comment.pk }}">
+            <a href="{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}">
               {% if is_profile %}
                 <small>
                   Commented on {{ comment.created_at }} on the offer <em>{{ comment.offer.name }}</em>

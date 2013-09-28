@@ -18,7 +18,7 @@
     <tr>
       <td>
         {% if offer.status == offer.PUBLISHED %}
-          <a href="{% url 'offer:view' offer.pk %}">{{ offer.name }}</a>
+          <a href="{{ offer.get_absolute_url }}">{{ offer.name }}</a>
         {% else %}
           {{ offer.name }}
         {% endif %}
@@ -30,7 +30,7 @@
         <div class="btn-group">
           <a class="btn btn-info" href="{% url 'offer:admin_offer' offer.pk %}">Edit</a>
           {% if offer.status == offer.PUBLISHED %}
-            <a class="btn btn-warning" href="{% url 'offer:view' offer.pk %}">View</a>
+            <a class="btn btn-warning" href="{{ offer.get_absolute_url }}">View</a>
           {% else %}
             <a class="btn btn-warning disabled">View</a>
           {% endif %}

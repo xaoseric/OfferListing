@@ -11,7 +11,7 @@
 
     <tr>
       <td>Offer</td>
-      <td><a target="_blank" href="{% url 'offer:view' plan.offer.pk %}">{{ plan.offer.name }}</a></td>
+      <td><a target="_blank" href="{{ plan.offer.get_absolute_url }}">{{ plan.offer.name }}</a></td>
     </tr>
 
     <tr>
