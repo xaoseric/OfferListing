@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Plan Finder{% endblock %}
+
+{% block page_title %}
+  Plan Finder
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-8" id="plan_list">
+      <h2>Please make a filter selection on the right</h2>
+    </div>
+    <div class="col-sm-4">
+      <div class="well">
+        <h3>Filter Plan</h3>
+
+        {# Country List #}
+        <div class="form-group">
+          <label for="countrySelect">Country</label>
+          <select class="form-control" id="countrySelect">
+            <option value="ALL">Any Country</option>
+            {% for country in countries %}
+            <option value="{{ country.0 }}">{{ country.0 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Provider List #}
+        <div class="form-group">
+          <label for="providerSelect">Provider</label>
+          <select class="form-control" id="providerSelect">
+            <option value="ALL">Any Provider</option>
+            {% for provider in providers %}
+            <option value="{{ provider.pk }}">{{ provider.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Billing Time #}
+        <div class="form-group">
+          <label for="billingSelect">Provider</label>
+          <select class="form-control" id="billingSelect">
+            <option value="ALL">Any Billing Time</option>
+            {% for billing_time in billing_times %}
+            <option value="{{ billing_time.0 }}">{{ billing_time.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Memory #}
+        <div class="form-group">
+          <label>Memory (MB)</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planMemMin" placeholder="Minimum mem">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planMemMax" placeholder="Maximum mem">
+            </div>
+          </div>
+        </div>
+
+        {# HDD Space #}
+        <div class="form-group">
+          <label>HDD Space (GB)</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planHDDMin" placeholder="Minimum HDD">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planHDDMax" placeholder="Maximum HDD">
+            </div>
+          </div>
+        </div>
+
+        {# Bandwidth #}
+        <div class="form-group">
+          <label>Bandwidth (GB)</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planBandMin" placeholder="Minimum Bandwidth">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planBandMax" placeholder="Maximum Bandwidth">
+            </div>
+          </div>
+        </div>
+
+        {# IPV4 Space #}
+        <div class="form-group">
+          <label>IPv4 Addresses</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planIPv4Min" placeholder="Minimum IPv4">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planIPv4Max" placeholder="Maximum IPv4">
+            </div>
+          </div>
+        </div>
+
+        {# IPV6 Space #}
+        <div class="form-group">
+          <label>IPv6 Addresses</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planIPv6Min" placeholder="Minimum IPv6">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planIPv6Max" placeholder="Maximum IPv6">
+            </div>
+          </div>
+        </div>
+
+        {# Cost #}
+        <div class="form-group">
+          <label>Cost (USD)</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planCostMin" placeholder="Minimum cost">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planCostMax" placeholder="Maximum cost">
+            </div>
+          </div>
+        </div>
+
+        <a href="#" class="btn btn-success">Filter</a>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -406,3 +406,18 @@ def superuser_approve_updates(request):
             offer_update.delete()
     offer_updates = OfferUpdate.objects.all()
     return render(request, 'offers/manage/admin/offer_updates.html', {"offer_updates": offer_updates})
+
+
+def plan_finder(request):
+
+    countries = Location.objects.values_list('country').distinct()
+    providers = Provider.objects.all()
+
+    billing_times = Plan.BILLING_CHOICES
+
+    return render(request, 'offers/plan_finder.html', {
+        "countries": countries,
+        "providers": providers,
+
+        "billing_times": billing_times,
+    })
