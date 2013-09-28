@@ -94,7 +94,7 @@ def provider_list(request):
     })
 
 
-def provider_profile(request, provider_pk, page_number=1):
+def provider_profile(request, provider_pk):
     """
     Displays the profile of a provider, including recent offers
     """
@@ -102,8 +102,12 @@ def provider_profile(request, provider_pk, page_number=1):
     offer_list = Offer.visible_offers.for_provider(provider)
 
     paginator = Paginator(offer_list, 5)
+    page = request.GET.get('page')
     try:
-        offers = paginator.page(page_number)
+        offers = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        offers = paginator.page(1)
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         offers = paginator.page(paginator.num_pages)
