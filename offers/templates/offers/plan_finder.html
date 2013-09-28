@@ -40,7 +40,7 @@
 
         {# Billing Time #}
         <div class="form-group">
-          <label for="billingSelect">Provider</label>
+          <label for="billingSelect">Billing Period</label>
           <select class="form-control" id="billingSelect">
             <option value="ALL">Any Billing Time</option>
             {% for billing_time in billing_times %}
@@ -127,9 +127,112 @@
           </div>
         </div>
 
-        <a href="#" class="btn btn-success">Filter</a>
+        <a onclick="filterPlans()" class="btn btn-success">Filter</a>
 
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+  function filterPlans(){
+    var urlOptions = {};
+
+    var country = $("#countrySelect");
+    var provider = $("#providerSelect");
+    var billing = $("#billingSelect");
+
+    var memMin = $("#planMemMin");
+    var memMax = $("#planMemMax");
+
+    var hddMin = $("#planHDDMin");
+    var hddMax = $("#planHDDMax");
+
+    var bandMin = $("#planBandMin");
+    var bandMax = $("#planBandMax");
+
+    var ipv4Min = $("#planIPv4Min");
+    var ipv4Max = $("#planIPv4Max");
+
+    var ipv6Min = $("#planIPv6Min");
+    var ipv6Max = $("#planIPv6Max");
+
+    var costMin = $("#planCostMin");
+    var costMax = $("#planCostMax");
+
+    // Country
+    if (country.val() != "ALL"){
+      urlOptions["location__country"] = country.val();
+    }
+
+    // Provider
+    if (provider.val() != "ALL"){
+      urlOptions["offer__provider__pk"] = provider.val();
+    }
+
+    // Billing
+    if (billing.val() != "ALL"){
+      urlOptions["billing_time"] = billing.val();
+    }
+
+    // Memory
+    if(memMin.val().length > 0){
+      urlOptions["memory__gte"] = memMin.val();
+    }
+
+    if(memMax.val().length > 0){
+      urlOptions["memory__lte"] = memMax.val();
+    }
+
+    // Disk space
+    if(hddMin.val().length > 0){
+      urlOptions["disk_space__gte"] = hddMin.val();
+    }
+
+    if(hddMax.val().length > 0){
+      urlOptions["disk_space__lte"] = hddMax.val();
+    }
+
+    // Bandwidth
+    if(bandMin.val().length > 0){
+      urlOptions["bandwidth__gte"] = bandMin.val();
+    }
+
+    if(bandMax.val().length > 0){
+      urlOptions["bandwidth__lte"] = bandMax.val();
+    }
+
+    // IPv4 Space
+    if(ipv4Min.val().length > 0){
+      urlOptions["ipv4_space__gte"] = ipv4Min.val();
+    }
+
+    if(ipv4Max.val().length > 0){
+      urlOptions["ipv4_space__lte"] = ipv4Max.val();
+    }
+
+    // IPv6 Space
+    if(ipv6Min.val().length > 0){
+      urlOptions["ipv6_space__gte"] = ipv6Min.val();
+    }
+
+    if(ipv6Max.val().length > 0){
+      urlOptions["ipv6_space__lte"] = ipv6Max.val();
+    }
+
+    // Cost
+    if(costMin.val().length > 0){
+      urlOptions["cost__gte"] = costMin.val();
+    }
+
+    if(costMax.val().length > 0){
+      urlOptions["cost__lte"] = costMax.val();
+    }
+
+    console.log(urlOptions);
+    var urlParameters = $.param(urlOptions);
+    console.log(urlParameters);
+  }
+</script>
 {% endblock %}
