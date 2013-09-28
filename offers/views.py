@@ -20,6 +20,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import logging
+from django_countries.countries import COUNTRIES
 
 logger = logging.getLogger(__name__)
 
@@ -410,7 +411,14 @@ def superuser_approve_updates(request):
 
 def plan_finder(request):
 
-    countries = Location.objects.values_list('country').distinct()
+    country_codes = Location.objects.values_list('country').distinct()
+    countries = []
+    country_list = dict(COUNTRIES)
+    for country_code in country_codes:
+        country_code = country_code[0]
+        countries.append((country_code, country_list[country_code]))
+
+
     providers = Provider.objects.all()
 
     billing_times = Plan.BILLING_CHOICES
