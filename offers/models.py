@@ -179,6 +179,11 @@ class Provider(models.Model):
         """
         return Plan.active_plans.for_provider(self).count()
 
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.name_slug = slugify(self.name)
+        super(Provider, self).save(force_insert, force_update, using, update_fields)
+
 
 class Location(models.Model):
     city = models.CharField(max_length=255)
