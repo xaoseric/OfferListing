@@ -32,7 +32,6 @@ class OfferResource(ModelResource):
         }
 
 
-
 class LocationResource(ModelResource):
 
     class Meta:
@@ -43,7 +42,6 @@ class LocationResource(ModelResource):
             "city": ALL,
             "datacenter": ALL,
         }
-
 
 
 class PlanResource(ModelResource):
