@@ -2,6 +2,7 @@ from tastypie.resources import ModelResource
 from tastypie import fields
 from offers.models import Plan, Offer, Location, Provider
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
+from django.template.loader import render_to_string
 
 
 class ProviderResource(ModelResource):
@@ -48,6 +49,11 @@ class PlanResource(ModelResource):
 
     offer = fields.ForeignKey(OfferResource, 'offer', full=True)
     location = fields.ForeignKey(LocationResource, 'location', full=True)
+
+    html = fields.CharField()
+
+    def dehydrate_html(self, bundle):
+        return render_to_string('offers/plan_find_listing.html', {"plan": bundle.obj})
 
     class Meta:
         queryset = Plan.objects.filter(is_active=True, offer__status=Offer.PUBLISHED, offer__is_active=True)

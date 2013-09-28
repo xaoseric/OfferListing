@@ -138,15 +138,6 @@
 
 {% block extra_js %}
 <script type="text/javascript">
-
-  function makePlan(plan){
-    var return_format = '<div class="well">'
-                      + '</div>'
-                      ;
-
-    return return_format
-  }
-
   function filterPlans(){
     var urlOptions = {};
 
@@ -250,7 +241,7 @@
 
          for (var counter=0; counter < data["objects"].length; counter++){
            var plan = data["objects"][counter];
-           endpoint_data.append(makePlan(plan));
+           endpoint_data.append(plan.html);
          }
        }
     );
