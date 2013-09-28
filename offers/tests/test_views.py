@@ -44,7 +44,7 @@ class ProviderProfileViewTests(TestCase):
         mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
 
         for page_num in range(4):
-            response = self.client.get(self.provider.get_absolute_url() + '?page=' + str(page_num))
+            response = self.client.get(self.provider.get_absolute_url() + '?page=' + str(page_num+1))
             offers = Offer.objects.order_by('-created_at')[page_num*5:(page_num*5) + 5]
 
             for offer in offers:
