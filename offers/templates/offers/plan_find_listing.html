@@ -43,6 +43,10 @@
       <td>Created</td>
       <td><strong>{{ plan.created_at | naturaltime }}</strong></td>
     </tr>
+    <tr>
+      <td>Location</td>
+      <td><img src="{{ plan.location.country.flag }}"> {{ plan.location.city }}, {{ plan.location.country.name }}</td>
+    </tr>
 
     <tr>
       <td>Cost (USD)</td>
