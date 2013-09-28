@@ -14,14 +14,14 @@ class ProviderProfileViewTests(TestCase):
         """
         Test that the provider page returns a successful status code
         """
-        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+        response = self.client.get(self.provider.get_absolute_url())
         self.assertEqual(response.status_code, 200)
 
     def test_provider_profile_shows_info(self):
         """
         Test that the provider profile shows the correct info about the provider
         """
-        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+        response = self.client.get(self.provider.get_absolute_url())
         self.assertContains(response, self.provider.name)
         self.assertContains(response, self.provider.get_image_url())
 
@@ -32,7 +32,7 @@ class ProviderProfileViewTests(TestCase):
         mommy.make(Offer, _quantity=20, provider=self.provider, status=Offer.PUBLISHED)
         offers = Offer.objects.order_by('-created_at')[0:5]
 
-        response = self.client.get(reverse('offer:provider', args=[self.provider.pk]))
+        response = self.client.get(self.provider.get_absolute_url())
 
         for offer in offers:
             self.assertContains(response, offer.name)
