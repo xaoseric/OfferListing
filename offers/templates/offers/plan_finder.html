@@ -216,6 +216,24 @@
         </ul>'
   }
 
+  function getAndRender(url){
+    $("#plan_list").html('<h1>Loading ...</h1>');
+
+    $.get(
+       url,
+       function(data) {
+         var endpoint_data = $("#plan_list");
+         endpoint_data.html("");
+
+         for (var counter=0; counter < data["objects"].length; counter++){
+           var plan = data["objects"][counter];
+           endpoint_data.append(plan.html);
+         }
+         endpoint_data.append(makePagination(data["meta"]));
+       }
+    );
+  }
+
   function filterPlans(){
     var urlOptions = {
       "limit": 1,
@@ -322,21 +340,8 @@
 
     var urlParameters = $.param(urlOptions);
 
-    $("#plan_list").html('<h1>Loading ...</h1>');
+    getAndRender('/find/data/main/plan/?' + urlParameters);
 
-    $.get(
-      '/find/data/main/plan/?' + urlParameters,
-       function(data) {
-         var endpoint_data = $("#plan_list");
-         endpoint_data.html("");
-
-         for (var counter=0; counter < data["objects"].length; counter++){
-           var plan = data["objects"][counter];
-           endpoint_data.append(plan.html);
-         }
-         endpoint_data.append(makePagination(data["meta"]));
-       }
-    );
   }
 
   $(document).ready(filterPlans);
