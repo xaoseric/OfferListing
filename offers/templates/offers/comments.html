@@ -24,7 +24,7 @@
             {% if comment.commenter.user_profile.is_provider %}
               <a
                       class="tooltipify text-success"
-                      href="{% url 'offer:provider' comment.commenter.user_profile.provider.pk %}" data-toggle="tooltip"
+                      href="{{ comment.commenter.user_profile.provider.get_absolute_url }}" data-toggle="tooltip"
                       title="This user is a manager of the provider {{ comment.commenter.user_profile.provider.name }}."
                       style="text-decoration: none"
               >

@@ -12,7 +12,7 @@
       {% if user.user_profile.is_provider %}
         <p>
           {{ reference }} manage{{ plural_suffix }} the provider
-          <a href="{% url 'offer:provider' user.user_profile.provider.pk %}">{{ user.user_profile.provider.name }}</a>
+          <a href="{{ user.user_profile.provider.get_absolute_url }}">{{ user.user_profile.provider.name }}</a>
         </p>
       {% endif %}
     </div>

@@ -3,7 +3,7 @@
   <div class="panel-heading">
     <h3 class="panel-title">
       <a href="{{ offer.get_absolute_url }}">{{ offer.name }}</a>
-      <a href="{% url 'offer:provider' offer.provider.pk %}"><small>{{ offer.provider.name }}</small></a>
+      <a href="{{ offer.provider.get_absolute_url }}"><small>{{ offer.provider.name }}</small></a>
     </h3>
   </div>
   <div class="panel-body">

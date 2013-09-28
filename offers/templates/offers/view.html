@@ -5,7 +5,7 @@
 
 {% block page_title %}
   {{ offer.name }}
-  <a href="{% url 'offer:provider' offer.provider.pk %}"><small>{{ offer.provider.name }}</small></a>
+  <a href="{{ offer.provider.get_absolute_url }}"><small>{{ offer.provider.name }}</small></a>
 {% endblock %}
 
 {% block content %}

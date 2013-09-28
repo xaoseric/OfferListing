@@ -6,7 +6,7 @@
 
     <tr>
       <td class="col-xs-4">Provider</td>
-      <td><a target="_blank" href="{% url 'offer:provider' plan.offer.provider.pk %}">{{ plan.offer.provider.name }}</a></td>
+      <td><a target="_blank" href="{{ plan.offer.provider.get_absolute_url}}">{{ plan.offer.provider.name }}</a></td>
     </tr>
 
     <tr>

@@ -8,7 +8,7 @@
 {% block content %}
   <div class="list-group">
     {% for provider in providers %}
-      <a class="list-group-item" href="{% url 'offer:provider' provider.pk %}">
+      <a class="list-group-item" href="{{ provider.get_absolute_url }}">
         <span class="badge">{{ provider.offer_count }} offer{{ provider.offer_count | pluralize }}</span>
         <h4 class="list-group-item-heading">{{ provider.name }}</h4>
         <p class="list-group-item-text">
