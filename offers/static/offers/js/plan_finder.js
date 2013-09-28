@@ -98,7 +98,7 @@ function filterPlans(){
 
     // Provider
     if (provider.val() != "ALL"){
-        urlOptions["offer__provider__pk"] = provider.val();
+        urlOptions["offer__provider__id"] = provider.val();
     }
 
     // Billing
