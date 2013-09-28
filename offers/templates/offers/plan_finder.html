@@ -181,9 +181,44 @@
 
 {% block extra_js %}
 <script type="text/javascript">
+
+  function makePagination(meta_data){
+
+    var previous_disabled = '';
+    var previous_data = '';
+    var next_disabled = '';
+    var next_data = '';
+
+    var total_pages = Math.ceil(meta_data.total_count/meta_data.limit);
+    var current_page = Math.ceil(meta_data.offset / meta_data.limit) + 1;
+
+    if (meta_data.previous == null){
+      previous_disabled = 'disabled';
+    } else {
+      previous_data = meta_data.previous;
+    }
+
+    if (meta_data.next == null){
+      next_disabled = 'disabled';
+    } else {
+      next_data = meta_data.next;
+    }
+
+
+    return '<ul class="pagination">\
+            <li class="' + previous_disabled + '">\
+              <a data-nav-prev="' + previous_data +'">&laquo;</a>\
+            </li>\
+            <li><a>Page ' + current_page + ' of ' + total_pages + '</a></li>\
+            <li class="' + next_disabled + '">\
+              <a data-nav-prev="' + next_data + '">&raquo;</a>\
+            </li>\
+        </ul>'
+  }
+
   function filterPlans(){
     var urlOptions = {
-      "limit": 0,
+      "limit": 1,
       "format": "json"
     };
 
@@ -299,6 +334,7 @@
            var plan = data["objects"][counter];
            endpoint_data.append(plan.html);
          }
+         endpoint_data.append(makePagination(data["meta"]));
        }
     );
   }
