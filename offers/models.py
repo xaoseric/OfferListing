@@ -127,6 +127,9 @@ class Provider(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('offer:provider', args=[self.pk])
+
     def get_image_url(self):
         """
         Get the url of the providers logo. This defaults to a no_logo.png static image if the logo for the provider
