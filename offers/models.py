@@ -116,7 +116,7 @@ def get_file_path(instance, filename):
 
 class Provider(models.Model):
     name = models.CharField(max_length=250, unique=True)
-    name_slug = models.SlugField(max_length=255, unique=True)
+    name_slug = models.SlugField(max_length=255, unique=True, editable=False)
 
     start_date = models.DateField()
     website = models.URLField(max_length=255)
