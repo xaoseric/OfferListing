@@ -1,4 +1,6 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
+from offers.api import OfferResource, PlanResource
+from tastypie.api import Api
 
 
 urlpatterns = patterns('offers.views',

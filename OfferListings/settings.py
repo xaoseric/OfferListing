@@ -145,6 +145,7 @@ INSTALLED_APPS = (
     'raven.contrib.django.raven_compat',
     'django_countries',
     'captcha',
+    'tastypie',
 
     # Custom applications
     'offers',

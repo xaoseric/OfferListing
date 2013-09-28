@@ -26,6 +26,7 @@
           <ul class="nav navbar-nav">
             {% navigation_link request 'home' 'Home' %}
             {% navigation_link request 'offer:providers' 'Providers' %}
+            {% navigation_link request 'find_a_plan' 'Find a plan' %}
             {% if request.user.is_authenticated %}
               {% if request.user.user_profile.is_provider %}
                 <li class="dropdown">

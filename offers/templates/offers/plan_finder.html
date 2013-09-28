@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Plan Finder{% endblock %}
+
+{% block page_title %}
+  Plan Finder
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-sm-8" id="plan_list">
+      <div class="text-center">
+        <h2>Loading ...</h2>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="well">
+        <h3>Filter Plan</h3>
+
+        {# Country List #}
+        <div class="form-group">
+          <label for="countrySelect">Country</label>
+          <select class="form-control" id="countrySelect">
+            <option value="ALL">Any Country</option>
+            {% for country in countries %}
+            <option value="{{ country.0 }}">{{ country.0 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Provider List #}
+        <div class="form-group">
+          <label for="providerSelect">Provider</label>
+          <select class="form-control" id="providerSelect">
+            <option value="ALL">Any Provider</option>
+            {% for provider in providers %}
+            <option value="{{ provider.pk }}">{{ provider.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Billing Time #}
+        <div class="form-group">
+          <label for="billingSelect">Billing Period</label>
+          <select class="form-control" id="billingSelect">
+            <option value="ALL">Any Billing Time</option>
+            {% for billing_time in billing_times %}
+            <option value="{{ billing_time.0 }}">{{ billing_time.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Memory #}
+        <div class="form-group">
+          <label>Memory (MB)</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planMemMin" placeholder="Min RAM">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planMemMax" placeholder="Max RAM">
+            </div>
+          </div>
+        </div>
+
+        {# HDD Space #}
+        <div class="form-group">
+          <label>HDD Space (GB)</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planHDDMin" placeholder="Min HDD">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planHDDMax" placeholder="Max HDD">
+            </div>
+          </div>
+        </div>
+
+        {# Bandwidth #}
+        <div class="form-group">
+          <label>Bandwidth (GB)</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planBandMin" placeholder="Min Bandwidth">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planBandMax" placeholder="Max Bandwidth">
+            </div>
+          </div>
+        </div>
+
+        {# IPV4 Space #}
+        <div class="form-group">
+          <label>IPv4 Addresses</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planIPv4Min" placeholder="Min IPv4">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planIPv4Max" placeholder="Max IPv4">
+            </div>
+          </div>
+        </div>
+
+        {# IPV6 Space #}
+        <div class="form-group">
+          <label>IPv6 Addresses</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planIPv6Min" placeholder="Min IPv6">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planIPv6Max" placeholder="Max IPv6">
+            </div>
+          </div>
+        </div>
+
+        {# Cost #}
+        <div class="form-group">
+          <label>Cost (USD)</label>
+          <div class="row">
+            <div class="col-sm-6">
+              <input class="form-control" id="planCostMin" placeholder="Min cost">
+            </div>
+            <div class="col-sm-6">
+              <input class="form-control" id="planCostMax" placeholder="Max cost">
+            </div>
+          </div>
+        </div>
+
+        {# Ordering #}
+        <div class="form-group">
+          <label for="orderingSelect">Ordering</label>
+          <select class="form-control" id="orderingSelect">
+            <option value="ALL">No Ordering</option>
+
+            <optgroup label="Cost Ordering">
+              <option value="cost">Cost Ascending</option>
+              <option value="-cost">Cost Descending</option>
+            </optgroup>
+
+            <optgroup label="RAM Ordering">
+              <option value="memory">RAM Ascending</option>
+              <option value="-memory">RAM Descending</option>
+            </optgroup>
+
+            <optgroup label="Bandwidth Ordering">
+              <option value="bandwidth">Bandwidth Ascending</option>
+              <option value="-bandwidth">Bandwidth Descending</option>
+            </optgroup>
+
+            <optgroup label="HDD Ordering">
+              <option value="disk_space">HDD Ascending</option>
+              <option value="-disk_space">HDD Descending</option>
+            </optgroup>
+
+            <optgroup label="IPv4 Ordering">
+              <option value="ipv4_space">IPv4 Ascending</option>
+              <option value="-ipv4_space">IPv4 Descending</option>
+            </optgroup>
+
+            <optgroup label="IPv6 Ordering">
+              <option value="ipv6_space">IPv6 Ascending</option>
+              <option value="-ipv6_space">IPv6 Descending</option>
+            </optgroup>
+
+            <optgroup label="Date Created">
+              <option value="-created_at">Date Created Ascending</option>
+              <option value="created_at">Date Created Descending</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <a onclick="filterPlans()" class="btn btn-success">Filter</a>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'offers/js/plan_finder.min.js' %}"></script>
+{% endblock %}

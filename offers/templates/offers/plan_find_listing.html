@@ -1,0 +1,57 @@
+{% load humanize %}
+
+
+<div class="panel panel-default">
+  <table class="table provider-listing">
+
+    <tr>
+      <td class="col-xs-4">Provider</td>
+      <td><a target="_blank" href="{% url 'offer:provider' plan.offer.provider.pk %}">{{ plan.offer.provider.name }}</a></td>
+    </tr>
+
+    <tr>
+      <td>Offer</td>
+      <td><a target="_blank" href="{% url 'offer:view' plan.offer.pk %}">{{ plan.offer.name }}</a></td>
+    </tr>
+
+    <tr>
+      <td>Memory</td>
+      <td>{{ plan.get_memory }}</td>
+    </tr>
+
+    <tr>
+      <td>Disk Space</td>
+      <td>{{ plan.get_hdd }}</td>
+    </tr>
+
+    <tr>
+      <td>Bandwidth</td>
+      <td>{{ plan.get_bandwidth }}</td>
+    </tr>
+
+    <tr>
+      <td>IP Space</td>
+      <td>
+        <span class="text-success">{{ plan.ipv4_space }} IPv4 IP{{ plan.ipv4_space|pluralize }}</span>
+        {% if plan.ipv6_space %}
+         , <span class="text-warning">{{ plan.ipv6_space }} IPv6 IP{{ plan.ipv6_space|pluralize }}</span>
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <td>Created</td>
+      <td><strong>{{ plan.created_at | naturaltime }}</strong></td>
+    </tr>
+    <tr>
+      <td>Location</td>
+      <td><img src="{{ plan.location.country.flag }}"> {{ plan.location.city }}, {{ plan.location.country.name }}</td>
+    </tr>
+
+    <tr>
+      <td>Cost (USD)</td>
+      <td>${{ plan.cost|floatformat:2 }} {{ plan.get_billing_time_display }}</td>
+    </tr>
+
+  </table>
+</div>
