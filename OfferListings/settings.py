@@ -114,6 +114,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
     "template_helpers.context_processors.footer_context_processor",
     "template_helpers.context_processors.testing_mode",
+    "template_helpers.context_processors.site_name",
 )
 
 ROOT_URLCONF = 'OfferListings.urls'
@@ -180,6 +181,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'test@example.com'
 
 SITE_URL = 'example.com'
+SITE_NAME = 'Offer Listings'
 
 FOOTER_EXTRA = ''
 

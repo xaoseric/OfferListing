@@ -28,7 +28,9 @@
         "email_host_password": "password",
         "default_from_email": "from@example.com",
         "email_port": 25,
-        "email_use_tls": false
+        "email_use_tls": false,
+        "site_name": "Offer Listings",
+        "footer_extra": "Some extra footer"
     },
 
     "admins":{

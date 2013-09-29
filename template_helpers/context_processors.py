@@ -11,3 +11,7 @@ def testing_mode(request):
     if settings.IS_TEST:
         return {"is_test": True}
     return {"is_test": False}
+
+
+def site_name(request):
+    return {"site_verbose_name": settings.SITE_NAME}
