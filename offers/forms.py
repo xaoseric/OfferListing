@@ -4,6 +4,7 @@ from django.forms.models import formset_factory, modelformset_factory, inlinefor
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Div, Fieldset, HTML
+from crispy_forms.bootstrap import AppendedText, PrependedText
 
 
 class ProviderForm(forms.ModelForm):
@@ -91,9 +92,9 @@ PlanFormsetHelper.form_tag = False
 PlanFormsetHelper.layout = Layout(
     Fieldset(
         'Plan specifications',
-        'bandwidth',
-        'disk_space',
-        'memory',
+        AppendedText('bandwidth', 'GB'),
+        AppendedText('disk_space', 'GB'),
+        AppendedText('memory', 'MB'),
         'virtualization',
         'location',
     ),
