@@ -156,6 +156,7 @@ def admin_submit_request(request):
                 offer_request = OfferRequest(user=request.user, offer=offer)
                 offer_request.save()
                 formset.save()
+                messages.success(request, 'Your offer request has been saved! You may continue to edit it below.')
                 return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer_request.pk]))
         else:
             formset = PlanFormset(request.POST, provider=request.user.user_profile.provider)
