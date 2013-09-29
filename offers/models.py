@@ -55,7 +55,7 @@ class OfferActiveManager(models.Manager):
         return super(OfferActiveManager, self).get_query_set().filter(
             status=Offer.PUBLISHED,
             is_active=True,
-            is_request=True
+            is_request=False,
         )
 
     def for_provider(self, provider):

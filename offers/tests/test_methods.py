@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferRequest, OfferUpdate, PlanUpdate, Location
+from offers.models import Offer, Provider, Plan, Comment, OfferUpdate, PlanUpdate, Location
 from model_mommy import mommy
 from django.core.files import File
 from django.conf import settings
@@ -118,38 +118,6 @@ class OfferMethodTests(TestCase):
             i += 1
             comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.DELETED)
             self.assertEqual(offer.get_comments().count(), 0)
-
-    def test_is_request_with_request_unpublished(self):
-        """
-        Test the is_request method returns true when there is a request and the offer is unpublished
-        """
-        offer_request = mommy.make(OfferRequest, offer__status=Offer.UNPUBLISHED)
-
-        self.assertTrue(offer_request.offer.is_request())
-
-    def test_is_request_with_request_published(self):
-        """
-        Test the is_request method returns false when there is a request and the offer is published
-        """
-        offer_request = mommy.make(OfferRequest, offer__status=Offer.PUBLISHED)
-
-        self.assertFalse(offer_request.offer.is_request())
-
-    def test_is_request_with_no_request_unpublished(self):
-        """
-        Test the is_request method returns false when there is no request and the offer is unpublished
-        """
-        offer = mommy.make(Offer, status=Offer.UNPUBLISHED)
-
-        self.assertFalse(offer.is_request())
-
-    def test_is_request_with_no_request_published(self):
-        """
-        Test the is_request method returns false when there is no request and the offer is published
-        """
-        offer = mommy.make(Offer, status=Offer.PUBLISHED)
-
-        self.assertFalse(offer.is_request())
 
 
 class ProviderMethodTests(TestCase):
