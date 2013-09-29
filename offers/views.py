@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, OfferRequest, Plan, OfferUpdate, Location
+from offers.models import Offer, Comment, Provider, Plan, OfferUpdate, Location
 from offers.forms import (
     CommentForm,
     OfferForm,
@@ -30,7 +30,7 @@ def view_offer(request, offer_pk, slug=None):
     The view that displays an offer. This view is only accessible if the offer exists and the offer status
     is published. It is still possible to view an inactive offer.
     """
-    offer = get_object_or_404(Offer, status=Offer.PUBLISHED, pk=offer_pk)
+    offer = get_object_or_404(Offer, status=Offer.PUBLISHED, pk=offer_pk, is_request=False)
 
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -144,7 +144,13 @@ def admin_provider_home(request):
 def admin_submit_request(request):
     if request.method == "POST":
 
-        offer = Offer(status=Offer.UNPUBLISHED, is_active=True, provider=request.user.user_profile.provider)
+        offer = Offer(
+            status=Offer.UNPUBLISHED,
+            is_active=True,
+            provider=request.user.user_profile.provider,
+            creator=request.user,
+            is_request=True,
+        )
 
         form = OfferForm(request.POST, instance=offer)
 
@@ -153,11 +159,9 @@ def admin_submit_request(request):
             formset = PlanFormset(request.POST, instance=offer, provider=request.user.user_profile.provider)
             if formset.is_valid():
                 offer.save()
-                offer_request = OfferRequest(user=request.user, offer=offer)
-                offer_request.save()
                 formset.save()
                 messages.success(request, 'Your offer request has been saved! You may continue to edit it below.')
-                return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+                return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer.pk]))
         else:
             formset = PlanFormset(request.POST, provider=request.user.user_profile.provider)
     else:
@@ -171,31 +175,32 @@ def admin_submit_request(request):
 
 
 @user_is_provider
-def admin_edit_request(request, request_pk):
-    offer_request = get_object_or_404(
-        OfferRequest,
-        pk=request_pk,
-        offer__status=Offer.UNPUBLISHED,
-        offer__provider=request.user.user_profile.provider
+def admin_edit_request(request, offer_pk):
+    offer = get_object_or_404(
+        Offer,
+        pk=offer_pk,
+        status=Offer.UNPUBLISHED,
+        provider=request.user.user_profile.provider,
+        is_request=True,
     )
     if request.method == "POST":
-        form = OfferForm(request.POST, instance=offer_request.offer)
-        formset = PlanFormset(request.POST, instance=offer_request.offer, provider=request.user.user_profile.provider)
+        form = OfferForm(request.POST, instance=offer)
+        formset = PlanFormset(request.POST, instance=offer, provider=request.user.user_profile.provider)
         if form.is_valid() and formset.is_valid():
             form.save()
             formset.save()
 
             # Reload form data
-            form = OfferForm(instance=offer_request.offer)
-            formset = PlanFormset(instance=offer_request.offer, provider=request.user.user_profile.provider)
+            form = OfferForm(instance=offer)
+            formset = PlanFormset(instance=offer, provider=request.user.user_profile.provider)
     else:
-        form = OfferForm(instance=offer_request.offer)
-        formset = PlanFormset(instance=offer_request.offer, provider=request.user.user_profile.provider)
+        form = OfferForm(instance=offer)
+        formset = PlanFormset(instance=offer, provider=request.user.user_profile.provider)
     return render(request, 'offers/manage/edit_request.html', {
         "form": form,
         "formset": formset,
         "helper": PlanFormsetHelper,
-        "offer_request": offer_request,
+        "offer": offer,
     })
 
 
@@ -211,21 +216,22 @@ def admin_provider_requests(request):
 
 
 @user_is_provider
-def admin_provider_delete_confirm(request, request_pk):
-    offer_request = get_object_or_404(
-        OfferRequest,
-        pk=request_pk,
-        offer__status=Offer.UNPUBLISHED,
-        offer__provider=request.user.user_profile.provider
+def admin_provider_delete_confirm(request, offer_pk):
+    offer = get_object_or_404(
+        Offer,
+        pk=offer_pk,
+        status=Offer.UNPUBLISHED,
+        provider=request.user.user_profile.provider,
+        is_request=True,
     )
 
     if request.GET.get('delete', False):
-        offer_request.offer.plan_set.all().delete()
-        offer_request.offer.delete()
+        offer.plan_set.all().delete()
+        offer.delete()
         messages.success(request, "The request was deleted!")
         return HttpResponseRedirect(reverse('offer:admin_requests'))
 
-    return render(request, 'offers/manage/delete_request.html', {"offer_request": offer_request})
+    return render(request, 'offers/manage/delete_request.html', {"offer": offer})
 
 
 @user_is_provider

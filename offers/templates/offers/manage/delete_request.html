@@ -8,16 +8,16 @@
   <div class="alert alert-danger">
     This is permanent. Deleting an offer request can not be undone!
   </div>
-  <h2>Will delete offer request <em>{{ offer_request.offer.name }}</em>!</h2>
+  <h2>Will delete offer request <em>{{ offer.name }}</em>!</h2>
 
-  {% if offer_request.offer.plan_set.all %}
+  {% if offer.plan_set.all %}
     <h3>The following plans will be deleted:</h3>
-    {% for plan in offer_request.offer.plan_set.all %}
+    {% for plan in offer.plan_set.all %}
       <li><strong>Plan #{{ forloop.counter }}</strong> - {{ plan.get_memory }} Memory</li>
     {% endfor %}
   {% endif %}
   <div class="btn-group btn-group-justified">
-    <a href="{% url 'offer:admin_request_delete' offer_request.pk %}?delete=True" class="btn btn-danger">
+    <a href="{% url 'offer:admin_request_delete' offer.pk %}?delete=True" class="btn btn-danger">
       Delete offer
     </a>
   </div>
