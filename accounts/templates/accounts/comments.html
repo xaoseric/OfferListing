@@ -12,7 +12,7 @@
       {% include 'accounts/account_actions.html' with comments_active=True %}
     </div>
     <div class="col-md-9">
-      {% include 'offers/comments.html' with comments=comments %}
+      {% include 'offers/comments.html' with comments=comments is_profile=True %}
     </div>
   </div>
 {% endblock %}
