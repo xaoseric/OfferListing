@@ -57,7 +57,12 @@ class PlanResource(ModelResource):
         return render_to_string('offers/plan_find_listing.html', {"plan": bundle.obj})
 
     class Meta:
-        queryset = Plan.objects.filter(is_active=True, offer__status=Offer.PUBLISHED, offer__is_active=True)
+        queryset = Plan.objects.filter(
+            is_active=True,
+            offer__status=Offer.PUBLISHED,
+            offer__is_active=True,
+            offer__is_request=False,
+        )
         resource_name = 'plan'
         filtering = {
             "virtualization": ALL,
