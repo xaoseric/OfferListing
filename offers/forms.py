@@ -4,7 +4,7 @@ from django.forms.models import formset_factory, modelformset_factory, inlinefor
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Div, Fieldset, HTML
-from crispy_forms.bootstrap import AppendedText, PrependedText
+from crispy_forms.bootstrap import AppendedText, PrependedAppendedText
 
 
 class ProviderForm(forms.ModelForm):
@@ -108,7 +108,7 @@ PlanFormsetHelper.layout = Layout(
         'billing_time',
         'url',
         'promo_code',
-        'cost',
+        PrependedAppendedText('cost', '$', 'USD'),
         'DELETE',
     ),
     'id',
