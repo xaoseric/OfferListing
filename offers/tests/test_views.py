@@ -1006,11 +1006,17 @@ class ProviderEditRequestViewTests(WebTest):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
-        self.offer_request = mommy.make(OfferRequest, offer__provider=self.provider, offer__status=Offer.UNPUBLISHED)
+        self.offer = mommy.make(
+            Offer,
+            provider=self.provider,
+            status=Offer.UNPUBLISHED,
+            is_request=True,
+            creator=self.user
+        )
         self.location = mommy.make(Location, provider=self.provider)
         self.plans = mommy.make(
             Plan,
-            offer=self.offer_request.offer,
+            offer=self.offer,
             _quantity=2,
             location=self.location,
             cost=20.01,
@@ -1022,12 +1028,12 @@ class ProviderEditRequestViewTests(WebTest):
         Test that the edit request page contains the correct details of the offer and plans
         """
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
-        self.assertEqual(form["name"].value, self.offer_request.offer.name)
-        self.assertEqual(form["content"].value, self.offer_request.offer.content)
+        self.assertEqual(form["name"].value, self.offer.name)
+        self.assertEqual(form["content"].value, self.offer.content)
 
         plan = self.plans[0]
 
@@ -1061,7 +1067,7 @@ class ProviderEditRequestViewTests(WebTest):
         """
         Test that a user can edit the main offer content
         """
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1071,10 +1077,10 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        offer = Offer.objects.get(pk=self.offer_request.offer.pk)
+        offer = Offer.objects.get(pk=self.offer.pk)
+        self.assertTrue(offer.is_request)
 
         self.assertEqual(offer.name, "Offer title!")
         self.assertEqual(offer.content, "Offer content!")
@@ -1084,7 +1090,7 @@ class ProviderEditRequestViewTests(WebTest):
         Test that a user can edit the plans on the page
         """
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1097,7 +1103,7 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
         plan1 = Plan.objects.order_by('id')[0]
@@ -1115,10 +1121,10 @@ class ProviderEditRequestViewTests(WebTest):
         """
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1127,7 +1133,7 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 1)
 
     def test_edit_request_page_can_delete_multiple_plans(self):
@@ -1136,10 +1142,10 @@ class ProviderEditRequestViewTests(WebTest):
         """
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1149,7 +1155,7 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 0)
 
     def test_edit_request_can_not_edit_with_invalid_data(self):
@@ -1157,7 +1163,7 @@ class ProviderEditRequestViewTests(WebTest):
         Test that editing a request with incorrect data does not save
         """
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1167,13 +1173,13 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        offer = Offer.objects.get(pk=self.offer_request.offer.pk)
+        offer = Offer.objects.get(pk=self.offer.pk)
 
-        self.assertEqual(offer.name, self.offer_request.offer.name)
-        self.assertEqual(offer.content, self.offer_request.offer.content)
+        self.assertEqual(offer.name, self.offer.name)
+        self.assertEqual(offer.content, self.offer.content)
         self.assertNotEqual(offer.name, "")
         self.assertNotEqual(offer.content, "Offer content!")
 
