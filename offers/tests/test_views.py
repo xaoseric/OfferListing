@@ -774,7 +774,6 @@ class ProviderNewRequestViewTests(WebTest):
         """
         Test that a user can submit an empty request (one without plans)
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -785,25 +784,25 @@ class ProviderNewRequestViewTests(WebTest):
         form["content"] = "Offer content"
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 0)
 
-        offer_request = OfferRequest.objects.latest('created_at')
+        offer = Offer.objects.latest('created_at')
 
-        self.assertEqual(offer_request.user, self.user)
-        self.assertEqual(offer_request.offer.name, 'Offer name!')
-        self.assertEqual(offer_request.offer.content, 'Offer content')
-        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
-        self.assertEqual(offer_request.offer.is_active, True)
+        self.assertTrue(offer.is_request)
 
-        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        self.assertEqual(offer.creator, self.user)
+        self.assertEqual(offer.name, 'Offer name!')
+        self.assertEqual(offer.content, 'Offer content')
+        self.assertEqual(offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer.is_active, True)
+
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer.pk]))
 
     def test_user_can_submit_with_plan_request(self):
         """
         Test that a user can submit a full request with plans
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -827,18 +826,17 @@ class ProviderNewRequestViewTests(WebTest):
 
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 1)
 
-        offer_request = OfferRequest.objects.latest('created_at')
+        offer = Offer.objects.latest('created_at')
 
         # Test offer content
-        self.assertEqual(offer_request.user, self.user)
-        self.assertEqual(offer_request.offer.name, 'Offer name!')
-        self.assertEqual(offer_request.offer.content, 'Offer content')
-        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
-        self.assertEqual(offer_request.offer.is_active, True)
+        self.assertEqual(offer.creator, self.user)
+        self.assertEqual(offer.name, 'Offer name!')
+        self.assertEqual(offer.content, 'Offer content')
+        self.assertEqual(offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer.is_active, True)
 
         # Test plan content
         plan = Plan.objects.latest('created_at')
@@ -854,13 +852,12 @@ class ProviderNewRequestViewTests(WebTest):
         self.assertEqual(plan.promo_code, "#PROMO")
         self.assertEqual(plan.cost, 20.00)
 
-        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer.pk]))
 
     def test_user_can_submit_with_multiple_plans_request(self):
         """
         Test that a user can submit a full request with multiple plans
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -896,18 +893,17 @@ class ProviderNewRequestViewTests(WebTest):
 
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        offer_request = OfferRequest.objects.latest('created_at')
+        offer = Offer.objects.latest('created_at')
 
         # Test offer content
-        self.assertEqual(offer_request.user, self.user)
-        self.assertEqual(offer_request.offer.name, 'Offer name!')
-        self.assertEqual(offer_request.offer.content, 'Offer content')
-        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
-        self.assertEqual(offer_request.offer.is_active, True)
+        self.assertEqual(offer.creator, self.user)
+        self.assertEqual(offer.name, 'Offer name!')
+        self.assertEqual(offer.content, 'Offer content')
+        self.assertEqual(offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer.is_active, True)
 
         # Test plan content
         plan1 = Plan.objects.order_by('id')[0]
@@ -916,13 +912,12 @@ class ProviderNewRequestViewTests(WebTest):
         self.assertEqual(plan1.bandwidth, 1024)
         self.assertEqual(plan2.bandwidth, 2099)
 
-        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer.pk]))
 
     def test_user_can_not_submit_invalid_form(self):
         """
         Test that a user can not submit a form that is not valid
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -933,7 +928,6 @@ class ProviderNewRequestViewTests(WebTest):
         form["content"] = "Offer content"
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -943,7 +937,6 @@ class ProviderNewRequestViewTests(WebTest):
         """
         Test that a user can not submit a form that is not valid
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -958,7 +951,6 @@ class ProviderNewRequestViewTests(WebTest):
 
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
