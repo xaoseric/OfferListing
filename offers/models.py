@@ -225,17 +225,6 @@ class TestDownload(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class OfferRequest(models.Model):
-    offer = models.OneToOneField('Offer', related_name='request')
-    user = models.ForeignKey(User)
-
-    objects = models.Manager()
-    requests = OfferRequestActiveManager()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
 class OfferBase(models.Model):
     PUBLISHED = 'p'
     UNPUBLISHED = 'u'
@@ -267,6 +256,9 @@ class Offer(OfferBase):
 
     objects = models.Manager()
     not_requests = OfferNotRequestManager()
+
+    is_request = models.BooleanField(default=False)
+    creator = models.ForeignKey(User, null=True, blank=True)
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
@@ -319,17 +311,8 @@ class Offer(OfferBase):
             return True
         return False
 
-    def is_request(self):
-        try:
-            if self.request is not None and self.status == self.UNPUBLISHED:
-                return True
-        except OfferRequest.DoesNotExist:
-            pass
-        return False
-    is_request.boolean = True
-
     def queue_position(self):
-        if not self.is_request():
+        if not self.is_request:
             return 0
         return Offer.objects.filter(
             Q(status=Offer.UNPUBLISHED), Q(created_at__lt=self.created_at), ~Q(request=None)
