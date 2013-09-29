@@ -523,7 +523,7 @@ class ProviderAdminOfferViewTests(TestCase):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
-        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
+        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED, creator=self.user)
 
         self.client.login(username='user', password='password')
 
@@ -548,9 +548,10 @@ class ProviderAdminOfferViewTests(TestCase):
         """
         offers = mommy.make(Offer, provider=self.provider, _quantity=20)
         offer_requests = mommy.make(
-            OfferRequest,
-            offer__provider=self.provider,
-            offer__status=Offer.UNPUBLISHED,
+            Offer,
+            provider=self.provider,
+            status=Offer.UNPUBLISHED,
+            is_request=True,
             _quantity=20
         )
 
@@ -610,8 +611,8 @@ class ProviderAdminOfferViewTests(TestCase):
         """
         Test that a user can not mark an offer request's status
         """
-        offer_request = OfferRequest(offer=self.offer, user=self.user)
-        offer_request.save()
+        self.offer.is_request = True
+        self.offer.save()
 
         response = self.client.get(reverse('offer:admin_offer_mark', args=[self.offer.pk]), follow=True)
 
@@ -685,8 +686,8 @@ class ProviderAdminOfferViewTests(TestCase):
         """
         Test that a user can not mark an offer request's plan status
         """
-        offer_request = OfferRequest(offer=self.offer, user=self.user)
-        offer_request.save()
+        self.offer.is_request = True
+        self.offer.save()
 
         plan = mommy.make(Plan, offer=self.offer, is_active=True)
 
@@ -715,8 +716,8 @@ class ProviderAdminOfferViewTests(TestCase):
         Test that the user can not view an offer request through the offer edit page
         """
         self.offer.status = Offer.UNPUBLISHED
+        self.offer.is_request = True
         self.offer.save()
-        mommy.make(OfferRequest, offer=self.offer)
 
         response = self.client.get(reverse('offer:admin_offer', args=[self.offer.pk]))
         self.assertEqual(response.status_code, 404)
