@@ -1,4 +1,9 @@
-.loading {
+.ajax-loading {
   background-image: url("../img/ajax-loader.gif");
+  background-repeat: no-repeat;
   width: 100%;
-  text-align: center; }
+  height: 20px;
+  text-align: center;
+  background-position: center;
+  margin-top: 40px;
+  margin-bottom: 40px; }
