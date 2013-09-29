@@ -292,7 +292,7 @@ class ProviderAdminRequestViewTests(TestCase):
 
         response = self.client.get(reverse('offer:admin_home'), follow=True)
 
-        self.assertRedirects(response, reverse('login'))
+        self.assertRedirects(response, reverse('login') + '?next=' + reverse('offer:admin_home'))
 
         self.assertNotContains(response, self.provider.name)
 
@@ -304,7 +304,7 @@ class ProviderAdminRequestViewTests(TestCase):
         self.user.user_profile.save()
         response = self.client.get(reverse('offer:admin_home'), follow=True)
 
-        self.assertRedirects(response, reverse('login'))
+        self.assertRedirects(response, reverse('login') + '?next=' + reverse('offer:admin_home'))
         self.assertNotContains(response, self.provider.name)
 
     def test_user_can_modify_their_provider(self):
@@ -377,7 +377,7 @@ class ProviderAdminRequestViewTests(TestCase):
         self.user.user_profile.save()
         response = self.client.get(reverse('offer:admin_request_new'), follow=True)
 
-        self.assertRedirects(response, reverse('login'))
+        self.assertRedirects(response, reverse('login') + "?next=" + reverse('offer:admin_request_new'))
 
         self.assertNotContains(response, self.provider.name)
 
@@ -443,7 +443,7 @@ class ProviderAdminRequestViewTests(TestCase):
         self.user.user_profile.save()
         response = self.client.get(reverse('offer:admin_requests'), follow=True)
 
-        self.assertRedirects(response, reverse('login'))
+        self.assertRedirects(response, reverse('login') + "?next=" + reverse('offer:admin_requests'))
 
         self.assertNotContains(response, self.provider.name)
 
@@ -462,7 +462,6 @@ class ProviderAdminRequestViewTests(TestCase):
 
         for other_request in other_requests:
             self.assertNotContains(response, other_request.name)
-            self.assertNotContains(response, other_request.creator.username)
 
     def test_user_can_view_delete_request(self):
         """
@@ -509,7 +508,10 @@ class ProviderAdminRequestViewTests(TestCase):
         self.user.user_profile.save()
         response = self.client.get(reverse('offer:admin_request_delete', args=[self.offer.pk]), follow=True)
 
-        self.assertRedirects(response, reverse('login'))
+        self.assertRedirects(
+            response,
+            reverse('login') + "?next=" + reverse('offer:admin_request_delete', args=[self.offer.pk])
+        )
 
         self.assertNotContains(response, self.provider.name)
 
