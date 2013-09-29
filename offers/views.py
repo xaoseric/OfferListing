@@ -206,8 +206,10 @@ def admin_edit_request(request, offer_pk):
 
 @user_is_provider
 def admin_provider_requests(request):
-    requests = OfferRequest.requests.get_requests_for_provider(
-        request.user.user_profile.provider
+    requests = Offer.objects.filter(
+        status=Offer.UNPUBLISHED,
+        provider=request.user.user_profile.provider,
+        is_request=True,
     ).order_by(
         '-created_at'
     )
