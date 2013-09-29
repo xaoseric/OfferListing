@@ -328,6 +328,13 @@ class Offer(OfferBase):
         return False
     is_request.boolean = True
 
+    def queue_position(self):
+        if not self.is_request():
+            return 0
+        return Offer.objects.filter(
+            Q(status=Offer.UNPUBLISHED), Q(created_at__lt=self.created_at), ~Q(request=None)
+        ).count()+1
+
     def update_request(self):
         try:
             return self.offerupdate

@@ -12,6 +12,7 @@
       <th>Plans</th>
       <th>Submitted on</th>
       <th>Submitted by</th>
+      <th>Queue Position</th>
       <th>Manage</th>
     </tr>
     {% for offer_request in requests %}
@@ -23,6 +24,7 @@
           <span class="pull-right text-success">{{ offer_request.created_at | naturaltime }}</span>
         </td>
         <td>{{ offer_request.user.username }}</td>
+        <td>{{ offer_request.offer.queue_position }}</td>
         <td>
           <div class="btn-group">
             <a href="{% url 'offer:admin_request_edit' offer_request.pk %}" class="btn btn-info">Edit request</a>
