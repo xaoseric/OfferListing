@@ -15,20 +15,20 @@
       <th>Queue Position</th>
       <th>Manage</th>
     </tr>
-    {% for offer_request in requests %}
+    {% for offer in requests %}
       <tr>
-        <td>{{ offer_request.offer.name }}</td>
-        <td>{{ offer_request.offer.plan_count }}</td>
+        <td>{{ offer.name }}</td>
+        <td>{{ offer.plan_count }}</td>
         <td>
-          {{ offer_request.created_at }}
-          <span class="pull-right text-success">{{ offer_request.created_at | naturaltime }}</span>
+          {{ offer.created_at }}
+          <span class="pull-right text-success">{{ offer.created_at | naturaltime }}</span>
         </td>
-        <td>{{ offer_request.user.username }}</td>
-        <td>{{ offer_request.offer.queue_position }}</td>
+        <td>{{ offer.creator.username }}</td>
+        <td>{{ offer.queue_position }}</td>
         <td>
           <div class="btn-group">
-            <a href="{% url 'offer:admin_request_edit' offer_request.pk %}" class="btn btn-info">Edit request</a>
-            <a href="{% url 'offer:admin_request_delete' offer_request.pk %}" class="btn btn-danger">Delete request</a>
+            <a href="{% url 'offer:admin_request_edit' offer.pk %}" class="btn btn-info">Edit request</a>
+            <a href="{% url 'offer:admin_request_delete' offer.pk %}" class="btn btn-danger">Delete request</a>
           </div>
         </td>
       </tr>

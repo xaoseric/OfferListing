@@ -7,7 +7,7 @@
 {% block page_title %}Edit an offer request{% endblock %}
 
 {% block content %}
-  <form action="{% url 'offer:admin_request_edit' offer_request.pk %}" method="POST">
+  <form action="{% url 'offer:admin_request_edit' offer.pk %}" method="POST">
     {% crispy form %}
     {{ formset.management_form|crispy }}
     <div class="row">

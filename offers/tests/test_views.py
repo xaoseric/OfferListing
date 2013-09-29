@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Comment, Provider, Plan, OfferRequest, Location, TestDownload, TestIP
+from offers.models import Offer, Comment, Provider, Plan, Location, TestDownload, TestIP
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -265,9 +265,13 @@ class ProviderAdminRequestViewTests(TestCase):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
-        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
-        self.offer_request = OfferRequest(offer=self.offer, user=self.user)
-        self.offer_request.save()
+        self.offer = mommy.make(
+            Offer,
+            provider=self.provider,
+            status=Offer.UNPUBLISHED,
+            creator=self.user,
+            is_request=True
+        )
 
         self.client.login(username='user', password='password')
 
@@ -288,9 +292,7 @@ class ProviderAdminRequestViewTests(TestCase):
 
         response = self.client.get(reverse('offer:admin_home'), follow=True)
 
-        self.assertIn(reverse('login'), response.redirect_chain[0][0])
-        self.assertEqual(response.redirect_chain[0][1], 302)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('login') + '?next=' + reverse('offer:admin_home'))
 
         self.assertNotContains(response, self.provider.name)
 
@@ -302,10 +304,7 @@ class ProviderAdminRequestViewTests(TestCase):
         self.user.user_profile.save()
         response = self.client.get(reverse('offer:admin_home'), follow=True)
 
-        self.assertIn(reverse('login'), response.redirect_chain[0][0])
-        self.assertEqual(response.redirect_chain[0][1], 302)
-        self.assertEqual(response.status_code, 200)
-
+        self.assertRedirects(response, reverse('login') + '?next=' + reverse('offer:admin_home'))
         self.assertNotContains(response, self.provider.name)
 
     def test_user_can_modify_their_provider(self):
@@ -378,9 +377,7 @@ class ProviderAdminRequestViewTests(TestCase):
         self.user.user_profile.save()
         response = self.client.get(reverse('offer:admin_request_new'), follow=True)
 
-        self.assertIn(reverse('login'), response.redirect_chain[0][0])
-        self.assertEqual(response.redirect_chain[0][1], 302)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('login') + "?next=" + reverse('offer:admin_request_new'))
 
         self.assertNotContains(response, self.provider.name)
 
@@ -389,7 +386,7 @@ class ProviderAdminRequestViewTests(TestCase):
         Test a user which manages a provider can view the provider edit offer request page
         """
 
-        response = self.client.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]))
+        response = self.client.get(reverse('offer:admin_request_edit', args=[self.offer.pk]))
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, self.offer.name)
@@ -401,11 +398,9 @@ class ProviderAdminRequestViewTests(TestCase):
         """
 
         new_user = User.objects.create_user('user2', 'user2@example.com', 'password')
-        offer = mommy.make(Offer, status=Offer.UNPUBLISHED)
-        offer_request = OfferRequest(offer=offer, user=new_user)
-        offer_request.save()
+        offer = mommy.make(Offer, status=Offer.UNPUBLISHED, is_request=True, creator=new_user)
 
-        response = self.client.get(reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        response = self.client.get(reverse('offer:admin_request_edit', args=[offer.pk]))
         self.assertEqual(response.status_code, 404)
 
     def test_user_can_not_view_published_admin_edit_request(self):
@@ -416,7 +411,17 @@ class ProviderAdminRequestViewTests(TestCase):
         self.offer.status = Offer.PUBLISHED
         self.offer.save()
 
-        response = self.client.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]))
+        response = self.client.get(reverse('offer:admin_request_edit', args=[self.offer.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_view_non_request_edit_request(self):
+        """
+        Test that the user can not view an offer which is not a request
+        """
+        self.offer.is_request = False
+        self.offer.save()
+
+        response = self.client.get(reverse('offer:admin_request_edit', args=[self.offer.pk]))
         self.assertEqual(response.status_code, 404)
 
     def test_user_can_view_offer_request_list(self):
@@ -428,7 +433,7 @@ class ProviderAdminRequestViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, self.offer.name)
-        self.assertContains(response, self.offer_request.user.username)
+        self.assertContains(response, self.offer.creator.username)
 
     def test_unauthorized_user_can_not_view_offer_request_list(self):
         """
@@ -436,11 +441,9 @@ class ProviderAdminRequestViewTests(TestCase):
         """
         self.user.user_profile.provider = None
         self.user.user_profile.save()
-        response = self.client.get(reverse('offer:admin_request_new'), follow=True)
+        response = self.client.get(reverse('offer:admin_requests'), follow=True)
 
-        self.assertIn(reverse('login'), response.redirect_chain[0][0])
-        self.assertEqual(response.redirect_chain[0][1], 302)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('login') + "?next=" + reverse('offer:admin_requests'))
 
         self.assertNotContains(response, self.provider.name)
 
@@ -449,26 +452,25 @@ class ProviderAdminRequestViewTests(TestCase):
         Test that a user can view the offer requests page for their own provider, and no-one else
         """
 
-        other_requests = mommy.make(OfferRequest, _quantity=10)
+        other_requests = mommy.make(Offer, _quantity=10, is_request=True, status=Offer.UNPUBLISHED)
 
         response = self.client.get(reverse('offer:admin_requests'))
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, self.offer.name)
-        self.assertContains(response, self.offer_request.user.username)
+        self.assertContains(response, self.offer.creator.username)
 
         for other_request in other_requests:
-            self.assertNotContains(response, other_request.offer.name)
-            self.assertNotContains(response, other_request.user.username)
+            self.assertNotContains(response, other_request.name)
 
     def test_user_can_view_delete_request(self):
         """
         Test that a user can view the delete page for a request of their provider
         """
 
-        plans = mommy.make(Plan, _quantity=4, offer=self.offer_request.offer)
+        plans = mommy.make(Plan, _quantity=4, offer=self.offer)
 
-        response = self.client.get(reverse('offer:admin_request_delete', args=[self.offer_request.pk]))
+        response = self.client.get(reverse('offer:admin_request_delete', args=[self.offer.pk]))
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, self.offer.name)
@@ -481,22 +483,19 @@ class ProviderAdminRequestViewTests(TestCase):
         Test that a user can perform the delete of a request of their provider
         """
 
-        plans = mommy.make(Plan, _quantity=4, offer=self.offer_request.offer)
+        plans = mommy.make(Plan, _quantity=4, offer=self.offer)
 
         response = self.client.get(
-            reverse('offer:admin_request_delete', args=[self.offer_request.pk]) + '?delete=True',
+            reverse('offer:admin_request_delete', args=[self.offer.pk]) + '?delete=True',
             follow=True
         )
 
-        self.assertIn(reverse('offer:admin_requests'), response.redirect_chain[0][0])
-        self.assertEqual(response.redirect_chain[0][1], 302)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('offer:admin_requests'))
 
         self.assertNotContains(response, self.offer.name)
 
-        # Assert the plans, offer and offer request no longer exist
+        # Assert the plans and offer no longer exist
         self.assertFalse(Offer.objects.filter(pk=self.offer.pk).exists())
-        self.assertFalse(OfferRequest.objects.filter(pk=self.offer_request.pk).exists())
 
         for plan in plans:
             self.assertFalse(Plan.objects.filter(pk=plan.pk).exists())
@@ -507,11 +506,12 @@ class ProviderAdminRequestViewTests(TestCase):
         """
         self.user.user_profile.provider = None
         self.user.user_profile.save()
-        response = self.client.get(reverse('offer:admin_request_delete', args=[self.offer_request.pk]), follow=True)
+        response = self.client.get(reverse('offer:admin_request_delete', args=[self.offer.pk]), follow=True)
 
-        self.assertIn(reverse('login'), response.redirect_chain[0][0])
-        self.assertEqual(response.redirect_chain[0][1], 302)
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(
+            response,
+            reverse('login') + "?next=" + reverse('offer:admin_request_delete', args=[self.offer.pk])
+        )
 
         self.assertNotContains(response, self.provider.name)
 
@@ -523,7 +523,7 @@ class ProviderAdminOfferViewTests(TestCase):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
-        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
+        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED, creator=self.user)
 
         self.client.login(username='user', password='password')
 
@@ -548,9 +548,10 @@ class ProviderAdminOfferViewTests(TestCase):
         """
         offers = mommy.make(Offer, provider=self.provider, _quantity=20)
         offer_requests = mommy.make(
-            OfferRequest,
-            offer__provider=self.provider,
-            offer__status=Offer.UNPUBLISHED,
+            Offer,
+            provider=self.provider,
+            status=Offer.UNPUBLISHED,
+            is_request=True,
             _quantity=20
         )
 
@@ -610,8 +611,8 @@ class ProviderAdminOfferViewTests(TestCase):
         """
         Test that a user can not mark an offer request's status
         """
-        offer_request = OfferRequest(offer=self.offer, user=self.user)
-        offer_request.save()
+        self.offer.is_request = True
+        self.offer.save()
 
         response = self.client.get(reverse('offer:admin_offer_mark', args=[self.offer.pk]), follow=True)
 
@@ -685,8 +686,8 @@ class ProviderAdminOfferViewTests(TestCase):
         """
         Test that a user can not mark an offer request's plan status
         """
-        offer_request = OfferRequest(offer=self.offer, user=self.user)
-        offer_request.save()
+        self.offer.is_request = True
+        self.offer.save()
 
         plan = mommy.make(Plan, offer=self.offer, is_active=True)
 
@@ -715,8 +716,8 @@ class ProviderAdminOfferViewTests(TestCase):
         Test that the user can not view an offer request through the offer edit page
         """
         self.offer.status = Offer.UNPUBLISHED
+        self.offer.is_request = True
         self.offer.save()
-        mommy.make(OfferRequest, offer=self.offer)
 
         response = self.client.get(reverse('offer:admin_offer', args=[self.offer.pk]))
         self.assertEqual(response.status_code, 404)
@@ -773,7 +774,6 @@ class ProviderNewRequestViewTests(WebTest):
         """
         Test that a user can submit an empty request (one without plans)
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -784,25 +784,25 @@ class ProviderNewRequestViewTests(WebTest):
         form["content"] = "Offer content"
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 0)
 
-        offer_request = OfferRequest.objects.latest('created_at')
+        offer = Offer.objects.latest('created_at')
 
-        self.assertEqual(offer_request.user, self.user)
-        self.assertEqual(offer_request.offer.name, 'Offer name!')
-        self.assertEqual(offer_request.offer.content, 'Offer content')
-        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
-        self.assertEqual(offer_request.offer.is_active, True)
+        self.assertTrue(offer.is_request)
 
-        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        self.assertEqual(offer.creator, self.user)
+        self.assertEqual(offer.name, 'Offer name!')
+        self.assertEqual(offer.content, 'Offer content')
+        self.assertEqual(offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer.is_active, True)
+
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer.pk]))
 
     def test_user_can_submit_with_plan_request(self):
         """
         Test that a user can submit a full request with plans
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -826,18 +826,17 @@ class ProviderNewRequestViewTests(WebTest):
 
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 1)
 
-        offer_request = OfferRequest.objects.latest('created_at')
+        offer = Offer.objects.latest('created_at')
 
         # Test offer content
-        self.assertEqual(offer_request.user, self.user)
-        self.assertEqual(offer_request.offer.name, 'Offer name!')
-        self.assertEqual(offer_request.offer.content, 'Offer content')
-        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
-        self.assertEqual(offer_request.offer.is_active, True)
+        self.assertEqual(offer.creator, self.user)
+        self.assertEqual(offer.name, 'Offer name!')
+        self.assertEqual(offer.content, 'Offer content')
+        self.assertEqual(offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer.is_active, True)
 
         # Test plan content
         plan = Plan.objects.latest('created_at')
@@ -853,13 +852,12 @@ class ProviderNewRequestViewTests(WebTest):
         self.assertEqual(plan.promo_code, "#PROMO")
         self.assertEqual(plan.cost, 20.00)
 
-        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer.pk]))
 
     def test_user_can_submit_with_multiple_plans_request(self):
         """
         Test that a user can submit a full request with multiple plans
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -895,18 +893,17 @@ class ProviderNewRequestViewTests(WebTest):
 
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Offer.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        offer_request = OfferRequest.objects.latest('created_at')
+        offer = Offer.objects.latest('created_at')
 
         # Test offer content
-        self.assertEqual(offer_request.user, self.user)
-        self.assertEqual(offer_request.offer.name, 'Offer name!')
-        self.assertEqual(offer_request.offer.content, 'Offer content')
-        self.assertEqual(offer_request.offer.status, Offer.UNPUBLISHED)
-        self.assertEqual(offer_request.offer.is_active, True)
+        self.assertEqual(offer.creator, self.user)
+        self.assertEqual(offer.name, 'Offer name!')
+        self.assertEqual(offer.content, 'Offer content')
+        self.assertEqual(offer.status, Offer.UNPUBLISHED)
+        self.assertEqual(offer.is_active, True)
 
         # Test plan content
         plan1 = Plan.objects.order_by('id')[0]
@@ -915,13 +912,12 @@ class ProviderNewRequestViewTests(WebTest):
         self.assertEqual(plan1.bandwidth, 1024)
         self.assertEqual(plan2.bandwidth, 2099)
 
-        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer_request.pk]))
+        self.assertRedirects(response, reverse('offer:admin_request_edit', args=[offer.pk]))
 
     def test_user_can_not_submit_invalid_form(self):
         """
         Test that a user can not submit a form that is not valid
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -932,7 +928,6 @@ class ProviderNewRequestViewTests(WebTest):
         form["content"] = "Offer content"
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -942,7 +937,6 @@ class ProviderNewRequestViewTests(WebTest):
         """
         Test that a user can not submit a form that is not valid
         """
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -957,7 +951,6 @@ class ProviderNewRequestViewTests(WebTest):
 
         response = form.submit()
 
-        self.assertEqual(OfferRequest.objects.count(), 0)
         self.assertEqual(Offer.objects.count(), 0)
         self.assertEqual(Plan.objects.count(), 0)
 
@@ -1013,11 +1006,17 @@ class ProviderEditRequestViewTests(WebTest):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
-        self.offer_request = mommy.make(OfferRequest, offer__provider=self.provider, offer__status=Offer.UNPUBLISHED)
+        self.offer = mommy.make(
+            Offer,
+            provider=self.provider,
+            status=Offer.UNPUBLISHED,
+            is_request=True,
+            creator=self.user
+        )
         self.location = mommy.make(Location, provider=self.provider)
         self.plans = mommy.make(
             Plan,
-            offer=self.offer_request.offer,
+            offer=self.offer,
             _quantity=2,
             location=self.location,
             cost=20.01,
@@ -1029,12 +1028,12 @@ class ProviderEditRequestViewTests(WebTest):
         Test that the edit request page contains the correct details of the offer and plans
         """
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
-        self.assertEqual(form["name"].value, self.offer_request.offer.name)
-        self.assertEqual(form["content"].value, self.offer_request.offer.content)
+        self.assertEqual(form["name"].value, self.offer.name)
+        self.assertEqual(form["content"].value, self.offer.content)
 
         plan = self.plans[0]
 
@@ -1068,7 +1067,7 @@ class ProviderEditRequestViewTests(WebTest):
         """
         Test that a user can edit the main offer content
         """
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1078,10 +1077,10 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        offer = Offer.objects.get(pk=self.offer_request.offer.pk)
+        offer = Offer.objects.get(pk=self.offer.pk)
+        self.assertTrue(offer.is_request)
 
         self.assertEqual(offer.name, "Offer title!")
         self.assertEqual(offer.content, "Offer content!")
@@ -1091,7 +1090,7 @@ class ProviderEditRequestViewTests(WebTest):
         Test that a user can edit the plans on the page
         """
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1104,7 +1103,7 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
         plan1 = Plan.objects.order_by('id')[0]
@@ -1122,10 +1121,10 @@ class ProviderEditRequestViewTests(WebTest):
         """
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1134,7 +1133,7 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 1)
 
     def test_edit_request_page_can_delete_multiple_plans(self):
@@ -1143,10 +1142,10 @@ class ProviderEditRequestViewTests(WebTest):
         """
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1156,7 +1155,7 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 0)
 
     def test_edit_request_can_not_edit_with_invalid_data(self):
@@ -1164,7 +1163,7 @@ class ProviderEditRequestViewTests(WebTest):
         Test that editing a request with incorrect data does not save
         """
 
-        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer_request.pk]), user=self.user)
+        response = self.app.get(reverse('offer:admin_request_edit', args=[self.offer.pk]), user=self.user)
 
         form = response.form
 
@@ -1174,13 +1173,13 @@ class ProviderEditRequestViewTests(WebTest):
         form.submit()
 
         self.assertEqual(Offer.objects.count(), 1)
-        self.assertEqual(OfferRequest.objects.count(), 1)
+        self.assertEqual(Offer.objects.filter(is_request=True).count(), 1)
         self.assertEqual(Plan.objects.count(), 2)
 
-        offer = Offer.objects.get(pk=self.offer_request.offer.pk)
+        offer = Offer.objects.get(pk=self.offer.pk)
 
-        self.assertEqual(offer.name, self.offer_request.offer.name)
-        self.assertEqual(offer.content, self.offer_request.offer.content)
+        self.assertEqual(offer.name, self.offer.name)
+        self.assertEqual(offer.content, self.offer.content)
         self.assertNotEqual(offer.name, "")
         self.assertNotEqual(offer.content, "Offer content!")
 

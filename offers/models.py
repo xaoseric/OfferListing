@@ -19,29 +19,12 @@ import json
 ############
 
 
-class OfferRequestActiveManager(models.Manager):
-    """
-    The offer requests that have not yet been published
-    """
-    def get_query_set(self):
-        return super(OfferRequestActiveManager, self).get_query_set().filter(offer__status=Offer.UNPUBLISHED)
-
-    def get_requests_for_provider(self, provider):
-        """
-        Get all the requests for a specific provider
-        """
-        return self.get_query_set().filter(offer__provider=provider)
-
-
 class OfferNotRequestManager(models.Manager):
     """
     The offers that are not requests
     """
     def get_query_set(self):
-        return super(OfferNotRequestManager, self).get_query_set().filter(
-            Q(status=Offer.PUBLISHED) |
-            (Q(request=None) & Q(status=Offer.UNPUBLISHED))
-        )
+        return super(OfferNotRequestManager, self).get_query_set().filter(is_request=False)
 
     def for_provider(self, provider):
         """
@@ -55,7 +38,7 @@ class OfferVisibleManager(models.Manager):
     Only gets the visible offers (offers which are published)
     """
     def get_query_set(self):
-        return super(OfferVisibleManager, self).get_query_set().filter(status=Offer.PUBLISHED)
+        return super(OfferVisibleManager, self).get_query_set().filter(status=Offer.PUBLISHED, is_request=False)
 
     def for_provider(self, provider):
         """
@@ -69,7 +52,11 @@ class OfferActiveManager(models.Manager):
     Only gets the active offers (offers which are published and have the active status)
     """
     def get_query_set(self):
-        return super(OfferActiveManager, self).get_query_set().filter(status=Offer.PUBLISHED, is_active=True)
+        return super(OfferActiveManager, self).get_query_set().filter(
+            status=Offer.PUBLISHED,
+            is_active=True,
+            is_request=False,
+        )
 
     def for_provider(self, provider):
         """
@@ -86,6 +73,7 @@ class ActivePlanManager(models.Manager):
         return super(ActivePlanManager, self).get_query_set().filter(
             offer__status=Offer.PUBLISHED,
             offer__is_active=True,
+            offer__is_request=False,
             is_active=True
         )
 
@@ -225,17 +213,6 @@ class TestDownload(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class OfferRequest(models.Model):
-    offer = models.OneToOneField('Offer', related_name='request')
-    user = models.ForeignKey(User)
-
-    objects = models.Manager()
-    requests = OfferRequestActiveManager()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
 class OfferBase(models.Model):
     PUBLISHED = 'p'
     UNPUBLISHED = 'u'
@@ -267,6 +244,9 @@ class Offer(OfferBase):
 
     objects = models.Manager()
     not_requests = OfferNotRequestManager()
+
+    is_request = models.BooleanField(default=False)
+    creator = models.ForeignKey(User, null=True, blank=True)
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)
@@ -319,20 +299,11 @@ class Offer(OfferBase):
             return True
         return False
 
-    def is_request(self):
-        try:
-            if self.request is not None and self.status == self.UNPUBLISHED:
-                return True
-        except OfferRequest.DoesNotExist:
-            pass
-        return False
-    is_request.boolean = True
-
     def queue_position(self):
-        if not self.is_request():
+        if not self.is_request:
             return 0
         return Offer.objects.filter(
-            Q(status=Offer.UNPUBLISHED), Q(created_at__lt=self.created_at), ~Q(request=None)
+            status=Offer.UNPUBLISHED, created_at__lt=self.created_at, is_request=True
         ).count()+1
 
     def update_request(self):
