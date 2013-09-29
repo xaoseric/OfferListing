@@ -24,7 +24,17 @@
     <li class="list-group-item">
       <div class="row">
         <div class="col-xs-6">
-          Price range ${{ offer.min_cost|floatformat:2 }} - ${{ offer.max_cost|floatformat:2 }}
+          {% for min_max in offer.get_min_max_cost %}
+            {% if min_max.same %}
+              ${{ min_max.min | floatformat:2 }} ({{ min_max.name }})
+            {% else %}
+              ${{ min_max.min | floatformat:2 }} - ${{ min_max.max | floatformat:2 }} ({{ min_max.name }})
+            {% endif %}
+
+            {% if not forloop.last %}
+            |
+            {% endif %}
+          {% endfor %}
         </div>
         <div class="col-xs-6 text-right">
           <span class="text-right">
