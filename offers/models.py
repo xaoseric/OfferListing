@@ -349,6 +349,34 @@ class Offer(OfferBase):
             )
             new_plan.save()
 
+    def get_min_max_cost(self):
+        """
+        Get the minimum and maximum values of the plans for each
+        """
+
+        billing_type_lookup = dict(Plan.BILLING_CHOICES)
+
+        min_maxes = []
+
+        for billing_type in self.plan_set.values('billing_time').distinct():
+            billing_type = billing_type["billing_time"]
+
+            min = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Min('cost'))["cost"]
+            max = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Max('cost'))["cost"]
+
+            is_same = False
+            if min == max:
+                is_same = True
+
+            min_maxes.append({
+                "code": billing_type,
+                "name": billing_type_lookup[billing_type],
+                "min": min,
+                "max": max,
+                "same": is_same,
+            })
+        return min_maxes
+
     class Meta:
         ordering = ['-published_at']
 

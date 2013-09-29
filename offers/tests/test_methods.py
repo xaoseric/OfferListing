@@ -5,6 +5,7 @@ from django.core.files import File
 from django.conf import settings
 from django.contrib.auth.models import User
 import os
+from decimal import Decimal
 
 
 class OfferMethodTests(TestCase):
@@ -136,7 +137,41 @@ class OfferMethodTests(TestCase):
         comments = mommy.make(Comment, offer=self.offer, _quantity=20, status=Comment.DELETED)
         self.assertEqual(self.offer.get_comments().count(), 0)
 
-    
+    def test_get_min_max_gets_correct_values_for_monthly(self):
+        """
+        Test that the min max gets the correct values for monthly plans
+        """
+        plan_min = mommy.make(Plan, offer=self.offer, billing_time=Plan.MONTHLY, cost=10.00)
+        plan_mid = mommy.make(Plan, offer=self.offer, billing_time=Plan.MONTHLY, cost=15.50)
+        plan_max = mommy.make(Plan, offer=self.offer, billing_time=Plan.MONTHLY, cost=20.83)
+
+        min_max = self.offer.get_min_max_cost()
+
+        self.assertEqual(len(min_max), 1)  # Only got monthly
+
+        self.assertEqual(min_max[0]["name"], plan_mid.get_billing_time_display())
+        self.assertEqual(min_max[0]["code"], Plan.MONTHLY)
+        self.assertEqual(min_max[0]["min"], Decimal('10.00'))
+        self.assertEqual(min_max[0]["max"], Decimal('20.83'))
+        self.assertFalse(min_max[0]["same"])
+
+    def test_get_min_max_gets_correct_values_for_yearly(self):
+        """
+        Test that the min max gets the correct values for monthly plans
+        """
+        plan_min = mommy.make(Plan, offer=self.offer, billing_time=Plan.YEARLY, cost=10.00)
+        plan_mid = mommy.make(Plan, offer=self.offer, billing_time=Plan.YEARLY, cost=15.50)
+        plan_max = mommy.make(Plan, offer=self.offer, billing_time=Plan.YEARLY, cost=20.83)
+
+        min_max = self.offer.get_min_max_cost()
+
+        self.assertEqual(len(min_max), 1)  # Only got yearly
+
+        self.assertEqual(min_max[0]["name"], plan_mid.get_billing_time_display())
+        self.assertEqual(min_max[0]["code"], Plan.YEARLY)
+        self.assertEqual(min_max[0]["min"], Decimal('10.00'))
+        self.assertEqual(min_max[0]["max"], Decimal('20.83'))
+        self.assertFalse(min_max[0]["same"])
 
 
 class ProviderMethodTests(TestCase):
