@@ -39,7 +39,7 @@ function paginationNavigate(url){
 }
 
 function getAndRender(url){
-    $("#plan_list").html('<h1>Loading ...</h1>');
+    $("#plan_list").html('<div class="loading"></div>');
 
     $.get(
        url,

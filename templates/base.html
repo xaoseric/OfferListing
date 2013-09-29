@@ -8,6 +8,7 @@
     <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
     <link href="{% static 'datepicker/css/datepicker.css' %}" rel="stylesheet">
     <link href="{% static 'css/main.css' %}" rel="stylesheet" media="screen">
+    {% block extra_head %}{% endblock %}
   </head>
   <body>
     <div class="container" style="margin-top: 20px">
