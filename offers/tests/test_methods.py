@@ -10,59 +10,74 @@ import os
 class OfferMethodTests(TestCase):
 
     def setUp(self):
-        self.offers = mommy.make(Offer, _quantity=10)
+        self.offer = mommy.make(Offer)
 
     def test_unicode_string(self):
         """
         Test that the string version of the offer is correct
         """
-        for offer in self.offers:
-            name = "{0} ({1})".format(offer.name, offer.provider.name)
-            self.assertEqual(name, offer.__unicode__())
+        name = "{0} ({1})".format(self.offer.name, self.offer.provider.name)
+        self.assertEqual(name, self.offer.__unicode__())
 
     def test_plan_count(self):
         """
         Test that the plan count method returns the correct number of plans
         """
-        for i, offer in enumerate(self.offers):
-            mommy.make(Plan, _quantity=i+1, offer=offer)
-            self.assertEqual(offer.plan_count(), i+1)
+        mommy.make(Plan, _quantity=4, offer=self.offer)
+        self.assertEqual(self.offer.plan_count(), 4)
 
     def test_min_cost(self):
         """
         Test that the minimum cost method gets the true minimum cost
         """
 
-        for i, offer in enumerate(self.offers):
-            mommy.make(Plan, _quantity=20, offer=offer, cost=i+100)
-            mommy.make(Plan, offer=offer, cost=i)
+        # Not minimum
+        mommy.make(Plan, offer=self.offer, cost=100)
+        mommy.make(Plan, offer=self.offer, cost=50)
+        mommy.make(Plan, offer=self.offer, cost=11)
+        mommy.make(Plan, offer=self.offer, cost=10.01)
 
-            self.assertEqual(i, offer.min_cost())
+        # True minimum
+        mommy.make(Plan, offer=self.offer, cost=10)
+
+        self.assertEqual(10, self.offer.min_cost())
 
     def test_min_cost_with_other(self):
         """
         Test that the minimum cost method gets the true minimum cost and not that of other offers
         """
 
-        # Generate other plans with cheaper costs
-        mommy.make(Plan, _quantity=20, cost=0)
+        # Other plans with cheaper costs that are not related
+        mommy.make(Plan, cost=5)
+        mommy.make(Plan, cost=10)
+        mommy.make(Plan, cost=20)
 
-        for i, offer in enumerate(self.offers):
-            mommy.make(Plan, _quantity=20, offer=offer, cost=i+100)
-            mommy.make(Plan, offer=offer, cost=i)
+        # Not minimum
+        mommy.make(Plan, offer=self.offer, cost=100)
+        mommy.make(Plan, offer=self.offer, cost=50)
+        mommy.make(Plan, offer=self.offer, cost=11)
+        mommy.make(Plan, offer=self.offer, cost=10.01)
 
-            self.assertEqual(i, offer.min_cost())
+        # True minimum
+        mommy.make(Plan, offer=self.offer, cost=10)
+
+        self.assertEqual(10, self.offer.min_cost())
 
     def test_max_cost(self):
         """
         Test that the maximum cost method gets the true maximum cost
         """
 
-        for i, offer in enumerate(self.offers):
-            mommy.make(Plan, _quantity=20, offer=offer, cost=i+100)
-            mommy.make(Plan, offer=offer, cost=i+1000)
+        # Not maximum
+        mommy.make(Plan, offer=self.offer, cost=50)
+        mommy.make(Plan, offer=self.offer, cost=100)
+        mommy.make(Plan, offer=self.offer, cost=2000)
+        mommy.make(Plan, offer=self.offer, cost=2999.99)
 
-            self.assertEqual(i+1000, offer.max_cost())
+        # True maximum
+        mommy.make(Plan, offer=self.offer, cost=3000)
+
+        self.assertEqual(3000, self.offer.max_cost())
 
     def test_max_cost_with_other(self):
         """
@@ -70,28 +85,34 @@ class OfferMethodTests(TestCase):
         """
 
         # Generate other plans with more expensive costs
-        mommy.make(Plan, _quantity=20, cost=10000)
+        mommy.make(Plan, cost=100)
+        mommy.make(Plan, cost=3000)
+        mommy.make(Plan, cost=10000)
 
-        for i, offer in enumerate(self.offers):
-            mommy.make(Plan, _quantity=20, offer=offer, cost=i+100)
-            mommy.make(Plan, offer=offer, cost=i+1000)
+        # Not maximum
+        mommy.make(Plan, offer=self.offer, cost=50)
+        mommy.make(Plan, offer=self.offer, cost=100)
+        mommy.make(Plan, offer=self.offer, cost=2000)
+        mommy.make(Plan, offer=self.offer, cost=2999.99)
 
-            self.assertEqual(i+1000, offer.max_cost())
+        # True maximum
+        mommy.make(Plan, offer=self.offer, cost=3000)
+
+        self.assertEqual(3000, self.offer.max_cost())
 
     def test_get_comments_published(self):
         """
         Test the get comments method only gets published comments relating to the current offer
         """
 
-        # Generate random comments as well
+        # Generate random comments that should not show up
         mommy.make(Comment, _quantity=20)
 
-        for i, offer in enumerate(self.offers):
-            i += 1
-            comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.PUBLISHED)
-            self.assertEqual(len(comments), offer.get_comments().count())
-            for comment in comments:
-                self.assertIn(comment, offer.get_comments())
+        comments = mommy.make(Comment, offer=self.offer, _quantity=10, status=Comment.PUBLISHED)
+        self.assertEqual(10, self.offer.get_comments().count())
+
+        for comment in comments:
+            self.assertIn(comment, self.offer.get_comments())
 
     def test_get_comments_unpublished(self):
         """
@@ -101,10 +122,8 @@ class OfferMethodTests(TestCase):
         # Generate random comments as well
         mommy.make(Comment, _quantity=20)
 
-        for i, offer in enumerate(self.offers):
-            i += 1
-            comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.UNPUBLISHED)
-            self.assertEqual(offer.get_comments().count(), 0)
+        comments = mommy.make(Comment, offer=self.offer, _quantity=20, status=Comment.UNPUBLISHED)
+        self.assertEqual(self.offer.get_comments().count(), 0)
 
     def test_get_comments_deleted(self):
         """
@@ -114,10 +133,10 @@ class OfferMethodTests(TestCase):
         # Generate random comments as well
         mommy.make(Comment, _quantity=20)
 
-        for i, offer in enumerate(self.offers):
-            i += 1
-            comments = mommy.make(Comment, offer=offer, _quantity=i, status=Comment.DELETED)
-            self.assertEqual(offer.get_comments().count(), 0)
+        comments = mommy.make(Comment, offer=self.offer, _quantity=20, status=Comment.DELETED)
+        self.assertEqual(self.offer.get_comments().count(), 0)
+
+    
 
 
 class ProviderMethodTests(TestCase):
