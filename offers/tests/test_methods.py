@@ -173,6 +173,49 @@ class OfferMethodTests(TestCase):
         self.assertEqual(min_max[0]["max"], Decimal('20.83'))
         self.assertFalse(min_max[0]["same"])
 
+    def test_get_min_max_sets_same_with_one_plan(self):
+        """
+        Test that the min max gets the correct values for monthly plans
+        """
+        plan = mommy.make(Plan, offer=self.offer, billing_time=Plan.MONTHLY, cost=10.00)
+
+        min_max = self.offer.get_min_max_cost()
+
+        self.assertEqual(len(min_max), 1)  # Only got monthly
+
+        self.assertEqual(min_max[0]["name"], plan.get_billing_time_display())
+        self.assertEqual(min_max[0]["code"], Plan.MONTHLY)
+        self.assertEqual(min_max[0]["min"], Decimal('10.00'))
+        self.assertEqual(min_max[0]["max"], Decimal('10.00'))
+        self.assertTrue(min_max[0]["same"])
+
+    def test_get_min_max_gets_correct_values_two_billing_periods(self):
+        """
+        Test that the min max gets the correct values for monthly plans
+        """
+        plan_month_min = mommy.make(Plan, offer=self.offer, billing_time=Plan.MONTHLY, cost=10.00)
+        plan_month_mid = mommy.make(Plan, offer=self.offer, billing_time=Plan.MONTHLY, cost=15.50)
+        plan_month_max = mommy.make(Plan, offer=self.offer, billing_time=Plan.MONTHLY, cost=20.83)
+
+        plan_year_min = mommy.make(Plan, offer=self.offer, billing_time=Plan.YEARLY, cost=100.00)
+        plan_year_mid = mommy.make(Plan, offer=self.offer, billing_time=Plan.YEARLY, cost=155.10)
+        plan_year_max = mommy.make(Plan, offer=self.offer, billing_time=Plan.YEARLY, cost=208.30)
+
+        min_max = self.offer.get_min_max_cost()
+
+        self.assertEqual(len(min_max), 2)  # Got both monthly and yearly
+
+        self.assertEqual(min_max[0]["name"], plan_month_mid.get_billing_time_display())
+        self.assertEqual(min_max[0]["code"], Plan.MONTHLY)
+        self.assertEqual(min_max[0]["min"], Decimal('10.00'))
+        self.assertEqual(min_max[0]["max"], Decimal('20.83'))
+        self.assertFalse(min_max[0]["same"])
+
+        self.assertEqual(min_max[1]["name"], plan_year_mid.get_billing_time_display())
+        self.assertEqual(min_max[1]["code"], Plan.YEARLY)
+        self.assertEqual(min_max[1]["min"], Decimal('100.00'))
+        self.assertEqual(min_max[1]["max"], Decimal('208.30'))
+        self.assertFalse(min_max[1]["same"])
 
 class ProviderMethodTests(TestCase):
     def setUp(self):
