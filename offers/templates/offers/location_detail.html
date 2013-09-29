@@ -1,6 +1,10 @@
 {% load humanize %}
 <div class="well">
   <h4>{{ location.city }}, <strong>{{ location.country.name }}</strong></h4>
+  {% if location.looking_glass %}
+  <span class="glyphicon glyphicon-hdd"></span>
+  <strong>Looking glass: </strong><a href="{{ location.looking_glass }}">{{ location.looking_glass }}</a>
+  {% endif %}
   <h5>Test IP addresses</h5>
   {% for test_ip in location.test_ips.all %}
     <div class="row">

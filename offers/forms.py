@@ -160,9 +160,11 @@ class LocationForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = False
 
+        self.fields['looking_glass'].help_text = "The url to your looking glass installation. Not required."
+
     class Meta:
         model = Location
-        fields = ('city', 'country', 'datacenter')
+        fields = ('city', 'country', 'datacenter', 'looking_glass')
 
 
 TestIPFormsetBase = inlineformset_factory(Location, TestIP, extra=4, fields=('ip', 'ip_type'), fk_name='location')
