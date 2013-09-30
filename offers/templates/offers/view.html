@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}{{ offer.name }}{% endblock %}
 
@@ -44,7 +45,9 @@
         { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
         { name: 'styles', items: [ 'Format' ] }
       ],
-      format_tags: "p;pre"
+      format_tags: "p;pre",
+      format_pre: {name:'Code', element: 'pre', attributes : { 'class' : 'links' }},
+      contentsCss: [CKEDITOR.basePath + 'contents.css', '{% static 'bootstrap/css/bootstrap.min.css' %}', '{% static 'offers/css/editor_custom.css' %}']
   });
   });
 
