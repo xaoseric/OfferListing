@@ -446,6 +446,10 @@ def offer_update_published(sender, instance, raw, **kwargs):
             if old_instance.status == Offer.UNPUBLISHED:
                 instance.published_at = timezone.now()
 
+                if not instance.is_request:
+                    from offers.tasks import publish_offer
+                    publish_offer.delay(instance.pk)
+
 
 def clean_offer_on_save(sender, instance, raw, **kwargs):
     instance.content = clean(instance.content)

@@ -101,5 +101,11 @@ def publish_offer(offer_pk):
 
     offer = offers[0]
 
-    for user in offer.provider.owners.all():
+    for user_profile in offer.provider.owners.all():
+        user = user_profile.user
         offer.followers.add(user)
+        send_plain_mail.s(
+            'Your offer has been published!',
+            advanced_render_to_string('offers/email/provider_offer_published.txt', {"offer": offer, "user": user}),
+            user.email
+        ).apply_async(countdown=5)

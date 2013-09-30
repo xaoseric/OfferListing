@@ -1,0 +1,14 @@
+Hello {{ user.first_name }} {{ user.last_name }},
+
+An offer that your provider made has been accepted and published on {{ site_url }}.
+The offer was published at {{ offer.published_at }} and can be viewed at the following link:
+{{ site_url }}{{ offer.get_absolute_url }}
+
+The offer name was:
+{{ offer.name }}
+
+=====================
+
+You are getting this email because you are a manager of {{ offer.provider.name }}.
+You are now automatically following this offer and will receive emails when comments are posted. You can
+unfollow this offer by visiting it and clicking the unfollow button in the top right corner.
