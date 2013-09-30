@@ -61,6 +61,17 @@ def view_offer(request, offer_pk, slug=None):
             messages.error(request, "Your comment had errors. Please fix them and submit again!")
     else:
         form = CommentForm()
+
+        if request.user.is_authenticated():
+            action = request.GET.get('do', False)
+            if action:
+                if action == 'follow':
+                    offer.followers.add(request.user)
+                elif action == 'unfollow':
+                    offer.followers.remove(request.user)
+
+                return HttpResponseRedirect(offer.get_absolute_url())
+
     return render(request, 'offers/view.html', {
         "offer": offer,
         "form": form,
