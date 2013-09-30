@@ -26,3 +26,4 @@ python-mimeparse
 python-dateutil
 lxml
 pyyaml
+django-celery

@@ -1,4 +1,6 @@
 import os
+import djcelery
+
 
 BASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
@@ -22,6 +24,9 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default.
     }
 }
+
+djcelery.setup_loader()
+BROKER_URL = 'amqp://guest:guest@localhost:5672/'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -147,6 +152,7 @@ INSTALLED_APPS = (
     'django_countries',
     'captcha',
     'tastypie',
+    'djcelery',
 
     # Custom applications
     'offers',
