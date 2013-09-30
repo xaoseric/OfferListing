@@ -74,6 +74,27 @@ stdout_logfile = {gunicorn_log}                                       ; Where to
 redirect_stderr = true                                                ; Save stderr in the same log
 """
 
+CELERY_SUPERVISOR = """
+[program:{app_name}-celery]
+command={python_bin} {manage_file} celery worker --loglevel=INFO
+directory={app_dir}
+user={user}
+numprocs=1
+stdout_logfile={celery_log}
+stderr_logfile={celery_log}
+autostart=true
+autorestart=true
+startsecs=10
+
+; Need to wait for currently executing tasks to finish at shutdown.
+; Increase this if you have very long running tasks.
+stopwaitsecs = 600
+
+; if rabbitmq is supervised, set its priority higher
+; so it starts first
+priority=998
+"""
+
 NGINX_CONFG = """
 upstream {app_name}_app_server {{
   # fail_timeout=0 means we always retry an upstream even if it failed

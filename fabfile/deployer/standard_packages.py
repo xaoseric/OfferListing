@@ -12,6 +12,7 @@ REQUIRED_SYSTEM_PACKAGES = [
     'libxml2-dev',
     'libmysqlclient-dev',
     'supervisor',
+    'rabbitmq-server',
 ]
 
 
