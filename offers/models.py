@@ -453,6 +453,12 @@ def offer_update_published(sender, instance, raw, **kwargs):
                     from offers.tasks import publish_offer
                     publish_offer.delay(instance.pk)
 
+        if instance.is_ready:
+            old_instance = Offer.objects.get(pk=instance.pk)
+            if not old_instance.is_ready:
+                # Comment became ready
+                instance.readied_at = timezone.now()
+
 
 def clean_offer_on_save(sender, instance, raw, **kwargs):
     instance.content = clean(instance.content)
