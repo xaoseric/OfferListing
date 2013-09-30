@@ -76,7 +76,7 @@ redirect_stderr = true                                                ; Save std
 
 CELERY_SUPERVISOR = """
 [program:{app_name}-celery]
-command={python_bin} {manage_file} celery worker --loglevel=INFO
+command={python_bin} {manage_file} celery worker -B --loglevel=INFO
 directory={app_dir}
 user={user}
 numprocs=1
@@ -89,10 +89,6 @@ startsecs=10
 ; Need to wait for currently executing tasks to finish at shutdown.
 ; Increase this if you have very long running tasks.
 stopwaitsecs = 600
-
-; if rabbitmq is supervised, set its priority higher
-; so it starts first
-priority=998
 """
 
 NGINX_CONFG = """
