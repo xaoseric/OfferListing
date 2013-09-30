@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% load static %}
+{% load following_helpers %}
 
 {% block title %}{{ offer.name }}{% endblock %}
 
 {% block page_title %}
   {{ offer.name }}
   <a href="{{ offer.provider.get_absolute_url }}"><small>{{ offer.provider.name }}</small></a>
+  <p class="pull-right">{% following request offer %}</p>
 {% endblock %}
 
 {% block content %}

@@ -4,3 +4,4 @@ htmlcov
 reports
 ghostdriver.log
 local_settings.py
+celerybeat-schedule

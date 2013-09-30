@@ -248,6 +248,7 @@ class Offer(OfferBase):
 
     is_request = models.BooleanField(default=False)
     creator = models.ForeignKey(User, null=True, blank=True)
+    followers = models.ManyToManyField(User, blank=True, null=True, related_name="followed_offers")
 
     def __unicode__(self):
         return "{0} ({1})".format(self.name, self.provider.name)

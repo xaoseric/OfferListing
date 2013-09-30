@@ -1,0 +1,17 @@
+Hello {{ email_user.commenter.first_name }} {{ email_user.commenter.last_name }},
+
+The user {{ comment.commenter.username }} has just posted a comment on an offer you follow:
+{{ comment.offer.name }}
+at {{ comment.created_at }}.
+
+
+============= {{ comment.commenter.username }}'s Comment =============
+{{ comment.content | safe }}
+
+
+------- Links back -------
+
+You can visit the comment with the following links:
+
+Comment URL:   {{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}
+Offer:         {{ site_url }}{{ comment.offer.get_absolute_url }}

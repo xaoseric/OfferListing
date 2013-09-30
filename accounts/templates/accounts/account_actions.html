@@ -34,6 +34,17 @@
     {% endif %}
   </a>
 
+  <a href="{% url 'my_followed' %}" class="list-group-item {% if followed_active %}active{% endif %}">
+    <h4 class="list-group-item-heading">
+      <span class="glyphicon glyphicon-bookmark"></span> View my followed offers
+    </h4>
+    {% if long %}
+      <p class="list-group-item-text">
+        View all the current offers you follow and unfollow the ones you do not wish to receive notifications for.
+      </p>
+    {% endif %}
+  </a>
+
   <a href="{% url 'deactivate_account' %}" class="list-group-item {% if delete_active %}active{% endif %}">
     <h4 class="list-group-item-heading">
       <span class="glyphicon glyphicon-trash"></span> Delete my account
