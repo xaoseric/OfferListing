@@ -1,0 +1,38 @@
+{% extends 'base_email.html' %}
+
+{% block style %}
+.comment-block {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #B5B5B5;
+  background-color: #E3E3E3;
+}
+body {
+  font-family: Arial, serif;
+}
+.comment-links {
+  list-style-type: none;
+}
+.comment-links span {
+  font-weight: bold;
+}
+{% endblock %}
+
+{% block content %}
+  Hello {{ email_user.commenter.first_name }} {{ email_user.commenter.last_name }},
+  <br><br>
+  The user {{ comment.commenter.username }} has just commented on an offer you follow:
+  <strong><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}">{{ comment.offer.name }}</a></strong> at {{ comment.created_at }}.
+  <br>
+  The commenter {{ comment.commenter.username }} said:
+  <div class="comment-block">
+    {{ comment.content | safe }}
+  </div>
+  <hr >
+  You can visit the comment with the following links:
+  <ul class="comment-links">
+    <li><span>Comment URL: </span><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}">{{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}</a></li>
+    <li><span>Offer: </span><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}">{{ site_url }}{{ comment.offer.get_absolute_url }}</a></li>
+  </ul>
+{% endblock %}

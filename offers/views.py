@@ -14,7 +14,7 @@ from offers.forms import (
     TestDownloadFormset,
     LocationForm,
 )
-from offers.emailers import send_comment_reply
+from offers.emailers import send_comment_reply, send_comment_new
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
@@ -53,6 +53,7 @@ def view_offer(request, offer_pk, slug=None):
                 comment.save()
                 if comment.is_reply():
                     send_comment_reply(comment)
+                send_comment_new(comment)
                 messages.success(request, "Thank you for commenting!")
                 form = CommentForm()
             else:
