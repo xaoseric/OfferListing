@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, EmailMessage
 from offers.models import Comment, Offer
+from django.contrib.auth.models import User
 
 
 def advanced_render_to_string(template_name, dictionary, context_instance=None):
@@ -58,14 +59,22 @@ def send_comment_mail(comment_pk):
     )
 
 @task()
-def send_new_comment_followers_mail(comment_pk):
+def send_new_comment_followers_mail(comment_pk, user_pk=None):
     if not Comment.objects.filter(pk=comment_pk).exists():
         return
+
+    current_user = None
+    if user_pk is not None:
+        current_user = User.objects.get(pk=user_pk)
 
     comment = Comment.objects.get(pk=comment_pk)
     context = {"comment": comment}
 
     for countdown, user in enumerate(comment.offer.followers.all()):
+
+        if current_user == user:
+            continue
+
         new_context = context
         new_context.update({"email_user": user})
 

@@ -53,7 +53,7 @@ def view_offer(request, offer_pk, slug=None):
                 comment.save()
                 if comment.is_reply():
                     send_comment_reply(comment)
-                send_comment_new(comment)
+                send_comment_new(comment, request.user)
                 messages.success(request, "Thank you for commenting!")
                 form = CommentForm()
             else:

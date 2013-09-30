@@ -37,6 +37,9 @@ def send_comment_reply(comment):
     send_comment_mail.delay(comment.pk)
 
 
-def send_comment_new(comment):
-    send_new_comment_followers_mail.delay(comment.pk)
+def send_comment_new(comment, user):
+    user_pk = None
+    if user.is_authenticated():
+        user_pk = user.pk
+    send_new_comment_followers_mail.delay(comment.pk, user_pk)
 
