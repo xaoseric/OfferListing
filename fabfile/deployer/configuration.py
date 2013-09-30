@@ -3,6 +3,7 @@ from .templates import (
     LOCAL_SETTINGS,
     GUNICORN_START,
     GUNICORN_SUPERVISOR,
+    CELERY_SUPERVISOR,
     NGINX_CONFG,
     ADDITIONAL_SETTINGS_FORMAT,
     ADMIN_SETTINGS_FORMAT
@@ -106,6 +107,9 @@ class Configuration(object):
     def local_settings_path(self):
         return os.path.join(self.app_path(), self.site_settings["settings_local"])
 
+    def python_bin_path(self):
+        return os.path.join(self.virtualenv_path(), 'bin/python')
+
     def gunicorn_socket_path(self):
         return os.path.join(self.base_path(), self.data["deploy_settings"]["deploy_gunicorn_socket"])
 
@@ -139,6 +143,22 @@ class Configuration(object):
 
     def gunicorn_supervisor_config_path(self):
         return os.path.join(self.data["deploy_settings"]["deploy_supervisor"], self.supervisor_name())
+
+    def celery_supervisor_config(self):
+        return CELERY_SUPERVISOR.format(
+            app_name=self.application_name(),
+            app_dir=self.app_path(),
+            user=self.user(),
+            python_bin=self.python_bin_path(),
+            manage_file=os.path.join(self.app_path(), 'manage.py'),
+            celery_log=os.path.join(self.log_path(), 'celery_supervisor.log')
+        )
+
+    def celery_supervisor_name(self):
+        return self.application_name() + '-celery.conf'
+
+    def celery_supervisor_config_path(self):
+        return os.path.join(self.data["deploy_settings"]["deploy_supervisor"], self.celery_supervisor_name())
 
     def nginx_config(self):
         return NGINX_CONFG.format(

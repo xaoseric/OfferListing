@@ -95,6 +95,17 @@ def create_gunicorn_supervisor():
     sudo('sudo supervisorctl reread')
     sudo('sudo supervisorctl update')
 
+@task
+def create_celery_supervisor():
+    rmdir(env.hosts_data.celery_supervisor_config_path())
+    put(
+        StringIO(env.hosts_data.celery_supervisor_config()),
+        env.hosts_data.celery_supervisor_config_path(),
+        use_sudo=True
+    )
+    sudo('sudo supervisorctl reread')
+    sudo('sudo supervisorctl update')
+
 
 @task
 def create_nginx_config():
@@ -136,6 +147,13 @@ def delete_gunicorn_supervisor():
     sudo('sudo supervisorctl reread')
     sudo('sudo supervisorctl update')
 
+@task
+def delete_celery_supervisor():
+    server_stop()
+    rmdir(env.hosts_data.celery_supervisor_config_path(), sudo_access=True)
+    sudo('sudo supervisorctl reread')
+    sudo('sudo supervisorctl update')
+
 
 @task(default=True)
 def make_deploy():
@@ -167,6 +185,9 @@ def make_deploy():
     create_gunicorn_config()
     create_gunicorn_supervisor()
 
+    # Create celery
+    create_celery_supervisor()
+
     # Create nginx configs
     create_nginx_config()
 
@@ -179,22 +200,26 @@ def server_status():
 @task
 def server_stop():
     sudo('sudo supervisorctl stop {}'.format(env.hosts_data.application_name()))
+    sudo('sudo supervisorctl stop {}-celery'.format(env.hosts_data.application_name()))
 
 
 @task
 def server_start():
     sudo('sudo supervisorctl start {}'.format(env.hosts_data.application_name()))
+    sudo('sudo supervisorctl start {}-celery'.format(env.hosts_data.application_name()))
 
 
 @task
 def server_restart():
     sudo('sudo supervisorctl restart {}'.format(env.hosts_data.application_name()))
+    sudo('sudo supervisorctl restart {}-celery'.format(env.hosts_data.application_name()))
 
 
 @task
 def destroy_deploy():
     delete_folders()
     delete_gunicorn_supervisor()
+    delete_celery_supervisor()
     delete_nginx_config()
 
 
