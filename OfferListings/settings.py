@@ -26,7 +26,7 @@ DATABASES = {
 }
 
 djcelery.setup_loader()
-BROKER_URL = 'amqp://guest:guest@localhost:5672/'
+BROKER_URL = 'redis://localhost:6379/0'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
