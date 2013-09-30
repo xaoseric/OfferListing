@@ -452,8 +452,7 @@ def offer_update_published(sender, instance, raw, **kwargs):
                 if not instance.is_request:
                     from offers.tasks import publish_offer
                     publish_offer.delay(instance.pk)
-
-        if instance.is_ready:
+        elif instance.is_ready:
             old_instance = Offer.objects.get(pk=instance.pk)
             if not old_instance.is_ready:
                 # Comment became ready
