@@ -247,6 +247,7 @@ class Offer(OfferBase):
     not_requests = OfferNotRequestManager()
 
     is_request = models.BooleanField(default=False)
+    is_ready = models.BooleanField(default=False)
     creator = models.ForeignKey(User, null=True, blank=True)
     followers = models.ManyToManyField(User, blank=True, null=True, related_name="followed_offers")
 
@@ -305,7 +306,7 @@ class Offer(OfferBase):
         if not self.is_request:
             return 0
         return Offer.objects.filter(
-            status=Offer.UNPUBLISHED, created_at__lt=self.created_at, is_request=True
+            status=Offer.UNPUBLISHED, created_at__lt=self.created_at, is_request=True, is_ready=True,
         ).count()+1
 
     def update_request(self):

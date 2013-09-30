@@ -16,6 +16,7 @@ urlpatterns = patterns('offers.views',
     url(r'^manage/request/$', 'admin_submit_request', name="admin_request_new"),
     url(r'^manage/request/(?P<offer_pk>\d+)/$', 'admin_edit_request', name="admin_request_edit"),
     url(r'^manage/request/(?P<offer_pk>\d+)/delete/$', 'admin_provider_delete_confirm', name="admin_request_delete"),
+    url(r'^manage/request/(?P<offer_pk>\d+)/mark/$', 'admin_mark_request', name="admin_request_mark"),
 
     url(r'^manage/offers/$', 'admin_provider_offer_list', name="admin_offers"),
     url(r'^manage/offer/(?P<offer_pk>\d+)/$', 'admin_provider_offer_edit', name="admin_offer"),

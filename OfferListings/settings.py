@@ -1,5 +1,6 @@
 import os
 import djcelery
+from celery.schedules import crontab
 
 
 BASE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
@@ -27,6 +28,14 @@ DATABASES = {
 
 djcelery.setup_loader()
 BROKER_URL = 'redis://localhost:6379/0'
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
+CELERYBEAT_SCHEDULE = {
+    'publish-offer-request': {
+        'task': 'offers.tasks.publish_latest_offer',
+        'schedule': crontab(minute=0, hour=0),
+    },
+}
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

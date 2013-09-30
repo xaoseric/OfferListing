@@ -2,7 +2,7 @@ from celery import task
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from offers.models import Comment
+from offers.models import Comment, Offer
 
 
 @task()
@@ -72,3 +72,16 @@ def send_new_comment_followers_mail(comment_pk):
             message_plain=message_plain,
             to=comment.commenter.email
         ).apply_async(countdown=countdown)
+
+
+@task()
+def publish_latest_offer():
+    offers = Offer.objects.filter(status=Offer.UNPUBLISHED, is_request=True, is_ready=True).order_by('created_at')
+    if not offers.exists():
+        return
+
+    offer = offers[0]
+    offer.is_request = False
+    offer.status = Offer.PUBLISHED
+
+    offer.save()

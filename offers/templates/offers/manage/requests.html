@@ -24,14 +24,28 @@
           <span class="pull-right text-success">{{ offer.created_at | naturaltime }}</span>
         </td>
         <td>{{ offer.creator.username }}</td>
-        <td>{{ offer.queue_position }}</td>
+        <td>
+          {% if offer.is_ready %}
+            {{ offer.queue_position }}
+          {% else %}
+            N/A
+          {% endif %}
+        </td>
         <td>
           <div class="btn-group">
             <a href="{% url 'offer:admin_request_edit' offer.pk %}" class="btn btn-info">Edit request</a>
+            {% if offer.is_ready %}
+              <a href="{% url 'offer:admin_request_mark' offer.pk %}" class="btn btn-warning">Mark not ready</a>
+            {% else %}
+              <a href="{% url 'offer:admin_request_mark' offer.pk %}" class="btn btn-success">Mark ready</a>
+            {% endif %}
             <a href="{% url 'offer:admin_request_delete' offer.pk %}" class="btn btn-danger">Delete request</a>
           </div>
         </td>
       </tr>
     {% endfor %}
   </table>
+  <strong>Note:</strong> The offer queue is based on when the offer request was submitted and not when it was marked as
+  ready. This is done to prevent abuse of the ready function where an incomplete offer would hold it's queue position
+  by marking itself as complete.
 {% endblock %}
