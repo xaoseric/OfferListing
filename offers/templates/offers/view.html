@@ -45,8 +45,8 @@
         { name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
         { name: 'styles', items: [ 'Format' ] }
       ],
-      format_tags: "p;pre",
-      format_pre: {name:'Code', element: 'pre', attributes : { 'class' : 'links' }},
+      format_tags: "p;Code",
+      format_Code: {name:'Code Block', element: 'pre'},
       contentsCss: [CKEDITOR.basePath + 'contents.css', '{% static 'bootstrap/css/bootstrap.min.css' %}', '{% static 'offers/css/editor_custom.css' %}']
   });
   });
