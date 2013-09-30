@@ -76,7 +76,7 @@ def send_new_comment_followers_mail(comment_pk):
 
 @task()
 def publish_latest_offer():
-    offers = Offer.objects.filter(status=Offer.UNPUBLISHED, is_request=True).order_by('created_at')
+    offers = Offer.objects.filter(status=Offer.UNPUBLISHED, is_request=True, is_ready=True).order_by('created_at')
     if not offers.exists():
         return
 
