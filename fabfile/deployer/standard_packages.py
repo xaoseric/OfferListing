@@ -13,6 +13,8 @@ REQUIRED_SYSTEM_PACKAGES = [
     'libmysqlclient-dev',
     'supervisor',
     'redis-server',
+    'libxml2-dev',
+    'libxslt-dev',
 ]
 
 
