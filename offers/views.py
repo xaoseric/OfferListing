@@ -190,6 +190,8 @@ def admin_edit_request(request, offer_pk):
             form.save()
             formset.save()
 
+            messages.success(request, "Your offer request has been updated! You may continue to edit it below.")
+
             # Reload form data
             form = OfferForm(instance=offer)
             formset = PlanFormset(instance=offer, provider=request.user.user_profile.provider)
@@ -367,6 +369,8 @@ def admin_provider_locations_edit(request, location_pk):
             ip_formset.save()
             download_formset.save()
 
+            messages.success(request, "Your location has been updated!")
+
             # Reload form data
             form = LocationForm(instance=location)
             ip_formset = TestIPFormset(instance=location)
@@ -396,6 +400,8 @@ def admin_provider_locations_new(request):
             location = form.save()
             ip_formset.save()
             download_formset.save()
+
+            messages.success(request, "Your new location has been saved! You may continue to edit it below.")
 
             return HttpResponseRedirect(reverse('offer:admin_location_edit', args=[location.pk]))
     else:
