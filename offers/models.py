@@ -247,6 +247,7 @@ class Offer(OfferBase):
     not_requests = OfferNotRequestManager()
 
     is_request = models.BooleanField(default=False)
+    is_ready = models.BooleanField(default=False)
     creator = models.ForeignKey(User, null=True, blank=True)
     followers = models.ManyToManyField(User, blank=True, null=True, related_name="followed_offers")
 
