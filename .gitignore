@@ -5,3 +5,4 @@ reports
 ghostdriver.log
 local_settings.py
 celerybeat-schedule
+djcelery.schedulers.DatabaseScheduler
