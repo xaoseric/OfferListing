@@ -309,7 +309,7 @@ class Offer(OfferBase):
         if not self.is_request:
             return 0
         return Offer.objects.filter(
-            status=Offer.UNPUBLISHED, created_at__lt=self.created_at, is_request=True, is_ready=True,
+            status=Offer.UNPUBLISHED, readied_at__lt=self.readied_at, is_request=True, is_ready=True,
         ).count()+1
 
     def update_request(self):
