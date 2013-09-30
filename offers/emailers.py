@@ -2,6 +2,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from offers.tasks import send_comment_mail
 
 
 def send_simple_mail(subject, message_template, message_plain_template, context, to):
@@ -33,10 +34,4 @@ def send_comment_reply(comment):
     if not comment.is_reply():
         return
 
-    send_simple_mail(
-        subject='New reply to your comment',
-        message_template='offers/email/comment_reply.html',
-        message_plain_template='offers/email/comment_reply_plain.txt',
-        context={"comment": comment},
-        to=comment.reply_to.commenter.email
-    )
+    send_comment_mail.delay(comment.pk)
