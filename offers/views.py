@@ -232,6 +232,27 @@ def admin_provider_requests(request):
 
 
 @user_is_provider
+def admin_mark_request(request, offer_pk):
+    offer = get_object_or_404(
+        Offer,
+        pk=offer_pk,
+        status=Offer.UNPUBLISHED,
+        provider=request.user.user_profile.provider,
+        is_request=True,
+    )
+
+    offer.is_ready = not offer.is_ready
+    offer.save()
+
+    if offer.is_ready:
+        messages.success(request, "Marked offer as ready for publishing.")
+    else:
+        messages.success(request, "Marked offer as not ready for publishing.")
+
+    return HttpResponseRedirect(reverse('offer:admin_requests'))
+
+
+@user_is_provider
 def admin_provider_delete_confirm(request, offer_pk):
     offer = get_object_or_404(
         Offer,

@@ -28,6 +28,11 @@
         <td>
           <div class="btn-group">
             <a href="{% url 'offer:admin_request_edit' offer.pk %}" class="btn btn-info">Edit request</a>
+            {% if offer.is_ready %}
+              <a href="{% url 'offer:admin_request_mark' offer.pk %}" class="btn btn-warning">Mark not ready</a>
+            {% else %}
+              <a href="{% url 'offer:admin_request_mark' offer.pk %}" class="btn btn-success">Mark ready</a>
+            {% endif %}
             <a href="{% url 'offer:admin_request_delete' offer.pk %}" class="btn btn-danger">Delete request</a>
           </div>
         </td>
