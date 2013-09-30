@@ -1,5 +1,5 @@
 from django.contrib import admin
-from offers.models import Offer, Plan, Provider, OfferUpdate, PlanUpdate, Comment
+from offers.models import Offer, Plan, Provider, OfferUpdate, PlanUpdate, Comment, Location, TestIP, TestDownload
 from django.db.models import Q
 
 
@@ -37,8 +37,28 @@ class OfferUpdateAdmin(admin.ModelAdmin):
     ]
 
 
+class TestIPInline(admin.TabularInline):
+    model = TestIP
+
+
+class TestDownloadInline(admin.TabularInline):
+    model = TestDownload
+
+
+class LocationAdmin(admin.ModelAdmin):
+    date_hierarchy = 'created_at'
+    list_display = ('city', 'country', 'provider', 'datacenter')
+    list_filter = ('created_at', 'updated_at')
+
+    inlines = [
+        TestIPInline,
+        TestDownloadInline,
+    ]
+
+
 admin.site.register(Provider)
 admin.site.register(Offer, OfferAdmin)
 admin.site.register(OfferUpdate, OfferUpdateAdmin)
 admin.site.register(Plan)
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(Location, LocationAdmin)
