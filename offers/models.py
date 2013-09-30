@@ -247,7 +247,10 @@ class Offer(OfferBase):
     not_requests = OfferNotRequestManager()
 
     is_request = models.BooleanField(default=False)
+
     is_ready = models.BooleanField(default=False)
+    readied_at = models.DateTimeField(auto_now_add=True)
+
     creator = models.ForeignKey(User, null=True, blank=True)
     followers = models.ManyToManyField(User, blank=True, null=True, related_name="followed_offers")
 
@@ -306,7 +309,7 @@ class Offer(OfferBase):
         if not self.is_request:
             return 0
         return Offer.objects.filter(
-            status=Offer.UNPUBLISHED, created_at__lt=self.created_at, is_request=True, is_ready=True,
+            status=Offer.UNPUBLISHED, readied_at__lt=self.readied_at, is_request=True, is_ready=True,
         ).count()+1
 
     def update_request(self):
@@ -449,6 +452,11 @@ def offer_update_published(sender, instance, raw, **kwargs):
                 if not instance.is_request:
                     from offers.tasks import publish_offer
                     publish_offer.delay(instance.pk)
+        elif instance.is_ready:
+            old_instance = Offer.objects.get(pk=instance.pk)
+            if not old_instance.is_ready:
+                # Comment became ready
+                instance.readied_at = timezone.now()
 
 
 def clean_offer_on_save(sender, instance, raw, **kwargs):
