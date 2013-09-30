@@ -110,6 +110,24 @@ def comment_list(request):
     return render(request, 'accounts/comments.html', {"comments": comments})
 
 
+@login_required
+def followed_list(request):
+    offer_list = request.user.followed_offers.filter(status=Offer.PUBLISHED, is_request=False)
+
+    paginator = Paginator(offer_list, 5)
+    page = request.GET.get('page')
+    try:
+        offers = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        offers = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        offers = paginator.page(paginator.num_pages)
+
+    return render(request, 'accounts/offers.html', {"offers": offers})
+
+
 def register(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('home'))

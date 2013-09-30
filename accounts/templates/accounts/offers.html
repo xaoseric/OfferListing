@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load gravatar %}
+
+{% block title %}My Followed Offers{% endblock %}
+
+{% block page_title %}My Followed Offers{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-3">
+      {% include 'accounts/account_actions.html' with followed_active=True %}
+    </div>
+    <div class="col-md-9">
+      {% for offer in offers %}
+        {% include 'offers/short_offer.html' with offer=offer %}
+      {% endfor %}
+      <ul class="pager">
+        <li class="previous {% if not offers.has_next %}disabled{% endif %}">
+          <a href="{% if offers.has_next %}{% url 'my_followed' %}?page={{ offers.next_page_number }}{% endif %}">
+            &larr; Older
+          </a>
+        </li>
+        <li class="next {% if not offers.has_previous %}disabled{% endif %}">
+          <a href="{% if offers.has_previous %}{% url 'my_followed' %}?page={{ offers.previous_page_number }}{% endif %}">
+            Newer &rarr;
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}
