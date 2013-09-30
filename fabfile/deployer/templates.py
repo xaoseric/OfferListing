@@ -76,7 +76,7 @@ redirect_stderr = true                                                ; Save std
 
 CELERY_SUPERVISOR = """
 [program:{app_name}-celery]
-command={python_bin} {manage_file} celery worker -B --loglevel=INFO
+command={python_bin} {manage_file} celery worker -B --loglevel=INFO --autoscale=10,3
 directory={app_dir}
 user={user}
 numprocs=1
