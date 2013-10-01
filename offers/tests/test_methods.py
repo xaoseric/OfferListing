@@ -363,6 +363,54 @@ class OfferMethodTests(TestCase):
 
         self.assertEqual(self.offer.comment_count(), 5)
 
+    def test_from_offer_update_copies_offer_update(self):
+        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+
+        offer_update.name = "New offer"
+        offer_update.content = "New content"
+
+        offer_update.planupdate_set.all().delete()
+        new_plans = mommy.make(PlanUpdate, offer=offer_update, _quantity=5)
+
+        self.offer.from_offer_update(offer_update)
+
+        offer = Offer.objects.get(pk=self.offer.pk)
+
+        self.assertEqual(offer.name, offer_update.name)
+        self.assertEqual(offer.content, offer_update.content)
+
+        self.assertEqual(offer.plan_set.count(), 5)
+
+    def test_from_offer_update_copies_offer_update_plan(self):
+        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+
+        offer_update.name = "New offer"
+        offer_update.content = "New content"
+
+        offer_update.planupdate_set.all().delete()
+        new_plan = mommy.make(PlanUpdate, offer=offer_update, cost=Decimal('20.49'))
+
+        self.offer.from_offer_update(offer_update)
+
+        offer = Offer.objects.get(pk=self.offer.pk)
+        plan = offer.plan_set.all()[0]
+
+        self.assertEqual(offer.name, offer_update.name)
+        self.assertEqual(offer.content, offer_update.content)
+
+        self.assertEqual(plan.bandwidth, new_plan.bandwidth)
+        self.assertEqual(plan.virtualization, new_plan.virtualization)
+        self.assertEqual(plan.location, new_plan.location)
+        self.assertEqual(plan.disk_space, new_plan.disk_space)
+        self.assertEqual(plan.memory, new_plan.memory)
+        self.assertEqual(plan.ipv4_space, new_plan.ipv4_space)
+        self.assertEqual(plan.ipv6_space, new_plan.ipv6_space)
+        self.assertEqual(plan.billing_time, new_plan.billing_time)
+        self.assertEqual(plan.url, new_plan.url)
+        self.assertEqual(plan.promo_code, new_plan.promo_code)
+        self.assertEqual(plan.cost, new_plan.cost)
+        self.assertEqual(plan.is_active, new_plan.is_active)
+
 
 class ProviderMethodTests(TestCase):
     def setUp(self):
