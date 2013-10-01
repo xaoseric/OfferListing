@@ -34,7 +34,7 @@ CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 CELERYBEAT_SCHEDULE = {
     'publish-offer-request': {
         'task': 'offers.tasks.publish_latest_offer',
-        'schedule': crontab(minute=0, hour=0),
+        'schedule': crontab(minute=0, hour=12),
     },
 }
 
@@ -46,7 +46,7 @@ ALLOWED_HOSTS = []
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'America/Chicago'
+TIME_ZONE = 'America/Fort_Wayne'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
