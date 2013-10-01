@@ -5,13 +5,20 @@ from django.core.files import File
 from django.conf import settings
 from django.contrib.auth.models import User
 import os
+from datetime import timedelta
 from decimal import Decimal
 
 
 class OfferMethodTests(TestCase):
 
     def setUp(self):
-        self.offer = mommy.make(Offer)
+        self.provider = mommy.make(Provider)
+
+        self.offer = mommy.make(Offer, provider=self.provider)
+
+        self.user = User.objects.create_user('user', 'test@example.com', 'pass')
+        self.user.user_profile.provider = self.provider
+        self.user.user_profile.save()
 
     def test_unicode_string(self):
         """
@@ -242,6 +249,98 @@ class OfferMethodTests(TestCase):
         self.offer.save()
 
         self.assertFalse(self.offer.offer_active())
+
+    def test_queue_position_gives_correct_position(self):
+        """
+        Test that queue_position gives the correct position based on when the offer was readied at
+        """
+        self.offer.delete()
+
+        offers = mommy.make(Offer, _quantity=5, status=Offer.UNPUBLISHED, is_ready=True, is_request=True)
+
+        offers[0].readied_at -= timedelta(days=5)
+        offers[1].readied_at -= timedelta(days=4)
+        offers[2].readied_at -= timedelta(days=3)
+        offers[3].readied_at -= timedelta(days=2)
+        offers[4].readied_at -= timedelta(days=1)
+
+        for offer in offers:
+            offer.save()
+
+        self.assertEqual(offers[0].queue_position(), 1)
+        self.assertEqual(offers[1].queue_position(), 2)
+        self.assertEqual(offers[2].queue_position(), 3)
+        self.assertEqual(offers[3].queue_position(), 4)
+        self.assertEqual(offers[4].queue_position(), 5)
+
+    def test_queue_position_with_invalid_offer(self):
+        """
+        Test that the queue position returns 0 for an invalid queue position
+        """
+
+        self.offer.is_ready = False
+        self.offer.save()
+
+        self.assertEqual(self.offer.queue_position(), 0)
+
+    def test_update_request_returns_update_if_it_exists(self):
+        """
+        Test that the method update_request returns the update offer if it exists
+        """
+        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
+
+        self.assertEqual(self.offer.update_request().pk, offer_update.pk)
+
+    def test_update_request_returns_false_if_not_exists(self):
+        """
+        Test that the method update_request returns false if the offer has no offer update
+        """
+        self.assertFalse(self.offer.update_request())
+
+    def test_get_plan_locations_gets_correct_unique_locations(self):
+        """
+        Test that the get plan locations methods gets the correct and unique locations of the plans
+        """
+
+        location1 = mommy.make(Location, provider=self.provider)
+        location2 = mommy.make(Location, provider=self.provider)
+        location3 = mommy.make(Location, provider=self.provider)
+
+        mommy.make(Plan, _quantity=5, location=location1, offer=self.offer)
+        mommy.make(Plan, _quantity=5, location=location2, offer=self.offer)
+        mommy.make(Plan, _quantity=5, location=location3, offer=self.offer)
+
+        locations = self.offer.get_plan_locations()
+
+        self.assertEqual(len(locations), 3)
+
+        self.assertIn(location1, locations)
+        self.assertIn(location2, locations)
+        self.assertIn(location3, locations)
+
+    def test_get_plan_locations_does_not_get_other_locations(self):
+        """
+        Test that the get plan locations methods gets the correct and unique locations of the plans
+        """
+
+        location1 = mommy.make(Location, provider=self.provider)
+        location2 = mommy.make(Location, provider=self.provider)
+        location3 = mommy.make(Location, provider=self.provider)
+
+        mommy.make(Plan, _quantity=5, location=location1, offer=self.offer)
+        mommy.make(Plan, _quantity=5, location=location2, offer=self.offer)
+        mommy.make(Plan, _quantity=5, location=location3, offer=self.offer)
+
+        # Fake locations
+        mommy.make(Plan, _quantity=10)
+
+        locations = self.offer.get_plan_locations()
+
+        self.assertEqual(len(locations), 3)
+
+        self.assertIn(location1, locations)
+        self.assertIn(location2, locations)
+        self.assertIn(location3, locations)
 
 
 class ProviderMethodTests(TestCase):
