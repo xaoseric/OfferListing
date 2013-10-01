@@ -611,7 +611,7 @@ class Comment(models.Model):
         if self.reply_to is None:
             return False
         else:
-            if self.reply_to.status == Comment.PUBLISHED:
+            if self.reply_to.status == Comment.PUBLISHED and self.reply_to.offer.status == Offer.PUBLISHED:
                 return True
             return False
 
