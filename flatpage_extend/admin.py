@@ -3,6 +3,11 @@ from django.contrib import admin
 from django.contrib.flatpages.models import FlatPage
 from django.db import models
 from django import forms
+from flatpage_extend.models import FlatpageNavbar
+
+
+class FlatpageInline(admin.StackedInline):
+    model = FlatpageNavbar
 
 
 class BetterFlatPageAdmin(FlatPageAdmin):
@@ -17,10 +22,14 @@ class BetterFlatPageAdmin(FlatPageAdmin):
         }),
     )
 
+    inlines = [
+        FlatpageInline
+    ]
+
     class Media:
         js = ('ckeditor/ckeditor.js',)
         css = {
-            'all': ('template_helpers/css/flatpages_css.css',),
+            'all': ('flat_page_static/css/flatpages_css.css',),
         }
 
 
