@@ -5,8 +5,10 @@ register = template.Library()
 
 
 @register.simple_tag
-def navigation_link(request, url, title, active_text='active'):
-    link = reverse(url)
+def navigation_link(request, url, title, active_text='active', reverse_url=True):
+    link = url
+    if reverse_url:
+        link = reverse(url)
     active = ''
     if request.path == link:
         active = active_text
