@@ -29,7 +29,7 @@ class BetterFlatPageAdmin(FlatPageAdmin):
     class Media:
         js = ('ckeditor/ckeditor.js',)
         css = {
-            'all': ('template_helpers/css/flatpages_css.css',),
+            'all': ('flat_page_static/css/flatpages_css.css',),
         }
 
 
