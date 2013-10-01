@@ -22,6 +22,8 @@
     },
 
     "other_settings": {
+        "piwik_url": "analytics.site.com",
+        "piwik_id": 1,
         "secret_key": "ENTER_SECRET_KEY",
         "email_host": "localhost",
         "email_host_user": "username",
