@@ -1,5 +1,6 @@
 {% load static %}
 {% load navigation_helpers %}
+{% load piwik_helper %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -117,5 +118,6 @@
       </script>
       {% block extra_js %}{% endblock %}
     </div>
+    {% load_piwik_tracking %}
   </body>
 </html>
