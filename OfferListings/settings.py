@@ -31,10 +31,12 @@ BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
 
+PUBLISH_SCHEDULE = crontab(minute=0, hour=12)
+
 CELERYBEAT_SCHEDULE = {
     'publish-offer-request': {
         'task': 'offers.tasks.publish_latest_offer',
-        'schedule': crontab(minute=0, hour=12),
+        'schedule': PUBLISH_SCHEDULE,
     },
 }
 
