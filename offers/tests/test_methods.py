@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 import os
 from datetime import timedelta
 from decimal import Decimal
+from django.utils.text import slugify
+from django.core.urlresolvers import reverse
 
 
 class OfferMethodTests(TestCase):
@@ -341,6 +343,12 @@ class OfferMethodTests(TestCase):
         self.assertIn(location1, locations)
         self.assertIn(location2, locations)
         self.assertIn(location3, locations)
+
+    def test_get_absolute_url_gets_slugified_url(self):
+        self.assertEqual(
+            self.offer.get_absolute_url(),
+            reverse('offer:view_slug', args=[self.offer.pk, slugify(self.offer.name)])
+        )
 
 
 class ProviderMethodTests(TestCase):
