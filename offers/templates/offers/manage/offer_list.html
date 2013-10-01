@@ -12,7 +12,7 @@
       <th>Plans</th>
       <th>Published or Created</th>
       <th>Status</th>
-      <th>Manage</th>
+      <th class="col-sm-2">Manage</th>
     </tr>
     {% for offer in offers %}
     <tr>
@@ -26,7 +26,7 @@
       <td>{{ offer.plan_count }}</td>
       <td>{{ offer.published_at }}</td>
       <td>{{ offer.get_status_display }}</td>
-      <td>
+      <td class="text-center">
         <div class="btn-group">
           <a class="btn btn-info" href="{% url 'offer:admin_offer' offer.pk %}">Edit</a>
           {% if offer.status == offer.PUBLISHED %}
