@@ -20,7 +20,7 @@ body {
 {% endblock %}
 
 {% block content %}
-  Hello {{ email_user.commenter.first_name }} {{ email_user.commenter.last_name }},
+  Hello {{ email_user.first_name }} {{ email_user.last_name }},
   <br><br>
   The user {{ comment.commenter.username }} has just commented on an offer you follow:
   <strong><a href="{{ site_url }}{{ comment.offer.get_absolute_url }}">{{ comment.offer.name }}</a></strong> at {{ comment.created_at }}.

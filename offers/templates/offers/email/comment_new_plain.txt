@@ -1,4 +1,4 @@
-Hello {{ email_user.commenter.first_name }} {{ email_user.commenter.last_name }},
+Hello {{ email_user.first_name }} {{ email_user.last_name }},
 
 The user {{ comment.commenter.username }} has just posted a comment on an offer you follow:
 {{ comment.offer.name }}

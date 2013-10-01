@@ -46,6 +46,10 @@ def send_comment_mail(comment_pk):
         return
 
     comment = Comment.objects.get(pk=comment_pk)
+
+    if comment.reply_to is None:
+        return
+
     context = {"comment": comment}
 
     message = advanced_render_to_string('offers/email/comment_reply.html', context)
