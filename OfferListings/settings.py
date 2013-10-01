@@ -114,6 +114,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -152,6 +153,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.humanize',
+    'django.contrib.sites',
+    'django.contrib.flatpages',
 
     # Packages
     'south',
@@ -169,6 +172,8 @@ INSTALLED_APPS = (
     'accounts',
     'template_helpers',
 )
+
+SITE_ID = 1
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 

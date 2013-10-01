@@ -63,3 +63,13 @@ admin.site.register(OfferUpdate, OfferUpdateAdmin)
 admin.site.register(Plan)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Location, LocationAdmin)
+
+# Celery
+from djcelery.models import (TaskState, WorkerState,
+                 PeriodicTask, IntervalSchedule, CrontabSchedule)
+
+admin.site.unregister(TaskState)
+admin.site.unregister(WorkerState)
+admin.site.unregister(IntervalSchedule)
+admin.site.unregister(CrontabSchedule)
+admin.site.unregister(PeriodicTask)
