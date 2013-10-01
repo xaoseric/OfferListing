@@ -155,3 +155,37 @@ class OfferSignalTests(TestCase):
         self.offer.save()
 
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_ready_up_updates_readied_at_time(self):
+        """
+        Test that changing the offer ready status from False to True updates the readied_at time
+        """
+        self.offer.is_ready = False
+        self.offer.save()
+
+        self.offer.readied_at = self.old_time
+        self.offer.save()
+
+        self.offer.is_ready = True
+        self.offer.save()
+
+        offer = Offer.objects.get(pk=self.offer.pk)
+
+        self.assertNotEqual(offer.readied_at, self.old_time)
+
+    def test_not_ready_up_does_not_update_readied_at_time(self):
+        """
+        Test that not changing the offer ready status does not update readied_at
+        """
+        self.offer.is_ready = False
+        self.offer.save()
+
+        self.offer.readied_at = self.old_time
+
+        # Save a couple of times
+        self.offer.save()
+        self.offer.save()
+
+        offer = Offer.objects.get(pk=self.offer.pk)
+
+        self.assertEqual(offer.readied_at, self.old_time)
