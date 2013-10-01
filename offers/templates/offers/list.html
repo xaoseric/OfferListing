@@ -1,11 +1,22 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load humanize %}
+{% load static %}
 
 {% block title %}Home{% endblock %}
 
 {% block page_title %}All offers{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'countdown/jquery.countdown.css' %}">
+{% endblock %}
+
 {% block content %}
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="next-offer-countdown">{{ next_offer_date | naturaltime }}</div>
+    </div>
+  </div>
   {% for offer in offers %}
     {% include 'offers/short_offer.html' with offer=offer %}
   {% endfor %}
@@ -19,4 +30,12 @@
     </a>
   </li>
 </ul>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'countdown/jquery.countdown.min.js' %}"></script>
+<script type="text/javascript">
+  var next_offer_release = new Date("{{ next_offer_date | date:"c" }}");
+  $(".next-offer-countdown").countdown({until: next_offer_release});
+</script>
 {% endblock %}

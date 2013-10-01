@@ -21,6 +21,9 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import logging
 from django_countries.countries import COUNTRIES
+from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +95,9 @@ def list_offers(request, page_number=1):
         # If page is out of range (e.g. 9999), deliver last page of results.
         offers = paginator.page(paginator.num_pages)
 
-    return render(request, 'offers/list.html', {"offers": offers})
+    next_offer = timezone.now() + timedelta(seconds=settings.PUBLISH_SCHEDULE.is_due(timezone.now())[1])
+
+    return render(request, 'offers/list.html', {"offers": offers, "next_offer_date": next_offer})
 
 
 def provider_list(request):
