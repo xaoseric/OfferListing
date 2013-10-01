@@ -152,6 +152,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.humanize',
+    'django.contrib.sites',
 
     # Packages
     'south',
@@ -169,6 +170,8 @@ INSTALLED_APPS = (
     'accounts',
     'template_helpers',
 )
+
+SITE_ID = 1
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
