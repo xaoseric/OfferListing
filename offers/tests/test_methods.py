@@ -382,6 +382,8 @@ class OfferMethodTests(TestCase):
         self.assertEqual(offer.plan_set.count(), 5)
 
     def test_from_offer_update_copies_offer_update_plan(self):
+        mommy.make(Plan, offer=self.offer, _quantity=5)
+
         offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
 
         offer_update.name = "New offer"
@@ -394,6 +396,7 @@ class OfferMethodTests(TestCase):
 
         offer = Offer.objects.get(pk=self.offer.pk)
         plan = offer.plan_set.all()[0]
+        self.assertEqual(offer.plan_set.count(), 1)
 
         self.assertEqual(offer.name, offer_update.name)
         self.assertEqual(offer.content, offer_update.content)
