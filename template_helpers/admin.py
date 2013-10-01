@@ -7,9 +7,9 @@ from django import forms
 
 class BetterFlatPageAdmin(FlatPageAdmin):
 
-    #formfield_overrides = {
-    #    models.TextField: {'widget': forms.Textarea(attrs={'class': 'ckeditor'})},
-    #}
+    formfield_overrides = {
+        models.TextField: {'widget': forms.Textarea(attrs={'class': 'ckeditor'})},
+    }
 
     fieldsets = (
         (None, {
@@ -19,6 +19,9 @@ class BetterFlatPageAdmin(FlatPageAdmin):
 
     class Media:
         js = ('ckeditor/ckeditor.js',)
+        css = {
+            'all': ('template_helpers/css/flatpages_css.css',),
+        }
 
 
 admin.site.unregister(FlatPage)
