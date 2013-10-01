@@ -364,6 +364,9 @@ class OfferMethodTests(TestCase):
         self.assertEqual(self.offer.comment_count(), 5)
 
     def test_from_offer_update_copies_offer_update(self):
+        """
+        Test that the from offer method correctly copies across offer data
+        """
         offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
 
         offer_update.name = "New offer"
@@ -382,6 +385,9 @@ class OfferMethodTests(TestCase):
         self.assertEqual(offer.plan_set.count(), 5)
 
     def test_from_offer_update_copies_offer_update_plan(self):
+        """
+        Test that the from offer method correctly copies across offer data
+        """
         mommy.make(Plan, offer=self.offer, _quantity=5)
 
         offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
@@ -414,6 +420,26 @@ class OfferMethodTests(TestCase):
         self.assertEqual(plan.cost, new_plan.cost)
         self.assertEqual(plan.is_active, new_plan.is_active)
 
+    def test_active_plan_count_returns_correct_values_with_active_offer(self):
+        """
+        Test that the active plan count method returns the correct plan count value
+        """
+        mommy.make(Plan, offer=self.offer, is_active=True, _quantity=5)
+        mommy.make(Plan, offer=self.offer, is_active=False, _quantity=5)
+
+        self.assertEqual(self.offer.active_plan_count(), 5)
+
+    def test_active_plan_count_with_inactive_offer_returns_zero(self):
+        """
+        Test that the active plan count method returns zero if the offer is inactive
+        """
+        mommy.make(Plan, offer=self.offer, is_active=True, _quantity=5)
+        mommy.make(Plan, offer=self.offer, is_active=False, _quantity=5)
+
+        self.offer.is_active = False
+        self.offer.save()
+
+        self.assertEqual(self.offer.active_plan_count(), 0)
 
 class ProviderMethodTests(TestCase):
     def setUp(self):
