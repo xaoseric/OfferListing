@@ -67,7 +67,7 @@
               {% navigation_link request 'offer:superuser_approve_updates' 'Offer Updates' %}
             {% endif %}
             {% for page in flatpages %}
-              {% navigation_link request page.url page.title reverse_url=False %}
+              {% navigation_link request page.url page.flatpagenavbar.navbar_name reverse_url=False %}
             {% endfor %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
