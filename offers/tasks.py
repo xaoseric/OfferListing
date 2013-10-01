@@ -89,7 +89,7 @@ def send_new_comment_followers_mail(comment_pk, user_pk=None):
             subject='New reply to your comment',
             message=message,
             message_plain=message_plain,
-            to=comment.commenter.email
+            to=user.email,
         ).apply_async(countdown=countdown)
 
 
