@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'offers',
     'accounts',
     'template_helpers',
+    'flatpage_extend',
 )
 
 SITE_ID = 1
