@@ -131,6 +131,21 @@ class OfferSignalTests(TestCase):
 
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_republishing_an_offer_sends_no_emails(self):
+        """
+        Test that republishing an offer (saving it twice) will not send an email
+        """
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        # Empty outbox
+        mail.outbox = []
+
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        self.assertEqual(len(mail.outbox), 0)
+
     def test_publishing_an_offer_request_sends_no_emails(self):
         """
         Test that publishing an an offer which is a request will not send an email
