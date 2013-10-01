@@ -35,7 +35,7 @@
 {% block extra_js %}
 <script src="{% static 'countdown/jquery.countdown.min.js' %}"></script>
 <script type="text/javascript">
-  var newYear = new Date();
-  $(".next-offer-countdown").countdown({until: new Date(newYear.getFullYear() + 1, 1 - 1, 1)});
+  var next_offer_release = new Date("{{ next_offer_date | date:"c" }}");
+  $(".next-offer-countdown").countdown({until: next_offer_release});
 </script>
 {% endblock %}
