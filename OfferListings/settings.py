@@ -257,3 +257,6 @@ try:
     from local_settings import *
 except ImportError:
     pass
+
+if IS_TEST:
+    from test_settings import *

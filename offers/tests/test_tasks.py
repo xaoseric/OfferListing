@@ -8,7 +8,6 @@ from django.core import mail
 from datetime import timedelta
 
 
-@override_settings(CELERY_ALWAYS_EAGER=True, CELERY_EAGER_PROPAGATES_EXCEPTIONS=True)
 class OfferTaskTests(TestCase):
 
     def setUp(self):
