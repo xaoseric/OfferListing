@@ -345,10 +345,23 @@ class OfferMethodTests(TestCase):
         self.assertIn(location3, locations)
 
     def test_get_absolute_url_gets_slugified_url(self):
+        """
+        Test that the get_absolute_url method of an offer returns the slug version of the url
+        """
         self.assertEqual(
             self.offer.get_absolute_url(),
             reverse('offer:view_slug', args=[self.offer.pk, slugify(self.offer.name)])
         )
+
+    def test_comment_count_gets_correct_comment_count(self):
+        """
+        Test comment_count only gives the number of published comments
+        """
+        mommy.make(Comment,_quantity=5, offer=self.offer, status=Comment.PUBLISHED)
+        mommy.make(Comment,_quantity=5, offer=self.offer, status=Comment.UNPUBLISHED)
+        mommy.make(Comment,_quantity=5, offer=self.offer, status=Comment.DELETED)
+
+        self.assertEqual(self.offer.comment_count(), 5)
 
 
 class ProviderMethodTests(TestCase):
