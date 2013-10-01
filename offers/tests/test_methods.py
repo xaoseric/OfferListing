@@ -217,6 +217,33 @@ class OfferMethodTests(TestCase):
         self.assertEqual(min_max[1]["max"], Decimal('208.30'))
         self.assertFalse(min_max[1]["same"])
 
+    def test_offer_active_gives_correct_offer_for_active_offer(self):
+        """
+        Test that the offer_active method returns true for an active offer
+        """
+        self.offer.is_active = True
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        self.assertTrue(self.offer.offer_active())
+
+    def test_offer_active_gives_result_for_inactive_offer(self):
+        """
+        Test that the offer_active method returns false for an inactive offer
+        """
+        self.offer.is_active = False
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        self.assertFalse(self.offer.offer_active())
+
+        self.offer.is_active = True
+        self.offer.status = Offer.UNPUBLISHED
+        self.offer.save()
+
+        self.assertFalse(self.offer.offer_active())
+
+
 class ProviderMethodTests(TestCase):
     def setUp(self):
         self.provider = mommy.make(Provider)
