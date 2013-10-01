@@ -39,7 +39,7 @@ class OfferTaskTests(TestCase):
         """
         Test that the publish_offer task does nothing with an invalid (unpublished) offer
         """
-        self.offer.status = Offer.UNPUBLISHED
+        self.offer.is_request = True
         self.offer.save()
 
         self.assertEqual(self.offer.followers.count(), 0)
