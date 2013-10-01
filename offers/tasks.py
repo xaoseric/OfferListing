@@ -108,7 +108,7 @@ def publish_latest_offer():
 
 @task
 def publish_offer(offer_pk):
-    offers = Offer.objects.filter(pk=offer_pk, is_request=False, status=Offer.PUBLISHED)
+    offers = Offer.objects.filter(pk=offer_pk, is_request=False)
     if not offers.exists():
         return
 

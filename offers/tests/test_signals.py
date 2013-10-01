@@ -1,13 +1,23 @@
 from django.test import TestCase
-from offers.models import Offer
+from offers.models import Offer, Provider
 from model_mommy import mommy
 from django.utils import timezone
 from datetime import timedelta
+from django.core import mail
+from django.contrib.auth.models import User
 
 
 class OfferSignalTests(TestCase):
     def setUp(self):
-        self.offer = mommy.make(Offer)
+        self.provider = mommy.make(Provider)
+        self.user = User.objects.create_user('user', 'test@example.com', 'pass')
+        self.user.user_profile.provider = self.provider
+        self.user.first_name = "Joe"
+        self.user.last_name = "Short"
+        self.user.user_profile.save()
+        self.user.save()
+
+        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
         self.old_time = timezone.now() - timedelta(days=30)
 
     def test_adds_published_date_on_create(self):
@@ -90,3 +100,43 @@ class OfferSignalTests(TestCase):
 
         offer = Offer.objects.get(pk=self.offer.pk)
         self.assertEqual(offer.published_at, self.old_time)
+
+    def test_publishing_an_offer_sends_out_emails(self):
+        """
+        Test that publishing an offer will send an email to the provider managers
+        """
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to[0], self.user.email)
+
+        self.assertIn(self.user.first_name, mail.outbox[0].body)
+        self.assertIn(self.user.last_name, mail.outbox[0].body)
+        self.assertIn(self.offer.get_absolute_url(), mail.outbox[0].body)
+        self.assertIn(self.offer.name, mail.outbox[0].body)
+
+    def test_unpublishing_an_offer_sends_no_emails(self):
+        """
+        Test that unpublishing an offer will not send an email
+        """
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        # Empty outbox
+        mail.outbox = []
+
+        self.offer.status = Offer.UNPUBLISHED
+        self.offer.save()
+
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_publishing_an_offer_request_sends_no_emails(self):
+        """
+        Test that publishing an an offer which is a request will not send an email
+        """
+        self.offer.status = Offer.PUBLISHED
+        self.offer.is_request = True
+        self.offer.save()
+
+        self.assertEqual(len(mail.outbox), 0)
