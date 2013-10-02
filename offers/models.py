@@ -47,16 +47,12 @@ class OfferVisibleManager(models.Manager):
         return self.get_query_set().filter(provider=provider)
 
 
-class OfferActiveManager(models.Manager):
+class OfferActiveManager(OfferVisibleManager):
     """
     Only gets the active offers (offers which are published and have the active status)
     """
     def get_query_set(self):
-        return super(OfferActiveManager, self).get_query_set().filter(
-            status=Offer.PUBLISHED,
-            is_active=True,
-            is_request=False,
-        )
+        return super(OfferActiveManager, self).get_query_set().filter(is_active=True)
 
     def for_provider(self, provider):
         """
