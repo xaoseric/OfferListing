@@ -20,7 +20,7 @@
         {# Country List #}
         <div class="form-group">
           <label for="countrySelect">Country</label>
-          <select class="form-control" id="countrySelect">
+          <select class="form-control" id="countrySelect" multiple="multiple">
             <option value="ALL">Any Country</option>
             {% for country in countries %}
             <option value="{{ country.0 }}">{{ country.1 }}</option>
@@ -31,7 +31,7 @@
         {# Provider List #}
         <div class="form-group">
           <label for="providerSelect">Provider</label>
-          <select class="form-control" id="providerSelect">
+          <select class="form-control" id="providerSelect" multiple="multiple">
             <option value="ALL">Any Provider</option>
             {% for provider in providers %}
             <option value="{{ provider.pk }}">{{ provider.name }}</option>
@@ -42,7 +42,7 @@
         {# Datacenter List #}
         <div class="form-group">
           <label for="datacenterSelect">Datacenter</label>
-          <select class="form-control" id="datacenterSelect">
+          <select class="form-control" id="datacenterSelect" multiple="multiple">
             <option value="ALL">Any Datacenter</option>
             {% for datacenter in datacenters %}
             <option value="{{ datacenter.pk }}">{{ datacenter.name }}</option>
@@ -53,7 +53,7 @@
         {# Billing Time #}
         <div class="form-group">
           <label for="billingSelect">Billing Period</label>
-          <select class="form-control" id="billingSelect">
+          <select class="form-control" id="billingSelect" multiple="multiple">
             <option value="ALL">Any Billing Time</option>
             {% for billing_time in billing_times %}
             <option value="{{ billing_time.0 }}">{{ billing_time.1 }}</option>
