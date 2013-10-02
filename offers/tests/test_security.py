@@ -141,12 +141,14 @@ class ProviderOnlyAccess(TestCase):
         """
         Test that a user can not view a page with an offer that is not theirs
         """
+        if not self.offer_only:
+            return
+
         self.offer = mommy.make(Offer)
 
         response = self.client.get(self._url(), follow=True)
         self.assertEqual(len(response.redirect_chain), 0)  # No redirects
         self.assertEqual(response.status_code, 404)  # Page did 404
-
 
 
 class RequestEditTest(ProviderOnlyAccess):
@@ -155,3 +157,35 @@ class RequestEditTest(ProviderOnlyAccess):
 
     def get_url(self, offer, plan):
         return reverse('offer:admin_request_edit', args=[offer.pk])
+
+
+class RequestMarkTest(ProviderOnlyAccess):
+    def setUp(self):
+        self.offer_only = True
+
+    def get_url(self, offer, plan):
+        return reverse('offer:admin_request_mark', args=[offer.pk])
+
+    def test_can_view_page_with_correct_permissions(self):
+        """
+        Test that a correctly authenticated provider can view the page
+        """
+
+        response = self.client.get(self._url(), follow=True)
+        self.assertRedirects(response, reverse('offer:admin_requests'))
+
+
+class RequestDeleteTest(ProviderOnlyAccess):
+    def setUp(self):
+        self.offer_only = True
+
+    def get_url(self, offer, plan):
+        return reverse('offer:admin_request_delete', args=[offer.pk])
+
+
+class RequestNewTest(ProviderOnlyAccess):
+    def setUp(self):
+        self.offer_only = False
+
+    def get_url(self, offer, plan):
+        return reverse('offer:admin_request_new')
