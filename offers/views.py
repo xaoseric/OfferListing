@@ -275,9 +275,7 @@ def admin_provider_offer_list(request):
 
 @user_is_provider
 def admin_provider_offer_edit(request, offer_pk):
-    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
-        return HttpResponseNotFound("Offer was not found!")
-    offer = Offer.not_requests.get(pk=offer_pk)
+    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
     plans = offer.plan_set.all()
 
     return render(request, 'offers/manage/edit_offer.html', {
@@ -288,9 +286,7 @@ def admin_provider_offer_edit(request, offer_pk):
 
 @user_is_provider
 def admin_provider_offer_mark(request, offer_pk):
-    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
-        return HttpResponseNotFound("Offer was not found!")
-    offer = Offer.not_requests.get(pk=offer_pk)
+    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
 
     offer.is_active = not offer.is_active
     offer.save()
@@ -300,13 +296,8 @@ def admin_provider_offer_mark(request, offer_pk):
 
 @user_is_provider
 def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
-    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
-        return HttpResponseNotFound("Offer was not found!")
-    offer = Offer.not_requests.get(pk=offer_pk)
-
-    if not offer.plan_set.filter(pk=plan_pk).exists():
-        return HttpResponseNotFound("Plan was not found!")
-    plan = offer.plan_set.get(pk=plan_pk)
+    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
+    plan = get_object_or_404(offer.plan_set.all(), pk=plan_pk)
 
     plan.is_active = not plan.is_active
     plan.save()
@@ -316,10 +307,7 @@ def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
 
 @user_is_provider
 def admin_provider_update_offer(request, offer_pk):
-    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
-        return HttpResponseNotFound("Offer was not found!")
-
-    offer = Offer.not_requests.get(pk=offer_pk)
+    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
     offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
 
     if request.method == "POST":
@@ -346,9 +334,7 @@ def admin_provider_update_offer(request, offer_pk):
 
 @user_is_provider
 def admin_provider_update_offer_mark(request, offer_pk):
-    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
-        return HttpResponseNotFound("Offer was not found!")
-    offer = Offer.not_requests.get(pk=offer_pk)
+    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
     offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
 
     offer_update.ready = not offer_update.ready
@@ -359,9 +345,7 @@ def admin_provider_update_offer_mark(request, offer_pk):
 
 @user_is_provider
 def admin_provider_update_delete_confirm(request, offer_pk):
-    if not Offer.not_requests.filter(pk=offer_pk, provider=request.user.user_profile.provider).exists():
-        return HttpResponseNotFound("Offer was not found!")
-    offer = Offer.not_requests.get(pk=offer_pk)
+    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
     offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
 
     if request.GET.get('delete', False):

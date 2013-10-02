@@ -32,6 +32,9 @@ class OfferNotRequestManager(models.Manager):
         """
         return self.get_query_set().filter(provider=provider)
 
+    def for_user(self, user):
+        return self.for_provider(user.user_profile.provider)
+
 
 class OfferVisibleManager(models.Manager):
     """
