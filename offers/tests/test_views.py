@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Comment, Provider, Plan, Location, TestDownload, TestIP
+from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter, TestDownload, TestIP
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -1338,7 +1338,8 @@ class ProviderLocationEditViewTests(WebTest):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
-        self.location = mommy.make(Location, provider=self.provider)
+        self.datacenter = mommy.make(Datacenter)
+        self.location = mommy.make(Location, provider=self.provider, datacenter=self.datacenter)
         self.ips = mommy.make(TestIP, _quantity=2, location=self.location, ip='127.0.0.1')
         self.downloads = mommy.make(TestDownload, _quantity=2, location=self.location, url='http://example.com/big.zip')
 
@@ -1357,7 +1358,7 @@ class ProviderLocationEditViewTests(WebTest):
 
         self.assertEqual(form["city"].value, self.location.city)
         self.assertEqual(form["country"].value, self.location.country)
-        self.assertEqual(form["datacenter"].value, self.location.datacenter)
+        self.assertEqual(form["datacenter"].value, str(self.datacenter.pk))
 
         self.assertEqual(form["test_ips-0-ip"].value, self.ips[0].ip)
         self.assertEqual(form["test_ips-0-ip_type"].value, self.ips[0].ip_type)
@@ -1379,13 +1380,15 @@ class ProviderLocationEditViewTests(WebTest):
         self.assertEqual(TestIP.objects.count(), 2)
         self.assertEqual(TestDownload.objects.count(), 2)
 
+        new_data_center = mommy.make(Datacenter)
+
         response = self.app.get(reverse('offer:admin_location_edit', args=[self.location.pk]), user=self.user)
 
         form = response.form
 
         form["city"] = "New City"
         form["country"] = "US"
-        form["datacenter"] = "OldTech"
+        form["datacenter"] = new_data_center.pk
 
         form["test_ips-0-ip"] = "192.168.1.1"
 
@@ -1400,7 +1403,7 @@ class ProviderLocationEditViewTests(WebTest):
 
         self.assertEqual(location.city, "New City")
         self.assertEqual(location.country, "US")
-        self.assertEqual(location.datacenter, "OldTech")
+        self.assertEqual(location.datacenter, new_data_center)
 
         self.assertEqual(ip.ip, "192.168.1.1")
         self.assertEqual(download.url, "http://example.com/test_file.zip")
@@ -1425,7 +1428,7 @@ class ProviderLocationEditViewTests(WebTest):
 
         form["city"] = ""  # Empty form
         form["country"] = "US"
-        form["datacenter"] = "OldTech"
+        form["datacenter"] = self.datacenter.pk
 
         response = form.submit()
         self.assertContains(response, 'This field is required.')
