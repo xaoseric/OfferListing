@@ -67,11 +67,6 @@ function filterPlans(){
         "format": "json"
     };
 
-    var country = $("#countrySelect");
-    var provider = $("#providerSelect");
-    var datacenter = $("#datacenterSelect");
-    var billing = $("#billingSelect");
-
     var memMin = $("#planMemMin");
     var memMax = $("#planMemMax");
 
@@ -92,24 +87,31 @@ function filterPlans(){
 
     var ordering = $("#orderingSelect");
 
-    // Country
-    if (country.val() != "ALL"){
-        urlOptions["location__country"] = country.val();
-    }
+    var multi_fields = [
+        {
+            selector: $("#countrySelect"),
+            api: "location__country"
+        },
+        {
+            selector: $("#providerSelect"),
+            api: "offer__provider__id"
+        },
+        {
+            selector: $("#billingSelect"),
+            api: "billing_time"
+        },
+        {
+            selector: $("#datacenterSelect"),
+            api: "location__datacenter__id"
+        }
+    ];
 
-    // Provider
-    if (provider.val() != "ALL"){
-        urlOptions["offer__provider__id"] = provider.val();
-    }
-
-    // Datacenter
-    if (datacenter.val() != "ALL"){
-        urlOptions["location__datacenter__id"] = datacenter.val();
-    }
-
-    // Billing
-    if (billing.val() != "ALL"){
-        urlOptions["billing_time"] = billing.val();
+    // Go through all the multi choice fields
+    for (var select_counter = 0; select_counter < multi_fields.length; select_counter++){
+        var select_field = multi_fields[select_counter];
+        if (select_field.selector.val() != null){
+            urlOptions[select_field.api + "__in"] = select_field.selector.val().join(',');
+        }
     }
 
     // Memory

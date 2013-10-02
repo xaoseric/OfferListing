@@ -20,8 +20,7 @@
         {# Country List #}
         <div class="form-group">
           <label for="countrySelect">Country</label>
-          <select class="form-control" id="countrySelect">
-            <option value="ALL">Any Country</option>
+          <select data-placeholder="Filter countries ..." class="form-control" id="countrySelect" multiple="multiple">
             {% for country in countries %}
             <option value="{{ country.0 }}">{{ country.1 }}</option>
             {% endfor %}
@@ -31,8 +30,7 @@
         {# Provider List #}
         <div class="form-group">
           <label for="providerSelect">Provider</label>
-          <select class="form-control" id="providerSelect">
-            <option value="ALL">Any Provider</option>
+          <select data-placeholder="Filter providers ..." class="form-control" id="providerSelect" multiple="multiple">
             {% for provider in providers %}
             <option value="{{ provider.pk }}">{{ provider.name }}</option>
             {% endfor %}
@@ -42,8 +40,7 @@
         {# Datacenter List #}
         <div class="form-group">
           <label for="datacenterSelect">Datacenter</label>
-          <select class="form-control" id="datacenterSelect">
-            <option value="ALL">Any Datacenter</option>
+          <select data-placeholder="Filter datacenters ..." class="form-control" id="datacenterSelect" multiple="multiple">
             {% for datacenter in datacenters %}
             <option value="{{ datacenter.pk }}">{{ datacenter.name }}</option>
             {% endfor %}
@@ -53,8 +50,7 @@
         {# Billing Time #}
         <div class="form-group">
           <label for="billingSelect">Billing Period</label>
-          <select class="form-control" id="billingSelect">
-            <option value="ALL">Any Billing Time</option>
+          <select data-placeholder="Filter billing periods ..." class="form-control" id="billingSelect" multiple="multiple">
             {% for billing_time in billing_times %}
             <option value="{{ billing_time.0 }}">{{ billing_time.1 }}</option>
             {% endfor %}
@@ -191,8 +187,17 @@
 
 {% block extra_js %}
 <script type="text/javascript" src="{% static 'offers/js/plan_finder.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'chosen/chosen.jquery.min.js' %}"></script>
+<script type="text/javascript">
+  $("#countrySelect").chosen();
+  $("#providerSelect").chosen();
+  $("#datacenterSelect").chosen();
+  $("#billingSelect").chosen();
+</script>
 {% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'offers/css/offers_style.css' %}">
+<link rel="stylesheet" href="{% static 'chosen/chosen.css' %}">
+<link rel="stylesheet" href="{% static 'offers/css/plan_finder_style.css' %}">
 {% endblock %}
