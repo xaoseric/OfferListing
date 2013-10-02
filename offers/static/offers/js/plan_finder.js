@@ -105,14 +105,12 @@ function filterPlans(){
             api: "location__datacenter__id"
         }
     ];
-    // Make sure the param is proper
-    jQuery.ajaxSettings.traditional = true;
 
     // Go through all the multi choice fields
     for (var select_counter = 0; select_counter < multi_fields.length; select_counter++){
         var select_field = multi_fields[select_counter];
         if (select_field.selector.val() != null){
-            urlOptions[select_field.api + "__in"] = select_field.selector.val();
+            urlOptions[select_field.api + "__in"] = select_field.selector.val().join(',');
         }
     }
 
