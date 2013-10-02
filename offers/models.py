@@ -72,7 +72,7 @@ class OfferRequestManager(models.Manager):
         return self.get_query_set().filter(provider=provider)
 
     def for_user(self, user):
-        return self.get_query_set().filter(provider=user.user_profile.provider)
+        return self.for_provider(user.user_profile.provider)
 
 
 class ActivePlanManager(models.Manager):

@@ -222,11 +222,7 @@ def admin_edit_request(request, offer_pk):
 
 @user_is_provider
 def admin_provider_requests(request):
-    requests = Offer.objects.filter(
-        status=Offer.UNPUBLISHED,
-        provider=request.user.user_profile.provider,
-        is_request=True,
-    ).order_by(
+    requests = Offer.requests.for_user(request.user).order_by(
         '-created_at'
     )
 
@@ -236,11 +232,8 @@ def admin_provider_requests(request):
 @user_is_provider
 def admin_mark_request(request, offer_pk):
     offer = get_object_or_404(
-        Offer,
+        Offer.requests.for_user(request.user),
         pk=offer_pk,
-        status=Offer.UNPUBLISHED,
-        provider=request.user.user_profile.provider,
-        is_request=True,
     )
 
     offer.is_ready = not offer.is_ready
@@ -257,11 +250,8 @@ def admin_mark_request(request, offer_pk):
 @user_is_provider
 def admin_provider_delete_confirm(request, offer_pk):
     offer = get_object_or_404(
-        Offer,
+        Offer.requests.for_user(request.user),
         pk=offer_pk,
-        status=Offer.UNPUBLISHED,
-        provider=request.user.user_profile.provider,
-        is_request=True,
     )
 
     if request.GET.get('delete', False):
