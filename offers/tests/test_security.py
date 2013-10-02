@@ -89,7 +89,7 @@ class ProviderOnlyAccess(TestCase):
 
         response = self.client.get(self._url(), follow=True)
         self.assertEqual(len(response.redirect_chain), 0)  # No redirects
-        self.assertEqual(response.status_code, 404)  # Page did not 404
+        self.assertEqual(response.status_code, 404)  # Page did 404
 
     def test_can_not_view_page_with_wrong_offer(self):
         """
@@ -103,12 +103,9 @@ class ProviderOnlyAccess(TestCase):
 
         self.offer.delete()
 
-        self.user.user_profile.provider = mommy.make(Provider)
-        self.user.user_profile.save()
-
         response = self.client.get(url, follow=True)
         self.assertEqual(len(response.redirect_chain), 0)  # No redirects
-        self.assertEqual(response.status_code, 404)  # Page did not 404
+        self.assertEqual(response.status_code, 404)  # Page did 404
 
     def test_can_not_view_page_with_published_offer(self):
         """
@@ -121,12 +118,9 @@ class ProviderOnlyAccess(TestCase):
         self.offer.status = Offer.PUBLISHED
         self.offer.save()
 
-        self.user.user_profile.provider = mommy.make(Provider)
-        self.user.user_profile.save()
-
         response = self.client.get(self._url(), follow=True)
         self.assertEqual(len(response.redirect_chain), 0)  # No redirects
-        self.assertEqual(response.status_code, 404)  # Page did not 404
+        self.assertEqual(response.status_code, 404)  # Page did 404
 
     def test_can_not_view_page_with_not_request_offer(self):
         """
@@ -139,12 +133,20 @@ class ProviderOnlyAccess(TestCase):
         self.offer.is_request = False
         self.offer.save()
 
-        self.user.user_profile.provider = mommy.make(Provider)
-        self.user.user_profile.save()
+        response = self.client.get(self._url(), follow=True)
+        self.assertEqual(len(response.redirect_chain), 0)  # No redirects
+        self.assertEqual(response.status_code, 404)  # Page did 404
+
+    def test_can_not_view_page_with_different_offer(self):
+        """
+        Test that a user can not view a page with an offer that is not theirs
+        """
+        self.offer = mommy.make(Offer)
 
         response = self.client.get(self._url(), follow=True)
         self.assertEqual(len(response.redirect_chain), 0)  # No redirects
-        self.assertEqual(response.status_code, 404)  # Page did not 404
+        self.assertEqual(response.status_code, 404)  # Page did 404
+
 
 
 class RequestEditTest(ProviderOnlyAccess):
