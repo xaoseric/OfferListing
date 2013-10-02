@@ -29,19 +29,40 @@ class ProviderOnlyAccess(TestCase):
         self.offer_only = False
 
     def setUp(self):
-        self.url = reverse('offer:admin_requests')
         self.offer_only = False
 
+    def get_url(self, offer, plan):
+        return reverse('offer:admin_requests')
+
+    def _url(self, offer=None, plan=None):
+        if offer is None:
+            offer = self.offer
+
+        if plan is None:
+            plan = self.plan
+
+        return self.get_url(offer, plan)
+
     def login_url(self):
-        return reverse('login') + '?next=' + self.url
+        return reverse('login') + '?next=' + self._url()
 
     def test_can_view_page_with_correct_permissions(self):
         """
         Test that a correctly authenticated provider can view the page
         """
 
-        response = self.client.get(self.url, follow=True)
+        response = self.client.get(self._url(), follow=True)
         self.assertEqual(len(response.redirect_chain), 0)  # No redirects
+        self.assertEqual(response.status_code, 200)  # Page did not 404
+
+    def test_logged_out_user_can_not_view_page(self):
+        """
+        Test that a logged out user can not view the page
+        """
+        self.client.logout()
+
+        response = self.client.get(self._url(), follow=True)
+        self.assertRedirects(response, self.login_url())
         self.assertEqual(response.status_code, 200)  # Page did not 404
 
     def test_can_not_view_page_with_no_provider(self):
@@ -51,17 +72,7 @@ class ProviderOnlyAccess(TestCase):
         self.user.user_profile.provider = None
         self.user.user_profile.save()
 
-        response = self.client.get(self.url, follow=True)
-        self.assertRedirects(response, self.login_url())
-        self.assertEqual(response.status_code, 200)  # Page did not 404
-
-    def test_logged_out_user_can_not_view_page(self):
-        """
-        Test that a logged out user can not view the page
-        """
-        self.client.logout()
-
-        response = self.client.get(self.url, follow=True)
+        response = self.client.get(self._url(), follow=True)
         self.assertRedirects(response, self.login_url())
         self.assertEqual(response.status_code, 200)  # Page did not 404
 
@@ -76,12 +87,69 @@ class ProviderOnlyAccess(TestCase):
         self.user.user_profile.provider = mommy.make(Provider)
         self.user.user_profile.save()
 
-        response = self.client.get(self.url, follow=True)
+        response = self.client.get(self._url(), follow=True)
+        self.assertEqual(len(response.redirect_chain), 0)  # No redirects
+        self.assertEqual(response.status_code, 404)  # Page did not 404
+
+    def test_can_not_view_page_with_wrong_offer(self):
+        """
+        Test that the user can not view the page if the offer does not exist
+        """
+
+        if not self.offer_only:
+            return
+
+        url = self._url()
+
+        self.offer.delete()
+
+        self.user.user_profile.provider = mommy.make(Provider)
+        self.user.user_profile.save()
+
+        response = self.client.get(url, follow=True)
+        self.assertEqual(len(response.redirect_chain), 0)  # No redirects
+        self.assertEqual(response.status_code, 404)  # Page did not 404
+
+    def test_can_not_view_page_with_published_offer(self):
+        """
+        Test that the user can not view the page if the offer is published
+        """
+
+        if not self.offer_only:
+            return
+
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        self.user.user_profile.provider = mommy.make(Provider)
+        self.user.user_profile.save()
+
+        response = self.client.get(self._url(), follow=True)
+        self.assertEqual(len(response.redirect_chain), 0)  # No redirects
+        self.assertEqual(response.status_code, 404)  # Page did not 404
+
+    def test_can_not_view_page_with_not_request_offer(self):
+        """
+        Test that the user can not view the page if the offer is not a request
+        """
+
+        if not self.offer_only:
+            return
+
+        self.offer.is_request = False
+        self.offer.save()
+
+        self.user.user_profile.provider = mommy.make(Provider)
+        self.user.user_profile.save()
+
+        response = self.client.get(self._url(), follow=True)
         self.assertEqual(len(response.redirect_chain), 0)  # No redirects
         self.assertEqual(response.status_code, 404)  # Page did not 404
 
 
 class RequestEditTest(ProviderOnlyAccess):
     def setUp(self):
-        self.url = reverse('offer:admin_request_edit', args=[self.offer.pk])
         self.offer_only = True
+
+    def get_url(self, offer, plan):
+        return reverse('offer:admin_request_edit', args=[offer.pk])
