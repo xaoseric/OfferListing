@@ -61,6 +61,20 @@ class OfferActiveManager(OfferVisibleManager):
         return self.get_query_set().filter(provider=provider)
 
 
+class OfferRequestManager(models.Manager):
+    def get_query_set(self):
+        return super(OfferRequestManager, self).get_query_set().filter(
+            status=Offer.UNPUBLISHED,
+            is_request=True,
+        )
+
+    def for_provider(self, provider):
+        return self.get_query_set().filter(provider=provider)
+
+    def for_user(self, user):
+        return self.get_query_set().filter(provider=user.user_profile.provider)
+
+
 class ActivePlanManager(models.Manager):
     """
     A plan manager that only gets active plans
@@ -252,6 +266,7 @@ class Offer(OfferBase):
 
     objects = models.Manager()
     not_requests = OfferNotRequestManager()
+    requests = OfferRequestManager()
 
     is_request = models.BooleanField(default=False)
 

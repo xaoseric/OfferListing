@@ -194,11 +194,8 @@ def admin_submit_request(request):
 @user_is_provider
 def admin_edit_request(request, offer_pk):
     offer = get_object_or_404(
-        Offer,
+        Offer.requests.for_user(request.user),
         pk=offer_pk,
-        status=Offer.UNPUBLISHED,
-        provider=request.user.user_profile.provider,
-        is_request=True,
     )
     if request.method == "POST":
         form = OfferForm(request.POST, instance=offer)
