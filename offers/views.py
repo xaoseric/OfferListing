@@ -33,7 +33,7 @@ def view_offer(request, offer_pk, slug=None):
     The view that displays an offer. This view is only accessible if the offer exists and the offer status
     is published. It is still possible to view an inactive offer.
     """
-    offer = get_object_or_404(Offer, status=Offer.PUBLISHED, pk=offer_pk, is_request=False)
+    offer = get_object_or_404(Offer.visible_offers, pk=offer_pk)
 
     if request.method == "POST":
         form = CommentForm(request.POST)
