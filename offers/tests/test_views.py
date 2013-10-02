@@ -1225,6 +1225,8 @@ class ProviderLocationNewViewTests(WebTest):
         self.user.user_profile.provider = self.provider
         self.user.user_profile.save()
 
+        self.datacenter = mommy.make(Datacenter)
+
     def test_can_view_new_provider_page(self):
         """
         Test that a user can view the new provider page
@@ -1249,7 +1251,7 @@ class ProviderLocationNewViewTests(WebTest):
 
         form["city"] = "New York"
         form["country"] = "US"
-        form["datacenter"] = "NewTech"
+        form["datacenter"] = self.datacenter.pk
         form.submit()
 
         self.assertEqual(Location.objects.count(), 1)
@@ -1260,7 +1262,7 @@ class ProviderLocationNewViewTests(WebTest):
 
         self.assertEqual(location.city, "New York")
         self.assertEqual(location.country, "US")
-        self.assertEqual(location.datacenter, "NewTech")
+        self.assertEqual(location.datacenter, self.datacenter)
 
     def test_can_not_add_location_with_incorrect_details(self):
         """
@@ -1277,7 +1279,7 @@ class ProviderLocationNewViewTests(WebTest):
 
         form["city"] = ""  # Empty
         form["country"] = "US"
-        form["datacenter"] = "NewTech"
+        form["datacenter"] = self.datacenter.pk
         form.submit()
 
         self.assertEqual(Location.objects.count(), 0)
@@ -1299,7 +1301,7 @@ class ProviderLocationNewViewTests(WebTest):
 
         form["city"] = "New York"
         form["country"] = "US"
-        form["datacenter"] = "NewTech"
+        form["datacenter"] = self.datacenter.pk
 
         # IP
         form["test_ips-0-ip"] = "127.0.0.1"
@@ -1320,7 +1322,7 @@ class ProviderLocationNewViewTests(WebTest):
 
         self.assertEqual(location.city, "New York")
         self.assertEqual(location.country, "US")
-        self.assertEqual(location.datacenter, "NewTech")
+        self.assertEqual(location.datacenter, self.datacenter)
 
         self.assertEqual(ip.ip, "127.0.0.1")
         self.assertEqual(ip.ip_type, TestIP.IPV4)
