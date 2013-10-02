@@ -173,10 +173,15 @@ class Provider(models.Model):
         super(Provider, self).save(force_insert, force_update, using, update_fields)
 
 
+class Datacenter(models.Model):
+    name = models.CharField(max_length=255)
+    website = models.URLField(max_length=255, blank=True, null=True)
+
+
 class Location(models.Model):
     city = models.CharField(max_length=255)
     country = CountryField()
-    datacenter = models.CharField(max_length=255)
+    datacenter_name = models.CharField(max_length=255)
     looking_glass = models.URLField(max_length=255, null=True, blank=True)
 
     provider = models.ForeignKey(Provider, related_name='locations')
