@@ -182,6 +182,7 @@ class Location(models.Model):
     city = models.CharField(max_length=255)
     country = CountryField()
     datacenter_name = models.CharField(max_length=255)
+    datacenter = models.ForeignKey(Datacenter, null=True, blank=True)
     looking_glass = models.URLField(max_length=255, null=True, blank=True)
 
     provider = models.ForeignKey(Provider, related_name='locations')
