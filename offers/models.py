@@ -177,6 +177,9 @@ class Datacenter(models.Model):
     name = models.CharField(max_length=255)
     website = models.URLField(max_length=255, blank=True, null=True)
 
+    def __unicode__(self):
+        return self.name
+
 
 class Location(models.Model):
     city = models.CharField(max_length=255)
