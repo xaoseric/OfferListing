@@ -187,8 +187,17 @@
 
 {% block extra_js %}
 <script type="text/javascript" src="{% static 'offers/js/plan_finder.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'chosen/chosen.jquery.min.js' %}"></script>
+<script type="text/javascript">
+  $("#countrySelect").chosen();
+  $("#providerSelect").chosen();
+  $("#datacenterSelect").chosen();
+  $("#billingSelect").chosen();
+</script>
 {% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'offers/css/offers_style.css' %}">
+<link rel="stylesheet" href="{% static 'chosen/chosen.css' %}">
+<link rel="stylesheet" href="{% static 'offers/css/plan_finder_style.css' %}">
 {% endblock %}
