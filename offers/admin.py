@@ -1,5 +1,16 @@
 from django.contrib import admin
-from offers.models import Offer, Plan, Provider, OfferUpdate, PlanUpdate, Comment, Location, TestIP, TestDownload
+from offers.models import (
+    Offer,
+    Plan,
+    Provider,
+    OfferUpdate,
+    PlanUpdate,
+    Comment,
+    Location,
+    TestIP,
+    TestDownload,
+    Datacenter
+)
 from django.db.models import Q
 
 
@@ -63,6 +74,7 @@ admin.site.register(OfferUpdate, OfferUpdateAdmin)
 admin.site.register(Plan)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Location, LocationAdmin)
+admin.site.register(Datacenter)
 
 # Celery
 from djcelery.models import (TaskState, WorkerState,
