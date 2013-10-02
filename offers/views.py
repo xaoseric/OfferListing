@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, Plan, OfferUpdate, Location
+from offers.models import Offer, Comment, Provider, Plan, OfferUpdate, Location, Datacenter
 from offers.forms import (
     CommentForm,
     OfferForm,
@@ -477,12 +477,13 @@ def plan_finder(request):
 
 
     providers = Provider.objects.all()
+    datacenters = Datacenter.objects.all()
 
     billing_times = Plan.BILLING_CHOICES
 
     return render(request, 'offers/plan_finder.html', {
         "countries": countries,
         "providers": providers,
-
+        "datacenters": datacenters,
         "billing_times": billing_times,
     })

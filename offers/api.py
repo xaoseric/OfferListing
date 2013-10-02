@@ -1,6 +1,6 @@
 from tastypie.resources import ModelResource
 from tastypie import fields
-from offers.models import Plan, Offer, Location, Provider
+from offers.models import Plan, Offer, Location, Provider, Datacenter
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from django.template.loader import render_to_string
 
@@ -34,7 +34,20 @@ class OfferResource(ModelResource):
         }
 
 
+class DatacenterResource(ModelResource):
+    class Meta:
+        queryset = Datacenter.objects.all()
+        resource_name = 'datacenter'
+        filtering = {
+            "name": ALL,
+            "website": ALL,
+            "id": ALL,
+        }
+
+
 class LocationResource(ModelResource):
+
+    datacenter = fields.ForeignKey(DatacenterResource, 'datacenter')
 
     class Meta:
         queryset = Location.objects.all()
@@ -42,7 +55,8 @@ class LocationResource(ModelResource):
         filtering = {
             "country": ALL,
             "city": ALL,
-            "datacenter": ALL,
+            "datacenter": ALL_WITH_RELATIONS,
+            "id": ALL,
         }
 
 

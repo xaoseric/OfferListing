@@ -39,6 +39,17 @@
           </select>
         </div>
 
+        {# Datacenter List #}
+        <div class="form-group">
+          <label for="datacenterSelect">Datacenter</label>
+          <select class="form-control" id="datacenterSelect">
+            <option value="ALL">Any Datacenter</option>
+            {% for datacenter in datacenters %}
+            <option value="{{ datacenter.pk }}">{{ datacenter.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
         {# Billing Time #}
         <div class="form-group">
           <label for="billingSelect">Billing Period</label>

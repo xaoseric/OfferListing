@@ -69,6 +69,7 @@ function filterPlans(){
 
     var country = $("#countrySelect");
     var provider = $("#providerSelect");
+    var datacenter = $("#datacenterSelect");
     var billing = $("#billingSelect");
 
     var memMin = $("#planMemMin");
@@ -99,6 +100,11 @@ function filterPlans(){
     // Provider
     if (provider.val() != "ALL"){
         urlOptions["offer__provider__id"] = provider.val();
+    }
+
+    // Datacenter
+    if (datacenter.val() != "ALL"){
+        urlOptions["location__datacenter__id"] = datacenter.val();
     }
 
     // Billing
