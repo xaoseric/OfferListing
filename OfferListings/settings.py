@@ -182,6 +182,10 @@ SITE_ID = 1
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
+CAPTCHA_NOISE_FUNCTIONS = ['captcha.helpers.noise_arcs']
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+CAPTCHA_LETTER_ROTATION = None
+CAPTCHA_FONT_SIZE = 44
 
 # Settings for testing
 if os.getenv('TEST_RUNNING', False):
