@@ -8,20 +8,20 @@
 {% block content %}
   <table class="table table-bordered">
     <tr>
-      <th>Name</th>
+      <th class="col-sm-4">Name</th>
       <th>Plans</th>
-      <th>Submitted on</th>
+      <th class="col-sm-2">Submitted on</th>
       <th>Submitted by</th>
-      <th>Queue Position</th>
+      <th class="col-sm-1">Queue Position</th>
       <th>Manage</th>
     </tr>
     {% for offer in requests %}
       <tr>
         <td>{{ offer.name }}</td>
         <td>{{ offer.plan_count }}</td>
-        <td>
-          {{ offer.created_at }}
-          <span class="pull-right text-success">{{ offer.created_at | naturaltime }}</span>
+        <td class="text-center">
+          {{ offer.created_at }}<br>
+          <span class="text-success">{{ offer.created_at | naturaltime }}</span>
         </td>
         <td>{{ offer.creator.username }}</td>
         <td>
@@ -31,8 +31,8 @@
             N/A
           {% endif %}
         </td>
-        <td>
-          <div class="btn-group">
+        <td class="text-center">
+          <div class="btn-group-vertical">
             <a href="{% url 'offer:admin_request_edit' offer.pk %}" class="btn btn-info">Edit request</a>
             {% if offer.is_ready %}
               <a href="{% url 'offer:admin_request_mark' offer.pk %}" class="btn btn-warning">Mark not ready</a>
