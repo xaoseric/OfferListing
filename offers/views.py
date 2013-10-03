@@ -244,8 +244,10 @@ def admin_mark_request(request, offer_pk):
 
     if offer.is_ready:
         messages.success(request, "Marked offer as ready for publishing.")
+        reversion.set_comment("Provider marked the request as ready.")
     else:
         messages.success(request, "Marked offer as not ready for publishing.")
+        reversion.set_comment("Provider marked the request as not ready.")
 
     return HttpResponseRedirect(reverse('offer:admin_requests'))
 
