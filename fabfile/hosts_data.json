@@ -10,6 +10,8 @@
         "pass": ""
     },
 
+    "additional_sites": [],
+
     "deploy_settings": {
         "deploy_to": "/var/OfferListings",
         "deploy_user": "root",
