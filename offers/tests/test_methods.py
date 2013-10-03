@@ -275,15 +275,35 @@ class OfferMethodTests(TestCase):
         self.assertEqual(offers[3].queue_position(), 4)
         self.assertEqual(offers[4].queue_position(), 5)
 
-    def test_queue_position_with_invalid_offer(self):
+    def test_queue_position_with_not_ready_offer(self):
         """
-        Test that the queue position returns 0 for an invalid queue position
+        Test that the queue position returns None for an invalid queue position
         """
 
         self.offer.is_ready = False
         self.offer.save()
 
-        self.assertEqual(self.offer.queue_position(), 0)
+        self.assertEqual(self.offer.queue_position(), None)
+
+    def test_queue_position_with_published_offer(self):
+        """
+        Test that the queue position returns None for an invalid queue position
+        """
+
+        self.offer.status = Offer.PUBLISHED
+        self.offer.save()
+
+        self.assertEqual(self.offer.queue_position(), None)
+
+    def test_queue_position_with_not_request_offer(self):
+        """
+        Test that the queue position returns None for an invalid queue position
+        """
+
+        self.offer.is_request = False
+        self.offer.save()
+
+        self.assertEqual(self.offer.queue_position(), None)
 
     def test_update_request_returns_update_if_it_exists(self):
         """
