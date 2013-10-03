@@ -28,6 +28,18 @@ class Configuration(object):
     def site_name(self):
         return self.data["website_url"]
 
+    def allowed_sites(self):
+        allowed_sites = [self.data["website_url"]]
+        for site in self.data["additional_sites"]:
+            allowed_sites.append(site)
+
+        with_string = []
+
+        for site in allowed_sites:
+            with_string.append('"' + site + '"')
+
+        return ", ".join(with_string)
+
     def base_path(self):
         return self.data["deploy_settings"]["deploy_to"]
 
@@ -99,6 +111,7 @@ class Configuration(object):
             password=self.data["database"]["pass"],
             type=self.database_type(),
             site_name=self.site_name(),
+            allowed_sites=self.allowed_sites(),
             additional_settings=additional_settings,
             admins=admins,
             raven_url=self.data["raven"]["url"],
