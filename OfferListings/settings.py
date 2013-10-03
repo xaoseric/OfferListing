@@ -182,8 +182,8 @@ SITE_ID = 1
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
-CAPTCHA_NOISE_FUNCTIONS = []
-CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_arcs','captcha.helpers.noise_dots',)
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
 CAPTCHA_LETTER_ROTATION = None
 CAPTCHA_FONT_SIZE = 44
 
