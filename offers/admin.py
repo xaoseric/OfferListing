@@ -11,6 +11,7 @@ from offers.models import (
     TestDownload,
     Datacenter
 )
+import reversion
 from django.db.models import Q
 
 
@@ -18,7 +19,7 @@ class PlanInlineAdmin(admin.TabularInline):
     model = Plan
 
 
-class OfferAdmin(admin.ModelAdmin):
+class OfferAdmin(reversion.VersionAdmin):
     date_hierarchy = 'created_at'
     list_display = (
         'name',
