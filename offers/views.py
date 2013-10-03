@@ -24,6 +24,7 @@ from django_countries.countries import COUNTRIES
 from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
+import reversion
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +177,7 @@ def admin_submit_request(request):
             formset = PlanFormset(request.POST, instance=offer, provider=request.user.user_profile.provider)
             if formset.is_valid():
                 offer.save()
+                reversion.set_comment("Provider added new offer request.")
                 formset.save()
                 messages.success(request, 'Your offer request has been saved! You may continue to edit it below.')
                 return HttpResponseRedirect(reverse('offer:admin_request_edit', args=[offer.pk]))
@@ -202,6 +204,7 @@ def admin_edit_request(request, offer_pk):
         formset = PlanFormset(request.POST, instance=offer, provider=request.user.user_profile.provider)
         if form.is_valid() and formset.is_valid():
             form.save()
+            reversion.set_comment("Provider updated their request.")
             formset.save()
 
             messages.success(request, "Your offer request has been updated! You may continue to edit it below.")
