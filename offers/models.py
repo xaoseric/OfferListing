@@ -331,11 +331,13 @@ class Offer(OfferBase):
         return False
 
     def queue_position(self):
-        if not self.is_request:
-            return 0
-        return Offer.objects.filter(
-            status=Offer.UNPUBLISHED, readied_at__lt=self.readied_at, is_request=True, is_ready=True,
+        if not self.is_request or self.status == Offer.PUBLISHED or not self.is_ready:
+            return None
+        return Offer.requests.filter(
+            readied_at__lt=self.readied_at, is_ready=True,
         ).count()+1
+    queue_position.short_description = "Queue position"
+    queue_position.admin_order_field = 'readied_at'
 
     def update_request(self):
         try:
