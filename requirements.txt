@@ -27,3 +27,4 @@ python-dateutil
 lxml
 pyyaml
 django-celery-with-redis
+django-reversion

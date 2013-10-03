@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'captcha',
     'tastypie',
     'djcelery',
+    'reversion',
 
     # Custom applications
     'offers',
