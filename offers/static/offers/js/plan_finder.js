@@ -1,3 +1,62 @@
+var ordering = $("#orderingSelect");
+
+var multi_fields = [
+    {
+        selector: $("#countrySelect"),
+        api: "location__country"
+    },
+    {
+        selector: $("#providerSelect"),
+        api: "offer__provider__id"
+    },
+    {
+        selector: $("#billingSelect"),
+        api: "billing_time"
+    },
+    {
+        selector: $("#datacenterSelect"),
+        api: "location__datacenter__id"
+    },
+    {
+        selector: $("#serverTypeSelect"),
+        api: "server_type"
+    }
+];
+
+var min_max_fields = [
+    {
+        minField: $("#planMemMin"),
+        maxField: $("#planMemMax"),
+        api: 'memory'
+    },
+    {
+        minField: $("#planHDDMin"),
+        maxField: $("#planHDDMax"),
+        api: "disk_space"
+    },
+    {
+        minField: $("#planBandMin"),
+        maxField: $("#planBandMax"),
+        api: 'bandwidth'
+    },
+    {
+        minField: $("#planIPv4Min"),
+        maxField: $("#planIPv4Max"),
+        api: 'ipv4_space'
+    },
+    {
+        minField: $("#planIPv6Min"),
+        maxField: $("#planIPv6Max"),
+        api: 'ipv6_space'
+    },
+    {
+        minField: $("#planCostMin"),
+        maxField: $("#planCostMax"),
+        api: 'cost'
+    }
+];
+
+
 function makePagination(meta_data){
 
     var previous_disabled = '';
@@ -69,64 +128,6 @@ function filterPlans(){
         "limit": 3,
         "format": "json"
     };
-
-    var ordering = $("#orderingSelect");
-
-    var multi_fields = [
-        {
-            selector: $("#countrySelect"),
-            api: "location__country"
-        },
-        {
-            selector: $("#providerSelect"),
-            api: "offer__provider__id"
-        },
-        {
-            selector: $("#billingSelect"),
-            api: "billing_time"
-        },
-        {
-            selector: $("#datacenterSelect"),
-            api: "location__datacenter__id"
-        },
-        {
-            selector: $("#serverTypeSelect"),
-            api: "server_type"
-        }
-    ];
-
-    var min_max_fields = [
-        {
-            minField: $("#planMemMin"),
-            maxField: $("#planMemMax"),
-            api: 'memory'
-        },
-        {
-            minField: $("#planHDDMin"),
-            maxField: $("#planHDDMax"),
-            api: "disk_space"
-        },
-        {
-            minField: $("#planBandMin"),
-            maxField: $("#planBandMax"),
-            api: 'bandwidth'
-        },
-        {
-            minField: $("#planIPv4Min"),
-            maxField: $("#planIPv4Max"),
-            api: 'ipv4_space'
-        },
-        {
-            minField: $("#planIPv6Min"),
-            maxField: $("#planIPv6Max"),
-            api: 'ipv6_space'
-        },
-        {
-            minField: $("#planCostMin"),
-            maxField: $("#planCostMax"),
-            api: 'cost'
-        }
-    ];
 
     // Go through all the multi choice fields
     for (var select_counter = 0; select_counter < multi_fields.length; select_counter++){
