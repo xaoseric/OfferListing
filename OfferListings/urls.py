@@ -25,8 +25,6 @@ urlpatterns = patterns('',
     url(r'^captcha/', include('captcha.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-
-    url(r'^pages/', include('django.contrib.flatpages.urls')),
 )
 
 if settings.DEBUG:
