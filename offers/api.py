@@ -79,7 +79,7 @@ class PlanResource(ModelResource):
         )
         resource_name = 'plan'
         filtering = {
-            "virtualization": ALL,
+            "server_type": ALL,
             "bandwidth": ALL,
             "disk_space": ALL,
             "memory": ALL,

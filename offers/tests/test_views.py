@@ -815,7 +815,7 @@ class ProviderNewRequestViewTests(WebTest):
         form["plan_set-0-bandwidth"] = 1024
         form["plan_set-0-disk_space"] = 2048
         form["plan_set-0-memory"] = 512
-        form["plan_set-0-virtualization"] = Plan.KVM
+        form["plan_set-0-server_type"] = Plan.KVM
         form["plan_set-0-location"] = self.location.pk
         form["plan_set-0-ipv4_space"] = 16
         form["plan_set-0-ipv6_space"] = 256
@@ -843,7 +843,7 @@ class ProviderNewRequestViewTests(WebTest):
         self.assertEqual(plan.bandwidth, 1024)
         self.assertEqual(plan.disk_space, 2048)
         self.assertEqual(plan.memory, 512)
-        self.assertEqual(plan.virtualization, Plan.KVM)
+        self.assertEqual(plan.server_type, Plan.KVM)
         self.assertEqual(plan.location.pk, self.location.pk)
         self.assertEqual(plan.ipv4_space, 16)
         self.assertEqual(plan.ipv6_space, 256)
@@ -870,7 +870,7 @@ class ProviderNewRequestViewTests(WebTest):
         form["plan_set-0-bandwidth"] = 1024
         form["plan_set-0-disk_space"] = 2048
         form["plan_set-0-memory"] = 512
-        form["plan_set-0-virtualization"] = Plan.KVM
+        form["plan_set-0-server_type"] = Plan.KVM
         form["plan_set-0-location"] = self.location.pk
         form["plan_set-0-ipv4_space"] = 16
         form["plan_set-0-ipv6_space"] = 256
@@ -882,7 +882,7 @@ class ProviderNewRequestViewTests(WebTest):
         form["plan_set-1-bandwidth"] = 2099
         form["plan_set-1-disk_space"] = 2048
         form["plan_set-1-memory"] = 512
-        form["plan_set-1-virtualization"] = Plan.KVM
+        form["plan_set-1-server_type"] = Plan.KVM
         form["plan_set-1-location"] = self.location.pk
         form["plan_set-1-ipv4_space"] = 16
         form["plan_set-1-ipv6_space"] = 256
@@ -1040,7 +1040,7 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-0-bandwidth"].value, unicode(plan.bandwidth))
         self.assertEqual(form["plan_set-0-disk_space"].value, unicode(plan.disk_space))
         self.assertEqual(form["plan_set-0-memory"].value, unicode(plan.memory))
-        self.assertEqual(form["plan_set-0-virtualization"].value, plan.virtualization)
+        self.assertEqual(form["plan_set-0-server_type"].value, plan.server_type)
         self.assertEqual(form["plan_set-0-location"].value, unicode(plan.location.pk))
         self.assertEqual(form["plan_set-0-ipv4_space"].value, unicode(plan.ipv4_space))
         self.assertEqual(form["plan_set-0-ipv6_space"].value, unicode(plan.ipv6_space))
@@ -1054,7 +1054,7 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-1-bandwidth"].value, unicode(plan.bandwidth))
         self.assertEqual(form["plan_set-1-disk_space"].value, unicode(plan.disk_space))
         self.assertEqual(form["plan_set-1-memory"].value, unicode(plan.memory))
-        self.assertEqual(form["plan_set-1-virtualization"].value, plan.virtualization)
+        self.assertEqual(form["plan_set-1-server_type"].value, plan.server_type)
         self.assertEqual(form["plan_set-1-location"].value, unicode(plan.location.pk))
         self.assertEqual(form["plan_set-1-ipv4_space"].value, unicode(plan.ipv4_space))
         self.assertEqual(form["plan_set-1-ipv6_space"].value, unicode(plan.ipv6_space))
