@@ -196,6 +196,9 @@ class Datacenter(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
+
 
 class Location(models.Model):
     city = models.CharField(max_length=255)
