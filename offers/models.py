@@ -241,7 +241,7 @@ class TestDownload(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-class OfferBase(models.Model):
+class Offer(models.Model):
     PUBLISHED = 'p'
     UNPUBLISHED = 'u'
 
@@ -263,14 +263,6 @@ class OfferBase(models.Model):
     objects = models.Manager()
     visible_offers = OfferVisibleManager()
     active_offers = OfferActiveManager()
-
-    class Meta:
-        abstract = True
-
-
-class Offer(OfferBase):
-
-    objects = models.Manager()
     not_requests = OfferNotRequestManager()
     requests = OfferRequestManager()
 
@@ -341,12 +333,6 @@ class Offer(OfferBase):
         ).count()+1
     queue_position.short_description = "Queue position"
     queue_position.admin_order_field = 'readied_at'
-
-    def update_request(self):
-        try:
-            return self.offerupdate
-        except OfferUpdate.DoesNotExist:
-            return False
 
     def get_plan_locations(self):
         locations = []
