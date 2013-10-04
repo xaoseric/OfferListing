@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferUpdate, PlanUpdate, Location
+from offers.models import Offer, Provider, Plan, Comment, Location
 from model_mommy import mommy
 from django.core.files import File
 from django.conf import settings

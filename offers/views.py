@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, Plan, OfferUpdate, Location, Datacenter
+from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter
 from offers.forms import (
     CommentForm,
     OfferForm,

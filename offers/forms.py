@@ -1,5 +1,5 @@
 from django import forms
-from offers.models import Comment, Offer, Plan, Provider, OfferUpdate, PlanUpdate, Location, TestIP, TestDownload
+from offers.models import Comment, Offer, Plan, Provider, Location, TestIP, TestDownload
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from crispy_forms.helper import FormHelper

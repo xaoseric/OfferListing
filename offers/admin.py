@@ -3,8 +3,6 @@ from offers.models import (
     Offer,
     Plan,
     Provider,
-    OfferUpdate,
-    PlanUpdate,
     Comment,
     Location,
     TestIP,
