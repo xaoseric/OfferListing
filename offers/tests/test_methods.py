@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, OfferUpdate, PlanUpdate, Location
+from offers.models import Offer, Provider, Plan, Comment, Location
 from model_mommy import mommy
 from django.core.files import File
 from django.conf import settings
@@ -305,20 +305,6 @@ class OfferMethodTests(TestCase):
 
         self.assertEqual(self.offer.queue_position(), None)
 
-    def test_update_request_returns_update_if_it_exists(self):
-        """
-        Test that the method update_request returns the update offer if it exists
-        """
-        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
-
-        self.assertEqual(self.offer.update_request().pk, offer_update.pk)
-
-    def test_update_request_returns_false_if_not_exists(self):
-        """
-        Test that the method update_request returns false if the offer has no offer update
-        """
-        self.assertFalse(self.offer.update_request())
-
     def test_get_plan_locations_gets_correct_unique_locations(self):
         """
         Test that the get plan locations methods gets the correct and unique locations of the plans
@@ -382,63 +368,6 @@ class OfferMethodTests(TestCase):
         mommy.make(Comment,_quantity=5, offer=self.offer, status=Comment.DELETED)
 
         self.assertEqual(self.offer.comment_count(), 5)
-
-    def test_from_offer_update_copies_offer_update(self):
-        """
-        Test that the from offer method correctly copies across offer data
-        """
-        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
-
-        offer_update.name = "New offer"
-        offer_update.content = "New content"
-
-        offer_update.planupdate_set.all().delete()
-        new_plans = mommy.make(PlanUpdate, offer=offer_update, _quantity=5)
-
-        self.offer.from_offer_update(offer_update)
-
-        offer = Offer.objects.get(pk=self.offer.pk)
-
-        self.assertEqual(offer.name, offer_update.name)
-        self.assertEqual(offer.content, offer_update.content)
-
-        self.assertEqual(offer.plan_set.count(), 5)
-
-    def test_from_offer_update_copies_offer_update_plan(self):
-        """
-        Test that the from offer method correctly copies across offer data
-        """
-        mommy.make(Plan, offer=self.offer, _quantity=5)
-
-        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
-
-        offer_update.name = "New offer"
-        offer_update.content = "New content"
-
-        offer_update.planupdate_set.all().delete()
-        new_plan = mommy.make(PlanUpdate, offer=offer_update, cost=Decimal('20.49'))
-
-        self.offer.from_offer_update(offer_update)
-
-        offer = Offer.objects.get(pk=self.offer.pk)
-        plan = offer.plan_set.all()[0]
-        self.assertEqual(offer.plan_set.count(), 1)
-
-        self.assertEqual(offer.name, offer_update.name)
-        self.assertEqual(offer.content, offer_update.content)
-
-        self.assertEqual(plan.bandwidth, new_plan.bandwidth)
-        self.assertEqual(plan.virtualization, new_plan.virtualization)
-        self.assertEqual(plan.location, new_plan.location)
-        self.assertEqual(plan.disk_space, new_plan.disk_space)
-        self.assertEqual(plan.memory, new_plan.memory)
-        self.assertEqual(plan.ipv4_space, new_plan.ipv4_space)
-        self.assertEqual(plan.ipv6_space, new_plan.ipv6_space)
-        self.assertEqual(plan.billing_time, new_plan.billing_time)
-        self.assertEqual(plan.url, new_plan.url)
-        self.assertEqual(plan.promo_code, new_plan.promo_code)
-        self.assertEqual(plan.cost, new_plan.cost)
-        self.assertEqual(plan.is_active, new_plan.is_active)
 
     def test_active_plan_count_returns_correct_values_with_active_offer(self):
         """
@@ -768,83 +697,6 @@ class PlanMethodTests(TestCase):
 
         for plan in self.plans:
             self.assertEqual(plan.get_hdd(), plan.data_format(plan.disk_space, 'gigabytes'))
-
-
-class OfferUpdateMethodTests(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username='user', email='person@example.com', password='password')
-        self.provider = mommy.make(Provider)
-        self.user.user_profile.provider = self.provider
-        self.user.user_profile.save()
-
-        self.offer = mommy.make(Offer, provider=self.provider, status=Offer.UNPUBLISHED)
-        self.plans = mommy.make(Plan, offer=self.offer, _quantity=4)
-
-        self.client.login(username='user', password='password')
-
-    def test_get_update_for_offer_creates_new_offer_update(self):
-        """
-        Test that using the get_update_for_offer creates a new offer update
-        """
-
-        # Assert initial database data
-        self.assertEqual(OfferUpdate.objects.count(), 0)
-        self.assertEqual(PlanUpdate.objects.count(), 0)
-
-        offer_update = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
-
-        # Check all values are copied across
-        self.assertEqual(offer_update.name, self.offer.name)
-        self.assertEqual(offer_update.content, self.offer.content)
-        self.assertEqual(offer_update.is_active, self.offer.is_active)
-        self.assertEqual(offer_update.provider, self.offer.provider)
-        self.assertEqual(offer_update.status, self.offer.status)
-
-        # Check additional fields are correct
-        self.assertEqual(offer_update.user, self.user)
-        self.assertEqual(offer_update.for_offer, self.offer)
-
-        # Check that all the plans have been copied across
-        for i, plan in enumerate(self.offer.plan_set.all()):
-            plan_update = offer_update.planupdate_set.all()[i]
-
-            self.assertEqual(plan.virtualization, plan_update.virtualization)
-            self.assertEqual(plan.bandwidth, plan_update.bandwidth)
-            self.assertEqual(plan.disk_space, plan_update.disk_space)
-            self.assertEqual(plan.memory, plan_update.memory)
-            self.assertEqual(plan.ipv4_space, plan_update.ipv4_space)
-            self.assertEqual(plan.ipv6_space, plan_update.ipv6_space)
-            self.assertEqual(plan.billing_time, plan_update.billing_time)
-            self.assertEqual(plan.url, plan_update.url)
-            self.assertEqual(plan.promo_code, plan_update.promo_code)
-            self.assertEqual(plan.cost, plan_update.cost)
-            self.assertEqual(plan.is_active, plan_update.is_active)
-
-        # Assert final database data
-        self.assertEqual(OfferUpdate.objects.count(), 1)
-        self.assertEqual(PlanUpdate.objects.count(), 4)
-
-    def test_get_update_for_offer_gets_existing_offer_update(self):
-        """
-        Test that the get_update_for_offer method returns the existing offer update for an offer if it already exists
-        """
-        # Assert initial database data
-        self.assertEqual(OfferUpdate.objects.count(), 0)
-        self.assertEqual(PlanUpdate.objects.count(), 0)
-
-        # Call the method multiple times
-        offer_update1 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
-        offer_update2 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
-        offer_update3 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
-        offer_update4 = OfferUpdate.objects.get_update_for_offer(self.offer, self.user)
-
-        self.assertEqual(offer_update1, offer_update2)
-        self.assertEqual(offer_update2, offer_update3)
-        self.assertEqual(offer_update3, offer_update4)
-
-        # Assert final database data
-        self.assertEqual(OfferUpdate.objects.count(), 1)
-        self.assertEqual(PlanUpdate.objects.count(), 4)
 
 
 class LocationMethodTests(TestCase):

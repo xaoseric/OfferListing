@@ -1,15 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, Plan, OfferUpdate, Location, Datacenter
+from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter
 from offers.forms import (
     CommentForm,
     OfferForm,
     PlanFormset,
     PlanFormsetHelper,
     ProviderForm,
-    PlanUpdateFormset,
-    OfferUpdateForm,
     TestIPFormset,
     TestDownloadFormset,
     LocationForm,
@@ -312,54 +310,32 @@ def admin_provider_offer_plan_mark(request, offer_pk, plan_pk):
 
 @user_is_provider
 def admin_provider_update_offer(request, offer_pk):
-    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
-    offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
-
+    offer = get_object_or_404(
+        Offer.not_requests.for_user(request.user),
+        pk=offer_pk,
+    )
     if request.method == "POST":
-        form = OfferUpdateForm(request.POST, instance=offer_update)
-        formset = PlanUpdateFormset(request.POST, instance=offer_update, provider=request.user.user_profile.provider)
-
+        form = OfferForm(request.POST, instance=offer)
+        formset = PlanFormset(request.POST, instance=offer, provider=request.user.user_profile.provider)
         if form.is_valid() and formset.is_valid():
-            offer_update = form.save()
+            form.save()
+            reversion.set_comment("Provider updated their offer.")
             formset.save()
 
+            messages.success(request, "Your offer has been updated! You may continue to edit it below.")
+
             # Reload form data
-            form = OfferUpdateForm(instance=offer_update)
-            formset = PlanUpdateFormset(instance=offer_update, provider=request.user.user_profile.provider)
+            form = OfferForm(instance=offer)
+            formset = PlanFormset(instance=offer, provider=request.user.user_profile.provider)
     else:
-        form = OfferUpdateForm(instance=offer_update)
-        formset = PlanUpdateFormset(instance=offer_update, provider=request.user.user_profile.provider)
+        form = OfferForm(instance=offer)
+        formset = PlanFormset(instance=offer, provider=request.user.user_profile.provider)
     return render(request, 'offers/manage/update_offer.html', {
         "form": form,
         "formset": formset,
         "helper": PlanFormsetHelper,
-        "offer_update": offer_update,
+        "offer": offer,
     })
-
-
-@user_is_provider
-def admin_provider_update_offer_mark(request, offer_pk):
-    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
-    offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
-
-    offer_update.ready = not offer_update.ready
-    offer_update.save()
-
-    return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
-
-
-@user_is_provider
-def admin_provider_update_delete_confirm(request, offer_pk):
-    offer = get_object_or_404(Offer.not_requests.for_user(request.user), pk=offer_pk)
-    offer_update = OfferUpdate.objects.get_update_for_offer(offer, request.user)
-
-    if request.GET.get('delete', False):
-        offer_update.planupdate_set.all().delete()
-        offer_update.delete()
-        messages.success(request, "The update was deleted!")
-        return HttpResponseRedirect(reverse('offer:admin_offer', args=[offer.pk]))
-
-    return render(request, 'offers/manage/update_delete_request.html', {"offer_update": offer_update})
 
 
 # Provider Locations
@@ -428,18 +404,6 @@ def admin_provider_locations_new(request):
         "download_formset": download_formset,
         "location": location,
     })
-
-
-# Admin section
-@user_passes_test(lambda u: u.is_superuser)
-def superuser_approve_updates(request):
-    if request.GET.get('update'):
-        if OfferUpdate.objects.filter(pk=request.GET.get('update')).exists():
-            offer_update = OfferUpdate.objects.get(pk=request.GET.get('update'))
-            offer_update.for_offer.from_offer_update(offer_update)
-            offer_update.delete()
-    offer_updates = OfferUpdate.objects.all()
-    return render(request, 'offers/manage/admin/offer_updates.html', {"offer_updates": offer_updates})
 
 
 def plan_finder(request):

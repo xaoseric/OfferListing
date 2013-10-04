@@ -7,11 +7,11 @@
 {% block page_title %}Update offer <em>{{ offer_update.for_offer.name }}</em>{% endblock %}
 
 {% block content %}
-  <a href="{% url 'offer:admin_offer' offer_update.for_offer.pk  %}" class="btn btn-info">
+  <a href="{% url 'offer:admin_offer' offer.pk  %}" class="btn btn-info">
     <span class="glyphicon glyphicon-arrow-left"></span>
     Back to edit page
   </a>
-  <form action="{% url 'offer:admin_offer_update' offer_update.for_offer.pk %}" method="POST">
+  <form action="{% url 'offer:admin_offer_update' offer.pk %}" method="POST">
     {% crispy form %}
     {{ formset.management_form|crispy }}
     <div class="row">

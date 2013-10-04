@@ -27,20 +27,9 @@ urlpatterns = patterns('offers.views',
         name="admin_offer_plan_mark"
     ),
     url(r'^manage/offer/(?P<offer_pk>\d+)/update/$', 'admin_provider_update_offer', name="admin_offer_update"),
-    url(
-        r'^manage/offer/(?P<offer_pk>\d+)/update/mark/$',
-        'admin_provider_update_offer_mark',
-        name="admin_offer_update_mark"
-    ),
-    url(
-        r'^manage/offer/(?P<offer_pk>\d+)/update/delete/$',
-        'admin_provider_update_delete_confirm',
-        name="admin_offer_update_delete"
-    ),
 
     url(r'^manage/locations/$', 'admin_provider_locations', name="admin_locations"),
     url(r'^manage/location/(?P<location_pk>\d+)/$', 'admin_provider_locations_edit', name="admin_location_edit"),
     url(r'^manage/location/new/$', 'admin_provider_locations_new', name="admin_location_new"),
 
-    url(r'^manage/admin/updates/$', 'superuser_approve_updates', name="superuser_approve_updates"),
 )
