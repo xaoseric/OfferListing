@@ -421,9 +421,19 @@ def plan_finder(request):
 
     billing_times = Plan.BILLING_CHOICES
 
+    server_types = []
+
+    for key, name in Plan.SERVER_CHOICES:
+        if type(name) == tuple:
+            for key2, name2 in name:
+                server_types.append((key2, name2))
+        else:
+            server_types.append((key, name))
+
     return render(request, 'offers/plan_finder.html', {
         "countries": countries,
         "providers": providers,
         "datacenters": datacenters,
         "billing_times": billing_times,
+        "server_types": server_types,
     })

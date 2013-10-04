@@ -103,6 +103,10 @@ function filterPlans(){
         {
             selector: $("#datacenterSelect"),
             api: "location__datacenter__id"
+        },
+        {
+            selector: $("#serverTypeSelect"),
+            api: "server_type"
         }
     ];
 
