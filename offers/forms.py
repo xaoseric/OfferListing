@@ -50,7 +50,7 @@ class OfferForm(forms.ModelForm):
         fields = ('name', 'content')
 
 PLAN_FIELDS = (
-    'virtualization',
+    'server_type',
     'bandwidth',
     'disk_space',
     'memory',
@@ -95,7 +95,7 @@ PlanFormsetHelper.layout = Layout(
         AppendedText('bandwidth', 'GB'),
         AppendedText('disk_space', 'GB'),
         AppendedText('memory', 'MB'),
-        'virtualization',
+        'server_type',
         'location',
     ),
     Fieldset(

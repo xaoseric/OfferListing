@@ -401,10 +401,14 @@ pre_save.connect(offer_update_published, sender=Offer)
 class Plan(models.Model):
     KVM = 'k'
     OPENVZ = 'o'
+    DEDICATED = 'd'
 
-    VIRT_CHOICES = (
-        (KVM, 'KVM'),
-        (OPENVZ, 'OpenVZ'),
+    SERVER_CHOICES = (
+        (DEDICATED, 'Dedicated'),
+        ('Virtualized', (
+            (KVM, 'KVM'),
+            (OPENVZ, 'OpenVZ'),
+        )),
     )
 
     MONTHLY = 'm'
@@ -419,7 +423,7 @@ class Plan(models.Model):
         (BIYEARLY, 'Biyearly'),
     )
 
-    server_type = models.CharField(max_length=1, choices=VIRT_CHOICES, default=OPENVZ)
+    server_type = models.CharField(max_length=1, choices=SERVER_CHOICES, default=OPENVZ)
 
     # Offer
     offer = models.ForeignKey(Offer)
