@@ -39,12 +39,12 @@ function paginationNavigate(url){
 }
 
 function getAndRender(url){
-    $("#plan_list").html('<div class="ajax-loading"></div>');
+    var endpoint_data = $("#plan_list");
+    endpoint_data.html('<div class="ajax-loading"></div>');
 
     $.get(
        url,
        function(data) {
-         var endpoint_data = $("#plan_list");
          endpoint_data.html("");
 
          if (data.meta.total_count == 0){
@@ -58,7 +58,10 @@ function getAndRender(url){
          }
          endpoint_data.append(makePagination(data["meta"]));
        }
-    );
+    ).fail(function(){
+        endpoint_data.html("There were errors in your filtering. Please check that you did not enter letters or " +
+            "punctuation in the numerically filtered fields.")
+    });
 }
 
 function filterPlans(){
