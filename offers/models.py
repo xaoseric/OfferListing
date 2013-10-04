@@ -419,7 +419,7 @@ class Plan(models.Model):
         (BIYEARLY, 'Biyearly'),
     )
 
-    virtualization = models.CharField(max_length=1, choices=VIRT_CHOICES, default=OPENVZ)
+    server_type = models.CharField(max_length=1, choices=VIRT_CHOICES, default=OPENVZ)
 
     # Offer
     offer = models.ForeignKey(Offer)
