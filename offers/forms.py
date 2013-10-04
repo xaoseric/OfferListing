@@ -115,43 +115,6 @@ PlanFormsetHelper.layout = Layout(
 )
 
 
-# Offer update
-
-class OfferUpdateForm(forms.ModelForm):
-
-    def __init__(self, *args, **kwargs):
-        super(OfferUpdateForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-
-    class Meta:
-        model = OfferUpdate
-        fields = ('name', 'content')
-
-
-PlanUpdateFormsetBase = inlineformset_factory(
-    OfferUpdate,
-    PlanUpdate,
-    extra=4,
-    fields=PLAN_FIELDS,
-)
-
-
-class PlanUpdateFormset(PlanUpdateFormsetBase):
-    def __init__(self, *args, **kwargs):
-        provider = kwargs['provider']
-        del kwargs["provider"]
-        super(PlanUpdateFormset, self).__init__(*args, **kwargs)
-
-        for form in self:
-            form.fields["location"].queryset = Location.objects.filter(provider=provider)
-
-            form.fields["ipv4_space"].help_text = "The number of IPv4 addresses that this plan has."
-            form.fields["ipv6_space"].help_text = "The number of IPv6 addresses that this plan has."
-            form.fields["url"].help_text = "The url to purchase this plan."
-            form.fields["promo_code"].help_text = "The optional promo code the client needs to enter to get a discount."
-
-
 # Locations
 class LocationForm(forms.ModelForm):
 
