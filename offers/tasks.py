@@ -86,7 +86,7 @@ def send_new_comment_followers_mail(comment_pk, user_pk=None):
         message_plain = advanced_render_to_string('offers/email/comment_new_plain.txt', new_context)
 
         send_mail.s(
-            subject='New reply to your comment',
+            subject=user.username + ' replied to an offer you follow!',
             message=message,
             message_plain=message_plain,
             to=user.email,
