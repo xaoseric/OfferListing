@@ -427,7 +427,7 @@ pre_save.connect(clean_offer_on_save, sender=Offer)
 pre_save.connect(offer_update_published, sender=Offer)
 
 
-class PlanBase(models.Model):
+class Plan(models.Model):
     KVM = 'k'
     OPENVZ = 'o'
 
@@ -449,6 +449,9 @@ class PlanBase(models.Model):
     )
 
     virtualization = models.CharField(max_length=1, choices=VIRT_CHOICES, default=OPENVZ)
+
+    # Offer
+    offer = models.ForeignKey(Offer)
 
     # Data attributes
     bandwidth = models.BigIntegerField()  # In gigabytes
@@ -527,13 +530,6 @@ class PlanBase(models.Model):
 
     def __unicode__(self):
         return "{} ({})".format(self.offer.name, self.get_memory())
-
-    class Meta:
-        abstract = True
-
-
-class Plan(PlanBase):
-    offer = models.ForeignKey(Offer)
 
 
 class Comment(models.Model):
