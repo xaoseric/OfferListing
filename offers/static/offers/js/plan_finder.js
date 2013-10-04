@@ -56,6 +56,8 @@ var min_max_fields = [
     }
 ];
 
+var currentRequest = null;
+
 (function(){
     // Go through all the multi choice fields
     for (var select_counter = 0; select_counter < multi_fields.length; select_counter++){
@@ -66,8 +68,8 @@ var min_max_fields = [
     // Go through all the min max fields
     for (var min_max_counter = 0; min_max_counter < min_max_fields.length; min_max_counter++){
         var min_max = min_max_fields[min_max_counter];
-        min_max.minField.change(filterPlans);
-        min_max.maxField.change(filterPlans);
+        min_max.minField.on('input', filterPlans);
+        min_max.maxField.on('input', filterPlans);
     }
 })();
 
@@ -116,7 +118,7 @@ function getAndRender(url){
     var endpoint_data = $("#plan_list");
     endpoint_data.html('<div class="ajax-loading"></div>');
 
-    $.get(
+    currentRequest = $.get(
        url,
        function(data) {
          endpoint_data.html("");
@@ -143,6 +145,10 @@ function filterPlans(){
         "limit": 3,
         "format": "json"
     };
+
+    try {
+        currentRequest.abort();
+    } catch (error){}
 
     // Go through all the multi choice fields
     for (var select_counter = 0; select_counter < multi_fields.length; select_counter++){
