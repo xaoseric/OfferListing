@@ -56,6 +56,21 @@ var min_max_fields = [
     }
 ];
 
+(function(){
+    // Go through all the multi choice fields
+    for (var select_counter = 0; select_counter < multi_fields.length; select_counter++){
+        var select_field = multi_fields[select_counter];
+        select_field.selector.change(filterPlans);
+    }
+
+    // Go through all the min max fields
+    for (var min_max_counter = 0; min_max_counter < min_max_fields.length; min_max_counter++){
+        var min_max = min_max_fields[min_max_counter];
+        min_max.minField.change(filterPlans);
+        min_max.maxField.change(filterPlans);
+    }
+})();
+
 
 function makePagination(meta_data){
 
