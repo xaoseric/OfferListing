@@ -54,6 +54,11 @@
     </tr>
 
     <tr>
+      <td>Server Type</td>
+      <td>{{ plan.get_server_type_display }}</td>
+    </tr>
+
+    <tr>
       <td>Cost (USD)</td>
       <td>${{ plan.cost|floatformat:2 }} {{ plan.get_billing_time_display }}</td>
     </tr>
