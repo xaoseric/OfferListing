@@ -67,24 +67,6 @@ function filterPlans(){
         "format": "json"
     };
 
-    var memMin = $("#planMemMin");
-    var memMax = $("#planMemMax");
-
-    var hddMin = $("#planHDDMin");
-    var hddMax = $("#planHDDMax");
-
-    var bandMin = $("#planBandMin");
-    var bandMax = $("#planBandMax");
-
-    var ipv4Min = $("#planIPv4Min");
-    var ipv4Max = $("#planIPv4Max");
-
-    var ipv6Min = $("#planIPv6Min");
-    var ipv6Max = $("#planIPv6Max");
-
-    var costMin = $("#planCostMin");
-    var costMax = $("#planCostMax");
-
     var ordering = $("#orderingSelect");
 
     var multi_fields = [
@@ -110,6 +92,39 @@ function filterPlans(){
         }
     ];
 
+    var min_max_fields = [
+        {
+            minField: $("#planMemMin"),
+            maxField: $("#planMemMax"),
+            api: 'memory'
+        },
+        {
+            minField: $("#planHDDMin"),
+            maxField: $("#planHDDMax"),
+            api: "disk_space"
+        },
+        {
+            minField: $("#planBandMin"),
+            maxField: $("#planBandMax"),
+            api: 'bandwidth'
+        },
+        {
+            minField: $("#planIPv4Min"),
+            maxField: $("#planIPv4Max"),
+            api: 'ipv4_space'
+        },
+        {
+            minField: $("#planIPv6Min"),
+            maxField: $("#planIPv6Max"),
+            api: 'ipv6_space'
+        },
+        {
+            minField: $("#planCostMin"),
+            maxField: $("#planCostMax"),
+            api: 'cost'
+        }
+    ];
+
     // Go through all the multi choice fields
     for (var select_counter = 0; select_counter < multi_fields.length; select_counter++){
         var select_field = multi_fields[select_counter];
@@ -118,58 +133,15 @@ function filterPlans(){
         }
     }
 
-    // Memory
-    if(memMin.val().length > 0){
-        urlOptions["memory__gte"] = memMin.val();
-    }
-
-    if(memMax.val().length > 0){
-        urlOptions["memory__lte"] = memMax.val();
-    }
-
-    // Disk space
-    if(hddMin.val().length > 0){
-        urlOptions["disk_space__gte"] = hddMin.val();
-    }
-
-    if(hddMax.val().length > 0){
-        urlOptions["disk_space__lte"] = hddMax.val();
-    }
-
-    // Bandwidth
-    if(bandMin.val().length > 0){
-        urlOptions["bandwidth__gte"] = bandMin.val();
-    }
-
-    if(bandMax.val().length > 0){
-        urlOptions["bandwidth__lte"] = bandMax.val();
-    }
-
-    // IPv4 Space
-    if(ipv4Min.val().length > 0){
-        urlOptions["ipv4_space__gte"] = ipv4Min.val();
-    }
-
-    if(ipv4Max.val().length > 0){
-        urlOptions["ipv4_space__lte"] = ipv4Max.val();
-    }
-
-    // IPv6 Space
-    if(ipv6Min.val().length > 0){
-        urlOptions["ipv6_space__gte"] = ipv6Min.val();
-    }
-
-    if(ipv6Max.val().length > 0){
-        urlOptions["ipv6_space__lte"] = ipv6Max.val();
-    }
-
-    // Cost
-    if(costMin.val().length > 0){
-        urlOptions["cost__gte"] = costMin.val();
-    }
-
-    if(costMax.val().length > 0){
-        urlOptions["cost__lte"] = costMax.val();
+    // Go through all the min max fields
+    for (var min_max_counter = 0; min_max_counter < min_max_fields.length; min_max_counter++){
+        var min_max = min_max_fields[min_max_counter];
+        if(min_max.minField.val().length > 0){
+            urlOptions[min_max.api + '__gte'] = min_max.minField.val();
+        }
+        if(min_max.maxField.val().length > 0){
+            urlOptions[min_max.api + '__lte'] = min_max.maxField.val();
+        }
     }
 
     // Ordering
