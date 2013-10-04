@@ -47,20 +47,6 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at', 'updated_at')
 
 
-class PlanUpdateInlineAdmin(admin.TabularInline):
-    model = PlanUpdate
-
-
-class OfferUpdateAdmin(admin.ModelAdmin):
-    date_hierarchy = 'created_at'
-    list_display = ('name', 'provider', 'user', 'for_offer', 'created_at', 'updated_at', 'status', 'ready')
-    list_filter = ('ready', 'status', 'created_at', 'updated_at')
-
-    inlines = [
-        PlanUpdateInlineAdmin,
-    ]
-
-
 class TestIPInline(admin.TabularInline):
     model = TestIP
 
@@ -82,7 +68,6 @@ class LocationAdmin(admin.ModelAdmin):
 
 admin.site.register(Provider)
 admin.site.register(Offer, OfferAdmin)
-admin.site.register(OfferUpdate, OfferUpdateAdmin)
 admin.site.register(Plan)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Location, LocationAdmin)
