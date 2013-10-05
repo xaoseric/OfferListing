@@ -93,7 +93,7 @@ def like_comment(request, comment_pk):
         # User is trying to like a comment
         Like.objects.create(user=request.user, comment=comment)
 
-    return HttpResponse("Got comment")
+    return HttpResponse("Toggled like comment")
 
 
 def list_offers(request, page_number=1):

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter, TestDownload, TestIP
+from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter, TestDownload, TestIP, Like
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -1442,3 +1442,21 @@ class ProviderLocationEditViewTests(WebTest):
         self.assertEqual(Location.objects.count(), 1)
         self.assertEqual(TestIP.objects.count(), 2)
         self.assertEqual(TestDownload.objects.count(), 2)
+
+
+class LikeCommentViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('user', 'test@example.com', 'pass')
+
+        self.commenter = User.objects.create_user('commenter', 'commenter@example.com', 'pass')
+        self.comment = mommy.make(Comment, commenter=self.commenter)
+
+        self.client.login(username='user', password='pass')
+
+        self.like_url = reverse("offer:like", args=[self.comment.pk])
+
+    def test_logged_out_user_can_not_like_a_comment(self):
+        self.client.logout()
+
+        response = self.client.get(self.like_url)
+        self.assertRedirects(response, reverse("login") + "?next=" + self.like_url)
