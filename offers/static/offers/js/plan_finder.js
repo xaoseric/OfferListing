@@ -50,6 +50,11 @@ var min_max_fields = [
         api: 'ipv6_space'
     },
     {
+        minField: $("#planCoreMin"),
+        maxField: $("#planCoreMax"),
+        api: 'cpu_cores'
+    },
+    {
         minField: $("#planCostMin"),
         maxField: $("#planCostMax"),
         api: 'cost'

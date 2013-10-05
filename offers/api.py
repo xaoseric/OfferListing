@@ -83,6 +83,7 @@ class PlanResource(ModelResource):
             "bandwidth": ALL,
             "disk_space": ALL,
             "memory": ALL,
+            "cpu_cores": ALL,
 
             "ipv4_space": ALL,
             "ipv6_space": ALL,
