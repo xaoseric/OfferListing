@@ -437,6 +437,7 @@ class Plan(models.Model):
     bandwidth = models.BigIntegerField()  # In gigabytes
     disk_space = models.BigIntegerField()  # In gigabytes
     memory = models.BigIntegerField()  # In megabytes
+    cpu_cores = models.IntegerField(default=1)
     location = models.ForeignKey(Location)
 
     # Ip space
