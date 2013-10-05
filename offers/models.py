@@ -555,6 +555,18 @@ class Comment(models.Model):
     def like_count(self):
         return self.like_set.count()
 
+    def does_like(self, user):
+        """
+        Tests if the given user likes this comment
+
+        :param user: The user to check
+        :type user: User
+        :return: Either True or False, based on if the user likes the comment
+        :rtype: bool
+        """
+
+        return self.like_set.filter(user=user).exists()
+
 
 class Like(models.Model):
     user = models.ForeignKey(User)
@@ -562,6 +574,9 @@ class Like(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('user', 'comment'),)
 
 
 def clean_comment_on_save(sender, instance, raw, **kwargs):

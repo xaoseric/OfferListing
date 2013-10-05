@@ -744,3 +744,19 @@ class CommentMethodTests(TestCase):
         mommy.make(Like, _quantity=5)
 
         self.assertEqual(self.comment.like_count(), 0)
+
+    def test_does_like_returns_true_if_user_likes_comment(self):
+        """
+        Test that the does_like method returns True if the user does like the comment
+        """
+        user = User.objects.create_user('user', 'test@example.com', 'pass')
+
+        like = mommy.make(Like, user=user, comment=self.comment)
+        self.assertTrue(self.comment.does_like(user))
+
+    def test_does_like_returns_false_if_user_not_like_comment(self):
+        """
+        Test that the does_like method returns False if the user does not like the comment
+        """
+        user = User.objects.create_user('user', 'test@example.com', 'pass')
+        self.assertFalse(self.comment.does_like(user))
