@@ -1,5 +1,6 @@
 $(document).ready(function(){
     $(".like-button-comment").click(click_like);
+    $(".popoverify").popover();
 });
 
 function click_like(){
@@ -9,7 +10,8 @@ function click_like(){
 
     $.get("/offers/comment/like/" + comment_id + '/', function(data){
         button.replaceWith(data["button"]);
-        console.log($("#like-count-" + comment_id).replaceWith(data["likes"]));
+        $("#like-count-" + comment_id).replaceWith(data["likes"]);
+        $("#like-count-" + comment_id).popover();
 
         button = $("#button-like-" + comment_id);
         button.click(click_like);

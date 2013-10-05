@@ -1,4 +1,4 @@
-<small id="like-count-{{ comment_pk }}">
+<small id="like-count-{{ comment_pk }}" data-toggle="tooltip" data-content="Names" class="popoverify" data-placement="left">
   {% if comment_likes != 0 %}
     {{ comment_likes }} {{ comment_likes|pluralize:"person,people" }} like{{ comment_likes|pluralize:"s," }} this.
   {% endif %}
