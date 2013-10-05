@@ -1515,3 +1515,89 @@ class LikeCommentViewTests(TestCase):
 
         response = self.client.get(self.like_url)
         self.assertEqual(response.status_code, 404)
+
+    def test_user_can_like_an_unliked_comment(self):
+        """
+        Test that a user can like an unliked comment
+        """
+
+        # Make sure there is no like to be found
+        self.assertEqual(Like.objects.count(), 0)
+        self.assertEqual(self.user.like_set.count(), 0)
+        self.assertEqual(self.comment.like_count(), 0)
+        self.assertFalse(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        # Make sure the like is present
+        self.assertEqual(Like.objects.count(), 1)
+        self.assertEqual(self.user.like_set.count(), 1)
+        self.assertEqual(self.comment.like_count(), 1)
+        self.assertTrue(self.comment.does_like(self.user))
+
+        # Make sure the like data is correct
+        like = Like.objects.latest('created_at')
+        self.assertEqual(like.user, self.user)
+        self.assertEqual(like.comment, self.comment)
+
+    def test_user_can_unlike_liked_comment(self):
+        """
+        Test that a user can unlike an liked comment
+        """
+
+        like = mommy.make(Like, user=self.user, comment=self.comment)
+
+        # Make sure the like is present
+        self.assertEqual(Like.objects.count(), 1)
+        self.assertEqual(self.user.like_set.count(), 1)
+        self.assertEqual(self.comment.like_count(), 1)
+        self.assertTrue(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        # Make sure there is no like to be found
+        self.assertEqual(Like.objects.count(), 0)
+        self.assertEqual(self.user.like_set.count(), 0)
+        self.assertEqual(self.comment.like_count(), 0)
+        self.assertFalse(self.comment.does_like(self.user))
+
+    def test_like_view_toggles_data_correctly(self):
+        """
+        Test that a user can toggle the like status by visiting the view
+        """
+
+        ## Oscillation 1
+
+        # Make sure there is no like to be found
+        self.assertEqual(Like.objects.count(), 0)
+        self.assertEqual(self.user.like_set.count(), 0)
+        self.assertEqual(self.comment.like_count(), 0)
+        self.assertFalse(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        # Make sure the like is present
+        self.assertEqual(Like.objects.count(), 1)
+        self.assertEqual(self.user.like_set.count(), 1)
+        self.assertEqual(self.comment.like_count(), 1)
+        self.assertTrue(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        ## Oscillation 2
+
+        # Make sure there is no like to be found
+        self.assertEqual(Like.objects.count(), 0)
+        self.assertEqual(self.user.like_set.count(), 0)
+        self.assertEqual(self.comment.like_count(), 0)
+        self.assertFalse(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        # Make sure the like is present
+        self.assertEqual(Like.objects.count(), 1)
+        self.assertEqual(self.user.like_set.count(), 1)
+        self.assertEqual(self.comment.like_count(), 1)
+        self.assertTrue(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
