@@ -32,7 +32,9 @@
               </a>
             {% endif %}
 
-
+            <span class="pull-right">
+              <a href="#" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-hand-up"></span> Like</a>
+            </span>
             <br />
             <a href="{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}">
               {% if is_profile %}
