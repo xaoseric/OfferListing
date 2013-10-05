@@ -1,4 +1,5 @@
 {% load gravatar %}
+{% load comment_helpers %}
 {% if comments %}
   <ul class="media-list">
     {% for comment in comments %}
@@ -33,10 +34,16 @@
             {% endif %}
 
             {% if request.user != comment.commenter and request.user.is_authenticated %}
+              {% has_liked request comment as is_liked %}
               <span class="pull-right">
-                <a href="#" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-hand-up"></span> Like</a>
+                {% if is_liked %}
+                  <a href="#" class="btn btn-xs btn-info disabled"><span class="glyphicon glyphicon-hand-down"></span> UnLike</a>
+                {% else %}
+                  <a href="#" class="btn btn-xs btn-info"><span class="glyphicon glyphicon-hand-up"></span> Like</a>
+                {% endif %}
               </span>
             {% endif %}
+
             <br />
             <a href="{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}">
               {% if is_profile %}
