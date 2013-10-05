@@ -99,6 +99,10 @@ def like_comment(request, comment_pk):
 
     return HttpResponse(json.dumps({
         "button": render_to_string('offers/comment_like_button.html', {"comment": comment, "is_liked": does_like}),
+        "likes": render_to_string('offers/comment_like_count.html', {
+            "comment_pk": comment.pk,
+            "comment_likes": comment.like_count()
+        }),
     }), content_type='application/json')
 
 

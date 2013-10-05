@@ -32,13 +32,13 @@
                 <span class="glyphicon glyphicon-ok"></span>
               </a>
             {% endif %}
-
-            {% if request.user != comment.commenter and request.user.is_authenticated %}
-              {% has_liked request comment as is_liked %}
-              <span class="pull-right">
-                {% include 'offers/comment_like_button.html' with is_liked=is_liked comment=comment %}
-              </span>
-            {% endif %}
+            <span class="pull-right">
+              {% include 'offers/comment_like_count.html' with comment_likes=comment.like_count comment_pk=comment.pk %}
+              {% if request.user != comment.commenter and request.user.is_authenticated %}
+                {% has_liked request comment as is_liked %}
+                  {% include 'offers/comment_like_button.html' with is_liked=is_liked comment=comment %}
+              {% endif %}
+            </span>
 
             <br />
             <a href="{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}">
