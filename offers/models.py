@@ -579,6 +579,14 @@ class Comment(models.Model):
 
         return self.like_set.filter(user=user).exists()
 
+    def liked_users(self):
+        """
+        A comma separated list of users who have liked this comment
+        :return: The comma separated list of users
+        :rtype: str
+        """
+        return ', '.join([like.user.username for like in self.like_set.all()])
+
 
 class Like(models.Model):
     user = models.ForeignKey(User)

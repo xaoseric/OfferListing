@@ -33,7 +33,7 @@
               </a>
             {% endif %}
             <span class="pull-right">
-              {% include 'offers/comment_like_count.html' with comment_likes=comment.like_count comment_pk=comment.pk %}
+              {% include 'offers/comment_like_count.html' with comment_likes=comment.like_count comment_pk=comment.pk names=comment.liked_users %}
               {% if request.user != comment.commenter and request.user.is_authenticated %}
                 {% has_liked request comment as is_liked %}
                   {% include 'offers/comment_like_button.html' with is_liked=is_liked comment=comment %}
