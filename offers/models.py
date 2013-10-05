@@ -104,6 +104,14 @@ class ActivePlanManager(models.Manager):
         return self.get_query_set().filter(offer=offer)
 
 
+class CommentVisibleManager(models.Manager):
+    def get_query_set(self):
+        return super(CommentVisibleManager, self).get_query_set().filter(
+            status=Comment.PUBLISHED,
+            offer__status=Offer.PUBLISHED,
+        )
+
+
 ##########
 # Models #
 ##########
@@ -533,6 +541,9 @@ class Comment(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
+    visible = CommentVisibleManager()
 
     class Meta:
         ordering = ['created_at']

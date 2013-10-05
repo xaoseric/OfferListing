@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter
+from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter, Like
+from django.db.models import Q
 from offers.forms import (
     CommentForm,
     OfferForm,
@@ -15,7 +16,7 @@ from offers.forms import (
 from offers.emailers import send_comment_reply, send_comment_new
 from offers.decorators import user_is_provider
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import logging
 from django_countries.countries import COUNTRIES
@@ -79,6 +80,20 @@ def view_offer(request, offer_pk, slug=None):
         "offer": offer,
         "form": form,
     })
+
+
+@login_required
+def like_comment(request, comment_pk):
+    comment = get_object_or_404(Comment.visible, ~Q(commenter=request.user), pk=comment_pk)
+
+    if comment.does_like(request.user):
+        # User is trying to unlike the comment
+        Like.objects.get(user=request.user, comment=comment).delete()
+    else:
+        # User is trying to like a comment
+        Like.objects.create(user=request.user, comment=comment)
+
+    return HttpResponse("Got comment")
 
 
 def list_offers(request, page_number=1):
