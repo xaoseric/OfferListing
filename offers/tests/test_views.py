@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter, TestDownload, TestIP
+from offers.models import Offer, Comment, Provider, Plan, Location, Datacenter, TestDownload, TestIP, Like
 from model_mommy import mommy
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -1442,3 +1442,162 @@ class ProviderLocationEditViewTests(WebTest):
         self.assertEqual(Location.objects.count(), 1)
         self.assertEqual(TestIP.objects.count(), 2)
         self.assertEqual(TestDownload.objects.count(), 2)
+
+
+class LikeCommentViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('user', 'test@example.com', 'pass')
+
+        self.commenter = User.objects.create_user('commenter', 'commenter@example.com', 'pass')
+        self.comment = mommy.make(Comment, commenter=self.commenter)
+
+        self.client.login(username='user', password='pass')
+
+        self.like_url = reverse("offer:like", args=[self.comment.pk])
+
+    def test_logged_out_user_can_not_like_a_comment(self):
+        """
+        Test that a logged out user can not like a comment
+        """
+        self.client.logout()
+
+        response = self.client.get(self.like_url)
+        self.assertRedirects(response, reverse("login") + "?next=" + self.like_url)
+
+    def test_user_can_not_like_unpublished_comment(self):
+        """
+        Test that a user can not like an unpublished comment
+        """
+        self.comment.status = Comment.UNPUBLISHED
+        self.comment.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_like_deleted_comment(self):
+        """
+        Test that a user can not like an deleted comment
+        """
+        self.comment.status = Comment.DELETED
+        self.comment.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_like_offer_unpublished_comment(self):
+        """
+        Test that a user can not like a comment which is attached to an unpublished offer
+        """
+        self.comment.offer.status = Offer.UNPUBLISHED
+        self.comment.offer.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_like_offer_request_comment(self):
+        """
+        Test that a user can not like a comment which is attached to an offer request
+        """
+        self.comment.offer.is_request = True
+        self.comment.offer.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_like_own_comment(self):
+        """
+        Test that a user can not like their own comments
+        """
+
+        # Make the comment owner the current user
+        self.comment.commenter = self.user
+        self.comment.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_like_an_unliked_comment(self):
+        """
+        Test that a user can like an unliked comment
+        """
+
+        # Make sure there is no like to be found
+        self.assertEqual(Like.objects.count(), 0)
+        self.assertEqual(self.user.like_set.count(), 0)
+        self.assertEqual(self.comment.like_count(), 0)
+        self.assertFalse(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        # Make sure the like is present
+        self.assertEqual(Like.objects.count(), 1)
+        self.assertEqual(self.user.like_set.count(), 1)
+        self.assertEqual(self.comment.like_count(), 1)
+        self.assertTrue(self.comment.does_like(self.user))
+
+        # Make sure the like data is correct
+        like = Like.objects.latest('created_at')
+        self.assertEqual(like.user, self.user)
+        self.assertEqual(like.comment, self.comment)
+
+    def test_user_can_unlike_liked_comment(self):
+        """
+        Test that a user can unlike an liked comment
+        """
+
+        like = mommy.make(Like, user=self.user, comment=self.comment)
+
+        # Make sure the like is present
+        self.assertEqual(Like.objects.count(), 1)
+        self.assertEqual(self.user.like_set.count(), 1)
+        self.assertEqual(self.comment.like_count(), 1)
+        self.assertTrue(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        # Make sure there is no like to be found
+        self.assertEqual(Like.objects.count(), 0)
+        self.assertEqual(self.user.like_set.count(), 0)
+        self.assertEqual(self.comment.like_count(), 0)
+        self.assertFalse(self.comment.does_like(self.user))
+
+    def test_like_view_toggles_data_correctly(self):
+        """
+        Test that a user can toggle the like status by visiting the view
+        """
+
+        ## Oscillation 1
+
+        # Make sure there is no like to be found
+        self.assertEqual(Like.objects.count(), 0)
+        self.assertEqual(self.user.like_set.count(), 0)
+        self.assertEqual(self.comment.like_count(), 0)
+        self.assertFalse(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        # Make sure the like is present
+        self.assertEqual(Like.objects.count(), 1)
+        self.assertEqual(self.user.like_set.count(), 1)
+        self.assertEqual(self.comment.like_count(), 1)
+        self.assertTrue(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        ## Oscillation 2
+
+        # Make sure there is no like to be found
+        self.assertEqual(Like.objects.count(), 0)
+        self.assertEqual(self.user.like_set.count(), 0)
+        self.assertEqual(self.comment.like_count(), 0)
+        self.assertFalse(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
+
+        # Make sure the like is present
+        self.assertEqual(Like.objects.count(), 1)
+        self.assertEqual(self.user.like_set.count(), 1)
+        self.assertEqual(self.comment.like_count(), 1)
+        self.assertTrue(self.comment.does_like(self.user))
+
+        self.client.get(self.like_url)
