@@ -35,7 +35,10 @@
           {% endif %}
           <tr>
             <td>Server Type</td>
-            <td>{{ plan.get_server_type_display }}</td>
+            <td>
+              {{ plan.get_server_type_display }}
+              ({{ plan.cpu_cores }} core{{ plan.cpu_cores | pluralize }})
+            </td>
           </tr>
           <tr>
             <td>Payment Period</td>
