@@ -553,6 +553,14 @@ class Comment(models.Model):
         })
 
 
+class Like(models.Model):
+    user = models.ForeignKey(User)
+    comment = models.ForeignKey(Comment)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 def clean_comment_on_save(sender, instance, raw, **kwargs):
     instance.content = super_clean(instance.content)
 
