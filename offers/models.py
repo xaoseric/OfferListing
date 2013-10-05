@@ -401,6 +401,9 @@ pre_save.connect(offer_update_published, sender=Offer)
 class Plan(models.Model):
     KVM = 'k'
     OPENVZ = 'o'
+    XEN = 'x'
+    VMWARE = 'v'
+
     DEDICATED = 'd'
 
     SERVER_CHOICES = (
@@ -408,6 +411,8 @@ class Plan(models.Model):
         ('Virtualized', (
             (KVM, 'KVM'),
             (OPENVZ, 'OpenVZ'),
+            (XEN, 'Xen'),
+            (VMWARE, 'VMware'),
         )),
     )
 
