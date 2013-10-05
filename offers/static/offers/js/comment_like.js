@@ -7,6 +7,7 @@ function click_like(){
     var comment_id = $(this).data('comment');
     var button = $("#button-like-" + comment_id);
     button.addClass("disabled");
+    $("#like-count-" + comment_id).popover('hide');
 
     $.get("/offers/comment/like/" + comment_id + '/', function(data){
         button.replaceWith(data["button"]);
