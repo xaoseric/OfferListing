@@ -1,5 +1,5 @@
 from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, Location
+from offers.models import Offer, Provider, Plan, Comment, Location, Like
 from model_mommy import mommy
 from django.core.files import File
 from django.conf import settings
@@ -390,6 +390,7 @@ class OfferMethodTests(TestCase):
 
         self.assertEqual(self.offer.active_plan_count(), 0)
 
+
 class ProviderMethodTests(TestCase):
     def setUp(self):
         self.provider = mommy.make(Provider)
@@ -716,3 +717,30 @@ class LocationMethodTests(TestCase):
         """
         location = mommy.make(Location, country='US')
         self.assertIn(location.country.name.__unicode__(), location.__unicode__())
+
+
+class CommentMethodTests(TestCase):
+    def setUp(self):
+        self.comment = mommy.make(Comment)
+
+    def test_like_count_correct_with_correct_offer(self):
+        """
+        Test that the like_count method returns the correct count
+        """
+
+        # Valid likes
+        mommy.make(Like, _quantity=5, comment=self.comment)
+        # Invalid likes
+        mommy.make(Like, _quantity=5)
+
+        self.assertEqual(self.comment.like_count(), 5)
+
+    def test_like_count_returns_zero_on_no_likes(self):
+        """
+        Test that the like_count method returns 0 when there are no likes
+        """
+
+        # Invalid likes
+        mommy.make(Like, _quantity=5)
+
+        self.assertEqual(self.comment.like_count(), 0)

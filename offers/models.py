@@ -552,6 +552,9 @@ class Comment(models.Model):
             "comment_id": self.pk,
         })
 
+    def like_count(self):
+        return self.like_set.count()
+
 
 class Like(models.Model):
     user = models.ForeignKey(User)
