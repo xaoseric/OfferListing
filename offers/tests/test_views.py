@@ -1456,7 +1456,62 @@ class LikeCommentViewTests(TestCase):
         self.like_url = reverse("offer:like", args=[self.comment.pk])
 
     def test_logged_out_user_can_not_like_a_comment(self):
+        """
+        Test that a logged out user can not like a comment
+        """
         self.client.logout()
 
         response = self.client.get(self.like_url)
         self.assertRedirects(response, reverse("login") + "?next=" + self.like_url)
+
+    def test_user_can_not_like_unpublished_comment(self):
+        """
+        Test that a user can not like an unpublished comment
+        """
+        self.comment.status = Comment.UNPUBLISHED
+        self.comment.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_like_deleted_comment(self):
+        """
+        Test that a user can not like an deleted comment
+        """
+        self.comment.status = Comment.DELETED
+        self.comment.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_like_offer_unpublished_comment(self):
+        """
+        Test that a user can not like a comment which is attached to an unpublished offer
+        """
+        self.comment.offer.status = Offer.UNPUBLISHED
+        self.comment.offer.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_like_offer_request_comment(self):
+        """
+        Test that a user can not like a comment which is attached to an offer request
+        """
+        self.comment.offer.is_request = True
+        self.comment.offer.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_can_not_like_own_comment(self):
+        """
+        Test that a user can not like their own comments
+        """
+
+        # Make the comment owner the current user
+        self.comment.commenter = self.user
+        self.comment.save()
+
+        response = self.client.get(self.like_url)
+        self.assertEqual(response.status_code, 404)

@@ -109,6 +109,7 @@ class CommentVisibleManager(models.Manager):
         return super(CommentVisibleManager, self).get_query_set().filter(
             status=Comment.PUBLISHED,
             offer__status=Offer.PUBLISHED,
+            offer__is_request=False,
         )
 
 
