@@ -1,5 +1,5 @@
 {% if is_liked %}
-  <a id="button-like-{{ comment.pk }}" data-comment="{{ comment.pk }}" class="btn btn-xs btn-info like-button-comment"><span class="glyphicon glyphicon-hand-down"></span> UnLike</a>
+  <a id="button-like-{{ comment.pk }}" data-comment="{{ comment.pk }}" class="btn btn-xs btn-info like-button-comment"><span class="glyphicon glyphicon-hand-down"></span> Unlike</a>
 {% else %}
   <a id="button-like-{{ comment.pk }}" data-comment="{{ comment.pk }}" class="btn btn-xs btn-info like-button-comment"><span class="glyphicon glyphicon-hand-up"></span> Like</a>
 {% endif %}
