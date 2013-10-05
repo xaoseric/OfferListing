@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% load gravatar %}
+{% load static %}
 
 {% block title %}My Comments{% endblock %}
 
@@ -16,3 +17,8 @@
     </div>
   </div>
 {% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'offers/css/comment_style.css' %}">
+{% endblock %}
+
