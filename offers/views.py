@@ -24,6 +24,8 @@ from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 import reversion
+from django.template.loader import render_to_string
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -89,11 +91,15 @@ def like_comment(request, comment_pk):
     if comment.does_like(request.user):
         # User is trying to unlike the comment
         Like.objects.get(user=request.user, comment=comment).delete()
+        does_like = False
     else:
         # User is trying to like a comment
         Like.objects.create(user=request.user, comment=comment)
+        does_like = True
 
-    return HttpResponse("Toggled like comment")
+    return HttpResponse(json.dumps({
+        "button": render_to_string('offers/comment_like_button.html', {"comment": comment, "is_liked": does_like}),
+    }), content_type='application/json')
 
 
 def list_offers(request, page_number=1):
