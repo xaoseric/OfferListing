@@ -101,6 +101,7 @@ def publish_latest_offer():
 
     offer = offers[0]
     offer.is_request = False
+    offer.is_ready = False
     offer.status = Offer.PUBLISHED
 
     offer.save()
