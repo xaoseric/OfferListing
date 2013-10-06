@@ -14,6 +14,7 @@ from template_helpers.cleaners import clean, super_clean
 from django_countries import CountryField
 import json
 import bbcode
+import html2text
 
 ############
 # Managers #
@@ -588,6 +589,15 @@ class Comment(models.Model):
         :rtype: str
         """
         return ', '.join([like.user.username for like in self.like_set.all()])
+
+    def text_comment(self):
+        """
+        The plaintext version of the comment
+        :return: The plaintect version of the comment (in markdown syntax)
+        :rtype: str
+        """
+        converted = html2text.HTML2Text()
+        return converted.handle(self.content)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
