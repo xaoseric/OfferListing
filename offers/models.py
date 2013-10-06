@@ -593,7 +593,7 @@ class Comment(models.Model):
     def text_comment(self):
         """
         The plaintext version of the comment
-        :return: The plaintect version of the comment (in markdown syntax)
+        :return: The plaintext version of the comment (in markdown syntax)
         :rtype: str
         """
         converted = html2text.HTML2Text()

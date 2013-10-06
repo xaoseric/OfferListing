@@ -6,7 +6,10 @@ at {{ comment.created_at }}.
 
 
 ============= {{ comment.commenter.username }}'s Comment =============
-{{ comment.content | safe }}
+
+{{ comment.text_comment }}
+
+============= End Comment =============
 
 
 ------- Links back -------

@@ -5,10 +5,10 @@ The user {{ comment.commenter.username }} has just replied to your comment on th
 at {{ comment.created_at }}.
 
 ============= Your Comment =============
-{{ comment.reply_to.content | safe }}
+{{ comment.reply_to.text_comment }}
 
 ============= {{ comment.commenter.username }}'s Reply =============
-{{ comment.content | safe }}
+{{ comment.text_comment }}
 
 
 ------- Links back -------
