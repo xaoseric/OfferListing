@@ -51,7 +51,7 @@ def view_offer(request, offer_pk, slug=None):
                 comment = Comment(
                     commenter=request.user,
                     offer=offer,
-                    content=form.cleaned_data["comment"],
+                    bbcode_content=form.cleaned_data["comment"],
                     status=Comment.PUBLISHED,
                     reply_to=reply_to,
                 )
