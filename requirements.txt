@@ -29,3 +29,4 @@ pyyaml
 django-celery-with-redis
 django-reversion
 bbcode
+html2bbcode
