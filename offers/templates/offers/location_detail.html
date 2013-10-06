@@ -8,16 +8,16 @@
   <h5>Test IP addresses</h5>
   {% for test_ip in location.test_ips.all %}
     <div class="row">
-      <div class="col-sm-6">{{ test_ip.ip }}</div>
-      <div class="col-sm-6">Added {{ test_ip.created_at | naturaltime }}</div>
+      <div class="col-sm-8">{{ test_ip.ip }}</div>
+      <div class="col-sm-4">Added {{ test_ip.created_at | naturaltime }}</div>
     </div>
   {% endfor %}
   <h5>Test download links</h5>
   {% for test_download in location.test_downloads.all %}
     <div class="row">
-      <div class="col-sm-4"><a href="{{ test_download.url }}">{{ test_download.url }}</a></div>
+      <div class="col-sm-6"><a href="{{ test_download.url }}">{{ test_download.url }}</a></div>
       <div class="col-sm-2">{{ test_download.size }} MB</div>
-      <div class="col-sm-6">Added {{ test_download.created_at | naturaltime }}</div>
+      <div class="col-sm-4">Added {{ test_download.created_at | naturaltime }}</div>
     </div>
   {% endfor %}
 </div>
