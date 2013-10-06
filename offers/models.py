@@ -592,8 +592,11 @@ class Comment(models.Model):
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
 
+        parser = bbcode.Parser()
+        parser.add_simple_formatter('code', '<pre>%(value)s</pre>')
+
         self.bbcode_content = self.bbcode_content.strip()
-        self.content = bbcode.render_html(self.bbcode_content)
+        self.content = parser.format(self.bbcode_content)
 
         super(Comment, self).save(force_insert, force_update, using, update_fields)
 
