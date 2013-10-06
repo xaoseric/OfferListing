@@ -49,7 +49,8 @@
       ],
       format_tags: "p;Code",
       format_Code: {name:'Code Block', element: 'pre'},
-      contentsCss: [CKEDITOR.basePath + 'contents.css', '{% static 'bootstrap/css/bootstrap.min.css' %}', '{% static 'offers/css/editor_custom.css' %}']
+      contentsCss: [CKEDITOR.basePath + 'contents.css', '{% static 'bootstrap/css/bootstrap.min.css' %}', '{% static 'offers/css/editor_custom.css' %}'],
+      extraPlugins: 'bbcode'
   });
   });
 

@@ -13,6 +13,7 @@ from django.utils.text import slugify
 from template_helpers.cleaners import clean, super_clean
 from django_countries import CountryField
 import json
+import bbcode
 
 ############
 # Managers #
@@ -538,6 +539,7 @@ class Comment(models.Model):
     reply_to = models.ForeignKey('self', blank=True, null=True)
 
     content = models.TextField()
+    bbcode_content = models.TextField()
     status = models.CharField(max_length=1, choices=STATE_CHOICES, default=PUBLISHED)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -587,6 +589,17 @@ class Comment(models.Model):
         """
         return ', '.join([like.user.username for like in self.like_set.all()])
 
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+
+        parser = bbcode.Parser()
+        parser.add_simple_formatter('code', '<pre>%(value)s</pre>')
+
+        self.bbcode_content = self.bbcode_content.strip()
+        self.content = parser.format(self.bbcode_content)
+
+        super(Comment, self).save(force_insert, force_update, using, update_fields)
+
 
 class Like(models.Model):
     user = models.ForeignKey(User)
@@ -597,9 +610,3 @@ class Like(models.Model):
 
     class Meta:
         unique_together = (('user', 'comment'),)
-
-
-def clean_comment_on_save(sender, instance, raw, **kwargs):
-    instance.content = super_clean(instance.content)
-
-pre_save.connect(clean_comment_on_save, sender=Comment)
