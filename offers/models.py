@@ -133,7 +133,11 @@ class Provider(models.Model):
     start_date = models.DateField()
     website = models.URLField(max_length=255)
     logo = models.ImageField(upload_to=get_file_path, blank=True, max_length=255)
+
     tos = models.URLField(max_length=255, verbose_name='Terms of service')
+    aup = models.URLField(max_length=255, verbose_name='Acceptable usage policy')
+    sla = models.URLField(max_length=255, verbose_name='Service level agreement', blank=True, null=True)
+    billing_agreement = models.URLField(max_length=255, verbose_name='Billing agreement', blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

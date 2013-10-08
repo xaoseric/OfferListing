@@ -14,11 +14,32 @@ class ProviderForm(forms.ModelForm):
         self.fields["start_date"].help_text = "The date your company started."
         self.fields["tos"].help_text = \
             "A link to your terms of service that will be displayed at the bottom of each offer."
+
+        self.helper.layout = Layout(
+            Fieldset(
+                'General',
+                'name',
+                'website',
+                'start_date'
+            ),
+            Fieldset(
+                'Legal',
+                'tos',
+                'aup',
+                'sla',
+                'billing_agreement'
+            ),
+            Fieldset(
+                'Other',
+                'logo'
+            )
+        )
+
         self.helper.add_input(Submit('save', 'Save Profile'))
 
     class Meta:
         model = Provider
-        fields = ('name', 'start_date', 'website', 'tos', 'logo')
+        fields = ('name', 'start_date', 'website', 'tos', 'aup', 'sla', 'billing_agreement', 'logo')
 
 
 class CommentForm(forms.Form):
