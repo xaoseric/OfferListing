@@ -15,7 +15,17 @@
   {{ offer.content | safe }}
   <br />
   <p>
-    <strong>{{ offer.provider.name }} TOS: </strong><a href="{{ offer.provider.tos }}">{{ offer.provider.tos }}</a>
+    <strong>Terms of service: </strong><a href="{{ offer.provider.tos }}">{{ offer.provider.tos }}</a>
+    <br>
+    <strong>Acceptable usage policy: </strong><a href="{{ offer.provider.aup }}">{{ offer.provider.aup }}</a>
+    {% if offer.provider.sla %}
+      <br>
+      <strong>Service level agreement: </strong><a href="{{ offer.provider.sla }}">{{ offer.provider.sla }}</a>
+    {% endif %}
+    {% if offer.provider.billing_agreement %}
+      <br>
+      <strong>Billing agreement: </strong><a href="{{ offer.provider.billing_agreement }}">{{ offer.provider.billing_agreement }}</a>
+    {% endif %}
   </p>
   <hr>
   <h2>Plans on offer:</h2>
