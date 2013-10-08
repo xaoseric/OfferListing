@@ -324,6 +324,7 @@ class ProviderAdminRequestViewTests(TestCase):
             "start_date": self.provider.start_date,
             "website": "http://example.com/provider/",
             "tos": "http://example.com/provider/tos/",
+            "aup": "http://example.com/provider/aup/",
         }
         response = self.client.post(reverse('offer:admin_home'), new_data, follow=True)
 
