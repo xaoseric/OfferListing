@@ -431,12 +431,14 @@ class Plan(models.Model):
         )),
     )
 
+    HOURLY = 'h'
     MONTHLY = 'm'
     QUARTERLY = 'q'
     YEARLY = 'y'
     BIYEARLY = 'b'
 
     BILLING_CHOICES = (
+        (HOURLY, 'Hourly'),
         (MONTHLY, 'Monthly'),
         (QUARTERLY, 'Quarterly'),
         (YEARLY, 'Yearly'),
