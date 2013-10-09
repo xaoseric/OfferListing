@@ -136,3 +136,20 @@ def send_comment_like(like_pk):
         advanced_render_to_string('offers/email/comment_like.txt', {"comment": like.comment, "liker": like.user}),
         like.comment.commenter.email
     ).apply_async()
+
+
+@task()
+def send_comment_unlike(comment_pk, liker_name):
+    if not Comment.objects.filter(pk=comment_pk).exists():
+        return
+    comment = Comment.objects.get(pk=comment_pk)
+
+    send_plain_mail.s(
+        liker_name + u' has unliked your comment!',
+        advanced_render_to_string('offers/email/comment_unlike.txt', {
+            "comment": comment,
+            "liker_username": liker_name
+        }),
+        comment.commenter.email
+    ).apply_async()
+

@@ -13,7 +13,7 @@ from offers.forms import (
     TestDownloadFormset,
     LocationForm,
 )
-from offers.emailers import send_comment_reply, send_comment_new, send_comment_liked
+from offers.emailers import send_comment_reply, send_comment_new, send_comment_liked, send_comment_unliked
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -91,6 +91,7 @@ def like_comment(request, comment_pk):
     if comment.does_like(request.user):
         # User is trying to unlike the comment
         Like.objects.get(user=request.user, comment=comment).delete()
+        send_comment_unliked(comment, request.user.username)
         does_like = False
     else:
         # User is trying to like a comment
