@@ -1,0 +1,18 @@
+Hello {{ comment.commenter.first_name }} {{ comment.commenter.last_name }},
+
+The user {{ liker.username }} has just liked a comment that you made on {{ comment.created_at }}
+
+
+============= You comment that was liked =============
+
+{{ comment.text_comment }}
+
+===================== End Comment ====================
+
+
+------- Links back -------
+
+You can visit the comment with the following links:
+
+Comment URL:   {{ site_url }}{{ comment.offer.get_absolute_url }}#comment-{{ comment.pk }}
+Offer:         {{ site_url }}{{ comment.offer.get_absolute_url }}

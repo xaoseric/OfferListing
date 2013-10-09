@@ -44,4 +44,4 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
-
+dump.rdb

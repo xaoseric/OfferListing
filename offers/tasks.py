@@ -2,7 +2,7 @@ from celery import task
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, EmailMessage
-from offers.models import Comment, Offer
+from offers.models import Comment, Offer, Like
 from django.contrib.auth.models import User
 
 
@@ -123,3 +123,16 @@ def publish_offer(offer_pk):
             advanced_render_to_string('offers/email/provider_offer_published.txt', {"offer": offer, "user": user}),
             user.email
         ).apply_async(countdown=5)
+
+
+@task()
+def send_comment_like(like_pk):
+    if not Like.objects.filter(pk=like_pk).exists():
+        return
+    like = Like.objects.get(pk=like_pk)
+
+    send_plain_mail.s(
+        like.user.username + u' has liked your comment!',
+        advanced_render_to_string('offers/email/comment_like.txt', {"comment": like.comment, "liker": like.user}),
+        like.comment.commenter.email
+    ).apply_async()

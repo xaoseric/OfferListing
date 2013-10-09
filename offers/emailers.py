@@ -2,7 +2,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from offers.tasks import send_comment_mail, send_new_comment_followers_mail, publish_offer
+from offers.tasks import send_comment_mail, send_new_comment_followers_mail, publish_offer, send_comment_like
 
 
 def send_simple_mail(subject, message_template, message_plain_template, context, to):
@@ -43,3 +43,9 @@ def send_comment_new(comment, user):
         user_pk = user.pk
     send_new_comment_followers_mail.delay(comment.pk, user_pk)
 
+
+def send_comment_liked(like):
+    if like.pk is None:
+        return
+
+    send_comment_like.delay(like.pk)

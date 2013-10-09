@@ -13,7 +13,7 @@ from offers.forms import (
     TestDownloadFormset,
     LocationForm,
 )
-from offers.emailers import send_comment_reply, send_comment_new
+from offers.emailers import send_comment_reply, send_comment_new, send_comment_liked
 from offers.decorators import user_is_provider
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -94,7 +94,8 @@ def like_comment(request, comment_pk):
         does_like = False
     else:
         # User is trying to like a comment
-        Like.objects.create(user=request.user, comment=comment)
+        like = Like.objects.create(user=request.user, comment=comment)
+        send_comment_liked(like)
         does_like = True
 
     return HttpResponse(json.dumps({
