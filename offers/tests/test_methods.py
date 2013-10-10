@@ -700,26 +700,50 @@ class PlanMethodTests(TestCase):
             self.assertEqual(plan.get_hdd(), plan.data_format(plan.disk_space, 'gigabytes'))
 
     def test_get_cost_for_decimal_gives_two_places_with_integer(self):
+        """
+        Test that the get_cost_for_decimal places returns 20.00 with decimal 20
+        Integer -> Currency
+        """
 
         self.assertEqual(Plan.get_cost_for_decimal(Decimal('20')), '20.00')
 
     def test_get_cost_for_decimal_gives_two_places_with_single_decimal_float(self):
+        """
+        Test that the get_cost_for_decimal places returns 20.10 with decimal 20.1
+        Float -> Currency
+        """
 
         self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.1')), '20.10')
 
     def test_get_cost_for_decimal_gives_two_places_with_two_decimal_float(self):
+        """
+        Test that the get_cost_for_decimal places returns 20.14 with decimal 20.14
+        Float -> Currency
+        """
 
         self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.14')), '20.14')
 
     def test_get_cost_for_decimal_gives_three_places_with_triple_decimal_float(self):
+        """
+        Test that the get_cost_for_decimal places returns 20.155 with decimal 20.155
+        Float -> Currency
+        """
 
         self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.155')), '20.155')
 
     def test_get_cost_for_decimal_gives_three_places_with_quadruple_decimal_float_and_rounds(self):
+        """
+        Test that the get_cost_for_decimal places returns 20.108 with decimal 20.1076
+        Float -> Currency
+        """
 
         self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.1076')), '20.108')
 
     def test_get_cost_for_decimal_gives_two_places_with_empty_decimal(self):
+        """
+        Test that the get_cost_for_decimal places returns 20.00 with decimal 20.000
+        Float -> Currency
+        """
 
         self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.000')), '20.00')
 
