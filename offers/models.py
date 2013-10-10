@@ -529,7 +529,8 @@ class Plan(models.Model):
 
     def get_cost(self):
         """
-        Get the cost of the plan
+        Get the cost of the plan in a safe plaintext form
+
         :return: The HTML safe cost of the plan
         """
         return self.get_cost_for_decimal(self.cost)
@@ -543,11 +544,11 @@ class Plan(models.Model):
         Gets the pretty string version for a cost in the python Decimal format.
         The maximum number of decimal places is 3 and the minimum is 2.
 
-        | Decimal(20) -> '20.00'
-        | Decimal(20.1) -> '20.10'
-        | Decimal(20.15) -> '20.15'
-        | Decimal(20.151) -> '20.151'
-        | Decimal(20.1516) -> '20.152'
+        |  Decimal(20) -> '20.00'
+        |  Decimal(20.1) -> '20.10'
+        |  Decimal(20.15) -> '20.15'
+        |  Decimal(20.151) -> '20.151'
+        |  Decimal(20.1516) -> '20.152'
 
         **Note:** The decimal is rounded if it goes past 3 digits.
 
