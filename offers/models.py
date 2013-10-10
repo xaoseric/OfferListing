@@ -55,7 +55,8 @@ class OfferVisibleManager(models.Manager):
 
 class OfferActiveManager(OfferVisibleManager):
     """
-    Only gets the active offers (offers which are published and have the active status)
+    Only gets the active offers (offers which are published and have the active status). This also ensures
+    that the offers are visible on the site.
     """
     def get_query_set(self):
         return super(OfferActiveManager, self).get_query_set().filter(is_active=True)
@@ -68,6 +69,10 @@ class OfferActiveManager(OfferVisibleManager):
 
 
 class OfferRequestManager(models.Manager):
+    """
+    Gets all the offers that are requests. This ensures that the offer is not published and the is_request flag is
+    True
+    """
     def get_query_set(self):
         return super(OfferRequestManager, self).get_query_set().filter(
             status=Offer.UNPUBLISHED,
@@ -75,9 +80,20 @@ class OfferRequestManager(models.Manager):
         )
 
     def for_provider(self, provider):
+        """
+        Get a queryset of requests that are only for a provider.
+
+        :param provider: The provider to filter
+        :type provider: offers.models.Provider
+        :return: A queryset of all requests for a provider
+        """
         return self.get_query_set().filter(provider=provider)
 
     def for_user(self, user):
+        """
+        Get a queryset of request for a user (which gets it for the user's provider). This means that if the user
+        manages the provider *FancyProvider*, they will get all requests for *FancyProvider*.
+        """
         return self.for_provider(user.user_profile.provider)
 
 
