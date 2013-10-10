@@ -479,14 +479,21 @@ class Plan(models.Model):
         """
         Format data such as MB or GB into better format. This means that:
 
-        1024 MB -> 1 GB
-        1024 GB -> 1 TB
-        2048 GB -> 2 GB
+        |  1024 MB -> 1 GB
+        |  1024 GB -> 1 TB
+        |  2048 GB -> 2 GB
 
         It will also only format perfect values
 
         2050 GB -> 2050 GB
 
+        :param value: The value to make pretty
+        :type value: int
+        :param format_type: Either 'megabytes' or 'gigabytes'. This indicates the input format
+                            of the value.
+        :type format_type: str
+        :return: The pretty version of the value
+        :rtype: str
         """
         return_string = ''
         if format_type == 'megabytes':
@@ -532,6 +539,7 @@ class Plan(models.Model):
         Get the cost of the plan in a safe plaintext form
 
         :return: The HTML safe cost of the plan
+        :rtype: str
         """
         return self.get_cost_for_decimal(self.cost)
 
@@ -553,7 +561,7 @@ class Plan(models.Model):
         **Note:** The decimal is rounded if it goes past 3 digits.
 
         :param decimal: The decimal to get a string for
-        :type decimal: Decimal
+        :type decimal: decimal.Decimal
         :return: The string of the currency decimal
         :rtype: str
         """
