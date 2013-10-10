@@ -160,8 +160,8 @@ class OfferMethodTests(TestCase):
 
         self.assertEqual(min_max[0]["name"], plan_mid.get_billing_time_display())
         self.assertEqual(min_max[0]["code"], Plan.MONTHLY)
-        self.assertEqual(min_max[0]["min"], Decimal('10.00'))
-        self.assertEqual(min_max[0]["max"], Decimal('20.83'))
+        self.assertEqual(min_max[0]["min_cost"], '10.00')
+        self.assertEqual(min_max[0]["max_cost"], '20.83')
         self.assertFalse(min_max[0]["same"])
 
     def test_get_min_max_gets_correct_values_for_yearly(self):
@@ -178,8 +178,8 @@ class OfferMethodTests(TestCase):
 
         self.assertEqual(min_max[0]["name"], plan_mid.get_billing_time_display())
         self.assertEqual(min_max[0]["code"], Plan.YEARLY)
-        self.assertEqual(min_max[0]["min"], Decimal('10.00'))
-        self.assertEqual(min_max[0]["max"], Decimal('20.83'))
+        self.assertEqual(min_max[0]["min_cost"], '10.00')
+        self.assertEqual(min_max[0]["max_cost"], '20.83')
         self.assertFalse(min_max[0]["same"])
 
     def test_get_min_max_sets_same_with_one_plan(self):
@@ -194,8 +194,8 @@ class OfferMethodTests(TestCase):
 
         self.assertEqual(min_max[0]["name"], plan.get_billing_time_display())
         self.assertEqual(min_max[0]["code"], Plan.MONTHLY)
-        self.assertEqual(min_max[0]["min"], Decimal('10.00'))
-        self.assertEqual(min_max[0]["max"], Decimal('10.00'))
+        self.assertEqual(min_max[0]["min_cost"], '10.00')
+        self.assertEqual(min_max[0]["max_cost"], '10.00')
         self.assertTrue(min_max[0]["same"])
 
     def test_get_min_max_gets_correct_values_two_billing_periods(self):
@@ -216,14 +216,14 @@ class OfferMethodTests(TestCase):
 
         self.assertEqual(min_max[0]["name"], plan_month_mid.get_billing_time_display())
         self.assertEqual(min_max[0]["code"], Plan.MONTHLY)
-        self.assertEqual(min_max[0]["min"], Decimal('10.00'))
-        self.assertEqual(min_max[0]["max"], Decimal('20.83'))
+        self.assertEqual(min_max[0]["min_cost"], '10.00')
+        self.assertEqual(min_max[0]["max_cost"], '20.83')
         self.assertFalse(min_max[0]["same"])
 
         self.assertEqual(min_max[1]["name"], plan_year_mid.get_billing_time_display())
         self.assertEqual(min_max[1]["code"], Plan.YEARLY)
-        self.assertEqual(min_max[1]["min"], Decimal('100.00'))
-        self.assertEqual(min_max[1]["max"], Decimal('208.30'))
+        self.assertEqual(min_max[1]["min_cost"], '100.00')
+        self.assertEqual(min_max[1]["max_cost"], '208.30')
         self.assertFalse(min_max[1]["same"])
 
     def test_offer_active_gives_correct_offer_for_active_offer(self):
