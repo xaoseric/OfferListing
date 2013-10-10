@@ -26,9 +26,9 @@
         <div class="col-xs-8">
           {% for min_max in offer.get_min_max_cost %}
             {% if min_max.same %}
-              ${{ min_max.min | floatformat:2 }} ({{ min_max.name }})
+              ${{ min_max.min_cost }} ({{ min_max.name }})
             {% else %}
-              ${{ min_max.min | floatformat:2 }} - ${{ min_max.max | floatformat:2 }} ({{ min_max.name }})
+              ${{ min_max.min_cost }} - ${{ min_max.max_cost }} ({{ min_max.name }})
             {% endif %}
 
             {% if not forloop.last %}

@@ -15,6 +15,7 @@ from django_countries import CountryField
 import json
 import bbcode
 import html2text
+from decimal import Decimal
 
 ############
 # Managers #
@@ -368,18 +369,18 @@ class Offer(models.Model):
         for billing_type in self.plan_set.values('billing_time').distinct():
             billing_type = billing_type["billing_time"]
 
-            min = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Min('cost'))["cost"]
-            max = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Max('cost'))["cost"]
+            min_cost = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Min('cost'))["cost"]
+            max_cost = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Max('cost'))["cost"]
 
             is_same = False
-            if min == max:
+            if min_cost == max_cost:
                 is_same = True
 
             min_maxes.append({
                 "code": billing_type,
                 "name": billing_type_lookup[billing_type],
-                "min": min,
-                "max": max,
+                "min_cost": Plan.get_cost_for_decimal(min_cost),
+                "max_cost": Plan.get_cost_for_decimal(max_cost),
                 "same": is_same,
             })
         return min_maxes
@@ -526,8 +527,42 @@ class Plan(models.Model):
             return True
         return False
 
+    def get_cost(self):
+        """
+        Get the cost of the plan
+        :return: The HTML safe cost of the plan
+        """
+        return self.get_cost_for_decimal(self.cost)
+
     def __unicode__(self):
         return "{} ({})".format(self.offer.name, self.get_memory())
+
+    @classmethod
+    def get_cost_for_decimal(cls, decimal):
+        """
+        Gets the pretty string version for a cost in the python Decimal format.
+        The maximum number of decimal places is 3 and the minimum is 2.
+
+        | Decimal(20) -> '20.00'
+        | Decimal(20.1) -> '20.10'
+        | Decimal(20.15) -> '20.15'
+        | Decimal(20.151) -> '20.151'
+        | Decimal(20.1516) -> '20.152'
+
+        **Note:** The decimal is rounded if it goes past 3 digits.
+
+        :param decimal: The decimal to get a string for
+        :type decimal: Decimal
+        :return: The string of the currency decimal
+        :rtype: str
+        """
+        decimal_places = abs(decimal.normalize().as_tuple().exponent)
+        if decimal_places <= 2:
+            decimal_rounder = Decimal('0.00')
+        else:
+            decimal_rounder = Decimal('0.000')
+
+        return str(decimal.normalize().quantize(decimal_rounder))
 
 
 class Comment(models.Model):

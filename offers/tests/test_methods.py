@@ -699,6 +699,30 @@ class PlanMethodTests(TestCase):
         for plan in self.plans:
             self.assertEqual(plan.get_hdd(), plan.data_format(plan.disk_space, 'gigabytes'))
 
+    def test_get_cost_for_decimal_gives_two_places_with_integer(self):
+
+        self.assertEqual(Plan.get_cost_for_decimal(Decimal('20')), '20.00')
+
+    def test_get_cost_for_decimal_gives_two_places_with_single_decimal_float(self):
+
+        self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.1')), '20.10')
+
+    def test_get_cost_for_decimal_gives_two_places_with_two_decimal_float(self):
+
+        self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.14')), '20.14')
+
+    def test_get_cost_for_decimal_gives_three_places_with_triple_decimal_float(self):
+
+        self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.155')), '20.155')
+
+    def test_get_cost_for_decimal_gives_three_places_with_quadruple_decimal_float_and_rounds(self):
+
+        self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.1076')), '20.108')
+
+    def test_get_cost_for_decimal_gives_two_places_with_empty_decimal(self):
+
+        self.assertEqual(Plan.get_cost_for_decimal(Decimal('20.000')), '20.00')
+
 
 class LocationMethodTests(TestCase):
     def setUp(self):
