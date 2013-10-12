@@ -2,6 +2,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 {% load following_helpers %}
+{% load url_helpers %}
 
 {% block title %}{{ offer.name }}{% endblock %}
 
@@ -82,5 +83,13 @@
 {% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'offers/css/comment_style.css' %}">
+  <link rel="stylesheet" href="{% static 'offers/css/comment_style.css' %}">
+  {# Meta data #}
+  <meta property="og:title" content="{{ offer.provider.name }} offer - {{ site_verbose_name }}" />
+  <meta property="og:type" content="article"/>
+  <meta property="og:image" content="{% make_absolute_url offer.provider.logo.url %}"/>
+  <meta property="og:description" content="{{ offer.name }}"/>
+  <meta property="og:url" content="{% make_absolute_url offer.get_absolute_url %}"/>
+  <meta property="og:updated_time" content="{{ offer.updated_at | date:"U" }}" />
+  <link rel="canonical" href="{% make_absolute_url offer.get_absolute_url %}"/>
 {% endblock %}
