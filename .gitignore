@@ -45,3 +45,6 @@ nosetests.xml
 .project
 .pydevproject
 dump.rdb
+
+# Sphinx
+docs/_build/*
