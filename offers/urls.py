@@ -1,12 +1,14 @@
 from django.conf.urls import patterns, url, include
-from offers.api import OfferResource, PlanResource
-from tastypie.api import Api
+from offers.feeds import OfferFeed, OfferAtomFeed
 
 
 urlpatterns = patterns('offers.views',
     url(r'^view/(?P<offer_pk>\d+)/$', 'view_offer', name='view'),
     url(r'^view/(?P<offer_pk>\d+)-(?P<slug>[-\w]+)/$', 'view_offer', name='view_slug'),
     url(r'^comment/like/(?P<comment_pk>\d+)/', 'like_comment', name="like"),
+
+    url(r'^feed/', OfferFeed()),
+    url(r'^atom/', OfferAtomFeed()),
 
     url(r'^providers/$', 'provider_list', name='providers'),
     url(r'^provider/(?P<provider_name>[-\w]+)/$', 'provider_profile', name='provider'),
