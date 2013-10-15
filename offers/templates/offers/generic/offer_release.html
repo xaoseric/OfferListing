@@ -1,0 +1,45 @@
+<style type="text/css">
+  body {
+    font-family: Arial, sans-serif;
+  }
+  a:visited { text-decoration: none; color:blue; }
+  h3 a {text-decoration: none; color:blue;}
+  .cost-c {color: #006600;}
+</style>
+<h2>Offer just released!</h2>
+
+<h3>
+  <a href="http://{{ site.domain }}{{ obj.get_absolute_url }}">{{ obj.name }}</a>
+  <small>
+    <a href="http://{{ site.domain }}{{ obj.provider.get_absolute_url }}">{{ obj.provider.name }}</a>
+  </small>
+</h3>
+
+
+<strong>Provider:</strong> <a href="http://{{ site.domain }}{{ obj.provider.get_absolute_url }}">{{ obj.provider.name }}</a>
+<br>
+<strong>TOS:</strong> <a href="{{ obj.provider.tos }}">{{ obj.provider.tos }}</a>
+<br><br>
+
+<strong>Locations offered:</strong>
+  <ul>
+  {% for location in obj.get_plan_locations %}
+    <li>
+      <img src="http://{{ site.domain }}{{ location.country.flag }}">
+      {{ location }}
+    </li>
+  {% endfor %}
+  </ul>
+<br>
+
+{% for min_max in obj.get_min_max_cost %}
+  {% if min_max.same %}
+    <span class="cost-c">${{ min_max.min_cost }}</span> ({{ min_max.name }})
+  {% else %}
+    <span class="cost-c">${{ min_max.min_cost }}</span> - <span class="cost-c">${{ min_max.max_cost }}</span> ({{ min_max.name }})
+  {% endif %}
+
+  {% if not forloop.last %}
+  |
+  {% endif %}
+{% endfor %}

@@ -8,7 +8,7 @@ from django.utils.feedgenerator import Atom1Feed
 class OfferFeed(Feed):
     title = settings.SITE_NAME + ' offers'
     description = 'A recent list of offers on ' + settings.SITE_NAME
-    description_template = 'offers/generic/offer_release.txt'
+    description_template = 'offers/generic/offer_release.html'
     item_guid_is_permalink = True
 
     def items(self):
