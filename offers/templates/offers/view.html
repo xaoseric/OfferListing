@@ -87,7 +87,9 @@
   {# Meta data #}
   <meta property="og:title" content="{{ offer.provider.name }} offer - {{ site_verbose_name }}" />
   <meta property="og:type" content="article"/>
-  <meta property="og:image" content="{% make_absolute_url offer.provider.logo.url %}"/>
+  {% if offer.provider.logo %}
+    <meta property="og:image" content="{% make_absolute_url offer.provider.logo.url %}"/>
+  {% endif %}
   <meta property="og:description" content="{{ offer.name }}"/>
   <meta property="og:url" content="{% make_absolute_url offer.get_absolute_url %}"/>
   <meta property="og:updated_time" content="{{ offer.updated_at | date:"U" }}" />
