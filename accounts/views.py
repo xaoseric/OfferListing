@@ -106,7 +106,7 @@ def deactivate_account(request):
 
 @login_required
 def comment_list(request):
-    comments = Comment.objects.filter(commenter=request.user, status=Comment.PUBLISHED)
+    comments = Comment.visible.filter(commenter=request.user)
     return render(request, 'accounts/comments.html', {"comments": comments})
 
 
