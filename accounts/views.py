@@ -112,7 +112,7 @@ def comment_list(request):
 
 @login_required
 def followed_list(request):
-    offer_list = request.user.followed_offers.filter(status=Offer.PUBLISHED, is_request=False)
+    offer_list = Offer.visible_offers.filter(followers=request.user)
 
     paginator = Paginator(offer_list, 5)
     page = request.GET.get('page')
