@@ -401,7 +401,7 @@ class CommentAccountViewTest(TestCase):
         self.user.save()
         self.client.login(username='some_user', password='password')
 
-        self.comments = mommy.make(Comment, commenter=self.user, _quantity=50)
+        self.comments = mommy.make(Comment, commenter=self.user, _quantity=5)
 
     def test_user_can_view_own_comments(self):
         """
