@@ -103,12 +103,21 @@
       {% endblock %}
 
       <hr>
-      <strong>
-        Running the open offers system, <a href="https://github.com/OfferTeam/OfferListing">OfferListing</a>
-        {% if footer_extra %}
-          <span class="pull-right">{{ footer_extra | safe }}</span>
-        {% endif %}
-      </strong>
+      <div class="row" style="font-weight: bold">
+        <div class="col-md-4">
+          Running the open offers system, <a href="https://github.com/OfferTeam/OfferListing">OfferListing</a>
+        </div>
+        <div class="col-md-4 text-center">
+          <a class="tooltipify" title="RSS v2 Feed" href="{% url 'offer:rss' %}">RSS</a>
+          /
+          <a class="tooltipify" title="Atom Feed" href="{% url 'offer:atom' %}">Atom</a>
+        </div>
+        <div class="col-md-4 text-right">
+          {% if footer_extra %}
+            {{ footer_extra | safe }}
+          {% endif %}
+        </div>
+      </div>
       <br /><br />
 
       <script src="{% static 'jquery/jquery.min.js' %}"></script>

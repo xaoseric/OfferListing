@@ -7,8 +7,8 @@ urlpatterns = patterns('offers.views',
     url(r'^view/(?P<offer_pk>\d+)-(?P<slug>[-\w]+)/$', 'view_offer', name='view_slug'),
     url(r'^comment/like/(?P<comment_pk>\d+)/', 'like_comment', name="like"),
 
-    url(r'^feed/', OfferFeed()),
-    url(r'^atom/', OfferAtomFeed()),
+    url(r'^feed/', OfferFeed(), name='rss'),
+    url(r'^atom/', OfferAtomFeed(), name='atom'),
 
     url(r'^providers/$', 'provider_list', name='providers'),
     url(r'^provider/(?P<provider_name>[-\w]+)/$', 'provider_profile', name='provider'),
