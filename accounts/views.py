@@ -106,7 +106,19 @@ def deactivate_account(request):
 
 @login_required
 def comment_list(request):
-    comments = Comment.visible.filter(commenter=request.user)
+    comments_list = Comment.visible.filter(commenter=request.user).order_by('-created_at')
+
+    paginator = Paginator(comments_list, 10)
+    page = request.GET.get('page')
+    try:
+        comments = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        comments = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        comments = paginator.page(paginator.num_pages)
+
     return render(request, 'accounts/comments.html', {"comments": comments})
 
 

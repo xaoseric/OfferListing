@@ -14,6 +14,18 @@
     </div>
     <div class="col-md-9">
       {% include 'offers/comments.html' with comments=comments is_profile=True %}
+      <ul class="pager">
+        <li class="previous {% if not comments.has_next %}disabled{% endif %}">
+          <a href="{% if comments.has_next %}{% url 'my_comments' %}?page={{ comments.next_page_number }}{% endif %}">
+            &larr; Older
+          </a>
+        </li>
+        <li class="next {% if not comments.has_previous %}disabled{% endif %}">
+          <a href="{% if comments.has_previous %}{% url 'my_comments' %}?page={{ comments.previous_page_number }}{% endif %}">
+            Newer &rarr;
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 {% endblock %}
