@@ -66,6 +66,14 @@ class UserRegisterForm(UserCreationForm):
             Submit('register', 'Register')
         )
 
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        try:
+            User.objects.get(username__iexact=username)
+        except User.DoesNotExist:
+            return username
+        raise forms.ValidationError(self.error_messages['duplicate_username'])
+
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name')

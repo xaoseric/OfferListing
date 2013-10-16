@@ -181,6 +181,7 @@ INSTALLED_APPS = (
 SITE_ID = 1
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
+AUTHENTICATION_BACKENDS = ('accounts.backend.BetterModelBackend',)
 
 CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_arcs','captcha.helpers.noise_dots',)
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
