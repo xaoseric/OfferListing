@@ -200,6 +200,7 @@ CAPTCHA_FONT_SIZE = 44
 
 # Grappelli Settings
 GRAPPELLI_INDEX_DASHBOARD = 'OfferListings.dashboard.CustomIndexDashboard'
+GRAPPELLI_ADMIN_TITLE = 'Offer Listings Admin'
 
 # Settings for testing
 if os.getenv('TEST_RUNNING', False):
