@@ -154,7 +154,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Admin Site
+    'grappelli',
     'django.contrib.admin',
+    # End Admin Site
     'django.contrib.humanize',
     'django.contrib.sites',
     'django.contrib.flatpages',

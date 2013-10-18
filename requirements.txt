@@ -31,3 +31,4 @@ django-reversion
 bbcode
 html2bbcode
 html2text
+django-grappelli
