@@ -74,6 +74,11 @@ MEDIA_ROOT = os.path.join(BASE_PATH, 'resources', 'media')
 # Examples: "http://example.com/media/", "http://media.example.com/"
 MEDIA_URL = '/media/'
 
+# Django filebrowser settings
+FILEBROWSER_DIRECTORY = ''
+FILEBROWSER_MEDIA_ROOT = MEDIA_ROOT
+FILEBROWSER_MEDIA_URL = MEDIA_URL
+
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
@@ -157,6 +162,7 @@ INSTALLED_APPS = (
     # Admin Site
     'grappelli.dashboard',
     'grappelli',
+    'filebrowser',
     'django.contrib.admin',
     # End Admin Site
     'django.contrib.humanize',
