@@ -8,6 +8,7 @@ from flatpage_extend.models import FlatpageNavbar
 
 class FlatpageInline(admin.StackedInline):
     model = FlatpageNavbar
+    inline_classes = ('grp-open',)
 
 
 class BetterFlatPageAdmin(FlatPageAdmin):
