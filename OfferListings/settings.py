@@ -155,6 +155,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Admin Site
+    'grappelli.dashboard',
     'grappelli',
     'django.contrib.admin',
     # End Admin Site
@@ -190,6 +191,9 @@ CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_arcs','captcha.helpers.noise_d
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
 CAPTCHA_LETTER_ROTATION = None
 CAPTCHA_FONT_SIZE = 44
+
+# Grappelli Settings
+GRAPPELLI_INDEX_DASHBOARD = 'OfferListings.dashboard.CustomIndexDashboard'
 
 # Settings for testing
 if os.getenv('TEST_RUNNING', False):
