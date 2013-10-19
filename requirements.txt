@@ -32,3 +32,4 @@ html2bbcode
 html2text
 django-grappelli
 django-filebrowser
+django-nose

@@ -194,6 +194,7 @@ INSTALLED_APPS = (
     'tastypie',
     'djcelery',
     'reversion',
+    'django_nose',
 
     # Custom applications
     'offers',
@@ -215,6 +216,8 @@ CAPTCHA_FONT_SIZE = 44
 # Grappelli Settings
 GRAPPELLI_INDEX_DASHBOARD = 'OfferListings.dashboard.CustomIndexDashboard'
 GRAPPELLI_ADMIN_TITLE = 'Offer Listings Admin'
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 # Settings for testing
 if os.getenv('TEST_RUNNING', False):
