@@ -335,12 +335,15 @@ class Offer(models.Model):
         Get the minimum and maximum values of the plans for each
         """
 
-        billing_type_lookup = dict(Plan.BILLING_CHOICES)
-
         min_maxes = []
+        billing_types = self.plan_set.values('billing_time').distinct()
+        billing_types = [x["billing_time"] for x in billing_types]
 
-        for billing_type in self.plan_set.values('billing_time').distinct():
-            billing_type = billing_type["billing_time"]
+        for billing_type in Plan.BILLING_CHOICES:
+            if not billing_type[0] in billing_types:
+                continue
+            billing_type_name = billing_type[1]
+            billing_type = billing_type[0]
 
             min_cost = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Min('cost'))["cost"]
             max_cost = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Max('cost'))["cost"]
@@ -351,7 +354,7 @@ class Offer(models.Model):
 
             min_maxes.append({
                 "code": billing_type,
-                "name": billing_type_lookup[billing_type],
+                "name": billing_type_name,
                 "min_cost": Plan.get_cost_for_decimal(min_cost),
                 "max_cost": Plan.get_cost_for_decimal(max_cost),
                 "same": is_same,
