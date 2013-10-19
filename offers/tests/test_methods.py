@@ -401,30 +401,6 @@ class ProviderMethodTests(TestCase):
         """
         self.assertEqual(self.provider.name, self.provider.__unicode__())
 
-    def test_image_url_without_url(self):
-        """
-        Test that the static image url is provided when there is no provider image
-        """
-        self.assertEqual(self.provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
-
-    def test_image_with_url(self):
-        """
-        Test that the real image url is provided when there is a provider image
-        """
-        image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_data', 'test_image.png')
-        self.provider.logo.save(
-            image_path,
-            File(open(image_path)),
-        )
-        self.provider.save()
-        self.assertNotEqual(self.provider.get_image_url(), '')
-        self.assertNotEqual(self.provider.get_image_url(), settings.STATIC_URL + 'img/no_logo.png')
-        try:
-            os.remove(self.provider.logo.path)
-            os.remove(self.provider.logo.path + '.400x400_q85_crop.jpg')
-        except OSError:
-            pass
-
     def test_offer_count_with_published_active(self):
         """
         Test that the number of published offers for a provider is correctly shown even if the offer is not active

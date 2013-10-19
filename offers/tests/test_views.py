@@ -23,7 +23,6 @@ class ProviderProfileViewTests(TestCase):
         """
         response = self.client.get(self.provider.get_absolute_url())
         self.assertContains(response, self.provider.name)
-        self.assertContains(response, self.provider.get_image_url())
 
     def test_provider_profile_shows_offers(self):
         """
