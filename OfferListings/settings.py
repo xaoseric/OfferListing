@@ -188,7 +188,6 @@ INSTALLED_APPS = (
     'south',
     'crispy_forms',
     'django_gravatar',
-    'easy_thumbnails',
     'raven.contrib.django.raven_compat',
     'django_countries',
     'captcha',
