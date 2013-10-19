@@ -3,13 +3,13 @@ import os
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
-DATABASE_TYPE = os.getenv('TEST_DB', 'mysql')
+DATABASE_TYPE = os.getenv('TEST_DB', 'sqlite')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'offer_listings',
-        'USER': 'root',
+        'USER': 'postgres',
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',

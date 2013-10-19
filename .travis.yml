@@ -3,11 +3,12 @@ python:
   - "2.7"
 env:
   - DJANGO=Django==1.5.4 TEST_DB=sqlite
-  - DJANGO=Django==1.5.4 TEST_DB=mysql
+  - DJANGO=Django==1.5.4 TEST_DB=postgresql
 
 install:
   - pip install -r requirements.txt --use-mirrors
   - pip install -q $DJANGO --use-mirrors
+  - pip install psycopg2
 before_script:
   - python -c "import django; print(django.get_version())"
   - sudo apt-get install libjpeg-dev
