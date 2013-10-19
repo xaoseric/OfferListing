@@ -12,7 +12,7 @@ class OfferFeed(Feed):
     item_guid_is_permalink = True
 
     def items(self):
-        return Offer.visible_offers.all()
+        return Offer.visible_offers.all()[:10]
 
     def link(self):
         return reverse('home')
