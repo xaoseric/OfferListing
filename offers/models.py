@@ -264,7 +264,7 @@ class Offer(models.Model):
     followers = models.ManyToManyField(User, blank=True, null=True, related_name="followed_offers")
 
     def __unicode__(self):
-        return "{0} ({1})".format(self.name, self.provider.name)
+        return u"{0} ({1})".format(self.name, self.provider.name)
 
     def get_absolute_url(self):
         """
@@ -512,7 +512,7 @@ class Plan(models.Model):
         return self.get_cost_for_decimal(self.cost)
 
     def __unicode__(self):
-        return "{} ({})".format(self.offer.name, self.get_memory())
+        return u"{} ({})".format(self.offer.name, self.get_memory())
 
     @classmethod
     def get_cost_for_decimal(cls, decimal):
