@@ -1,4 +1,6 @@
 {% load humanize %}
+{% load fb_versions %}
+
 <div class="panel panel-default {% if not offer.offer_active %}panel-warning{% endif %}">
   <div class="panel-heading">
     <h3 class="panel-title">
@@ -12,7 +14,7 @@
         {{ offer.content|truncatewords_html:200|safe }}
       </div>
       <div class="col-lg-2 col-sm-3 text-center">
-        <img src="{{ offer.provider.get_small_image_url }}" class="img-responsive img-thumbnail" />
+        <img src="{% version offer.provider.logo 'small' %}" class="img-responsive img-thumbnail" />
       </div>
     </div>
   </div>

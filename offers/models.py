@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 from django.conf import settings
 import os
 import uuid
-from easy_thumbnails.files import get_thumbnailer
 from django.utils import timezone
 from django.utils.text import slugify
 from template_helpers.cleaners import clean, super_clean
@@ -148,32 +147,6 @@ class Provider(models.Model):
 
     def get_absolute_url(self):
         return reverse('offer:provider', args=[self.name_slug])
-
-    def get_image_url(self):
-        """
-        Get the url of the providers logo. This defaults to a no_logo.png static image if the logo for the provider
-        is not set.
-
-        The dimensions of the image are 400 by 400.
-        """
-        if self.logo == '' or self.logo is None:
-            return settings.STATIC_URL + 'img/no_logo.png'
-
-        options = {'size': (400, 400), 'crop': True}
-        return get_thumbnailer(self.logo).get_thumbnail(options).url
-
-    def get_small_image_url(self):
-        """
-        Get the url of the providers small logo. This defaults to a no_logo.png static image if the logo for the
-        provider is not set.
-
-        The dimensions of the image are 200 by 200.
-        """
-        if self.logo == '' or self.logo is None:
-            return settings.STATIC_URL + 'img/no_logo.png'
-
-        options = {'size': (200, 200), 'crop': True}
-        return get_thumbnailer(self.logo).get_thumbnail(options).url
 
     def offer_count(self):
         """
