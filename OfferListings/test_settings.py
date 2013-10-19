@@ -11,7 +11,7 @@ DATABASES = {
         'NAME': 'offer_listings',
         'USER': 'postgres',
         'PASSWORD': '',
-        'HOST': '',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }
