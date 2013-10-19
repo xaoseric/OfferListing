@@ -1047,7 +1047,7 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-0-billing_time"].value, plan.billing_time)
         self.assertEqual(form["plan_set-0-url"].value, plan.url)
         self.assertEqual(form["plan_set-0-promo_code"].value, plan.promo_code)
-        self.assertEqual(form["plan_set-0-cost"].value, unicode(plan.cost))
+        self.assertEqual(float(form["plan_set-0-cost"].value), float(plan.cost))
 
         plan = self.plans[1]
 
@@ -1061,7 +1061,7 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-1-billing_time"].value, plan.billing_time)
         self.assertEqual(form["plan_set-1-url"].value, plan.url)
         self.assertEqual(form["plan_set-1-promo_code"].value, plan.promo_code)
-        self.assertEqual(form["plan_set-1-cost"].value, unicode(plan.cost))
+        self.assertEqual(float(form["plan_set-1-cost"].value), float(plan.cost))
 
     def test_edit_request_page_can_edit_offer(self):
         """
