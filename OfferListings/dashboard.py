@@ -1,11 +1,3 @@
-"""
-This file was generated with the customdashboard management command and
-contains the class for the main dashboard.
-
-To activate your index dashboard add the following to your settings.py::
-    GRAPPELLI_INDEX_DASHBOARD = 'OfferListings.dashboard.CustomIndexDashboard'
-"""
-
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 
@@ -23,40 +15,48 @@ class CustomIndexDashboard(Dashboard):
         
         # append a group for "Administration" & "Applications"
         self.children.append(modules.Group(
-            _('Group: Administration & Applications'),
+            _('Site Administration'),
             column=1,
             collapsible=True,
             children = [
-                modules.AppList(
-                    _('Administration'),
+                modules.ModelList(
+                    _('User Management'),
                     column=1,
-                    collapsible=False,
-                    models=('django.contrib.*',),
+                    collapsible=True,
+                    models=('django.contrib.auth.*', ),
                 ),
-                modules.AppList(
-                    _('Applications'),
+                modules.ModelList(
+                    _('Site Management'),
                     column=1,
                     css_classes=('collapse closed',),
-                    exclude=('django.contrib.*',),
+                    models=('django.contrib.sites.*', 'django.contrib.flatpages.*',),
                 )
             ]
         ))
-        
-        # append an app list module for "Applications"
-        self.children.append(modules.AppList(
-            _('AppList: Applications'),
+
+        self.children.append(modules.Group(
+            _('Offer Administration'),
+            column=1,
             collapsible=True,
-            column=1,
-            css_classes=('collapse closed',),
-            exclude=('django.contrib.*',),
-        ))
-        
-        # append an app list module for "Administration"
-        self.children.append(modules.ModelList(
-            _('ModelList: Administration'),
-            column=1,
-            collapsible=False,
-            models=('django.contrib.*',),
+            children = [
+                modules.ModelList(
+                    _('Offer Details'),
+                    column=1,
+                    collapsible=True,
+                    models=(
+                        'offers.models.Provider',
+                        'offers.models.Offer',
+                        'offers.models.Plan',
+                        'offers.models.Comment'
+                    ),
+                ),
+                modules.ModelList(
+                    _('Locations'),
+                    column=1,
+                    css_classes=('collapse closed',),
+                    models=('offers.models.Location', 'offers.models.Datacenter',),
+                )
+            ]
         ))
         
         # append another link list module for "support".
