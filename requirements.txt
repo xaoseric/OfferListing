@@ -33,3 +33,4 @@ html2text
 django-grappelli
 django-filebrowser
 django-nose
+mysql-python
