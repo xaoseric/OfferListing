@@ -2,8 +2,8 @@ language: python
 python:
   - "2.7"
 env:
-  - DJANGO=Django==1.5.4 DB=sqlite
-  - DJANGO=Django==1.5.4 DB=mysql
+  - DJANGO=Django==1.5.4 TEST_DB=sqlite
+  - DJANGO=Django==1.5.4 TEST_DB=mysql
 
 install:
   - pip install -r requirements.txt --use-mirrors
@@ -15,7 +15,7 @@ before_script:
   - sudo ln -s /usr/lib/x86_64-linux-gnu/libfreetype.so /usr/lib
   - sudo ln -s /usr/lib/x86_64-linux-gnu/libz.so /usr/lib
   - pip install -I PIL
-  - mysql -e 'create database offers_test;'
-  - psql -c 'create database offers_test;' -U postgres
+  - mysql -e 'create database offer_listings;'
+  - psql -c 'create database offer_listings;' -U postgres
 script:
     - fab work.test
