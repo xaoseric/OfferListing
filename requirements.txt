@@ -5,7 +5,6 @@ pytz==2013d
 model_mommy
 django-gravatar2
 pillow
-easy-thumbnails
 coverage
 django-jenkins
 pyflakes
@@ -31,3 +30,6 @@ django-reversion
 bbcode
 html2bbcode
 html2text
+django-grappelli
+django-filebrowser
+django-nose

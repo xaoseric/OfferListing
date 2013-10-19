@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.conf import settings
+from filebrowser.sites import site as filebrowser_site
 
 from offers.api import OfferResource, PlanResource, LocationResource, ProviderResource, DatacenterResource
 from tastypie.api import Api
@@ -24,6 +25,8 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('accounts.urls')),
     url(r'^captcha/', include('captcha.urls')),
 
+    url(r'^grappelli/', include('grappelli.urls')),
+    url(r'^admin/filebrowser/', include(filebrowser_site.urls)),
     url(r'^admin/', include(admin.site.urls)),
 )
 

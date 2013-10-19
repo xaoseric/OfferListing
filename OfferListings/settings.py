@@ -74,6 +74,26 @@ MEDIA_ROOT = os.path.join(BASE_PATH, 'resources', 'media')
 # Examples: "http://example.com/media/", "http://media.example.com/"
 MEDIA_URL = '/media/'
 
+# Django filebrowser settings
+FILEBROWSER_DIRECTORY = ''
+FILEBROWSER_MEDIA_ROOT = MEDIA_ROOT
+FILEBROWSER_MEDIA_URL = MEDIA_URL
+
+FILEBROWSER_VERSIONS = {
+    'admin_thumbnail': {'verbose_name': 'Admin Thumbnail', 'width': 60, 'height': 60, 'opts': 'crop'},
+    'thumbnail': {'verbose_name': 'Thumbnail', 'width': 60, 'height': 60, 'opts': 'crop'},
+    'small': {'verbose_name': 'Small (For offers)', 'width': 200, 'height': 200, 'opts': 'crop'},
+    'medium': {'verbose_name': 'Medium', 'width': 300, 'height': '', 'opts': ''},
+    'big': {'verbose_name': 'Big', 'width': 460, 'height': '', 'opts': ''},
+    'large': {'verbose_name': 'Large', 'width': 680, 'height': '', 'opts': ''},
+    'profile': {'verbose_name': 'Profile Picture', 'width': 400, 'height': 400, 'opts': 'crop'},
+}
+
+FILEBROWSER_ADMIN_VERSIONS = ['thumbnail', 'small', 'medium', 'big', 'large', 'profile']
+
+FILEBROWSER_PLACEHOLDER = 'no_logo.png'
+FILEBROWSER_SHOW_PLACEHOLDER = True
+
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
@@ -154,7 +174,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Admin Site
+    'grappelli.dashboard',
+    'grappelli',
+    'filebrowser',
     'django.contrib.admin',
+    # End Admin Site
     'django.contrib.humanize',
     'django.contrib.sites',
     'django.contrib.flatpages',
@@ -163,13 +188,13 @@ INSTALLED_APPS = (
     'south',
     'crispy_forms',
     'django_gravatar',
-    'easy_thumbnails',
     'raven.contrib.django.raven_compat',
     'django_countries',
     'captcha',
     'tastypie',
     'djcelery',
     'reversion',
+    'django_nose',
 
     # Custom applications
     'offers',
@@ -187,6 +212,12 @@ CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_arcs','captcha.helpers.noise_d
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
 CAPTCHA_LETTER_ROTATION = None
 CAPTCHA_FONT_SIZE = 44
+
+# Grappelli Settings
+GRAPPELLI_INDEX_DASHBOARD = 'OfferListings.dashboard.CustomIndexDashboard'
+GRAPPELLI_ADMIN_TITLE = 'Offer Listings Admin'
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 # Settings for testing
 if os.getenv('TEST_RUNNING', False):

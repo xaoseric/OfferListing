@@ -48,3 +48,6 @@ dump.rdb
 
 # Sphinx
 docs/_build/*
+
+# Images
+resources/media/no_logo_*
