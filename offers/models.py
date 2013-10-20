@@ -15,6 +15,7 @@ import json
 import bbcode
 import html2text
 from decimal import Decimal
+from django.core.validators import MaxValueValidator
 
 ############
 # Managers #
@@ -638,3 +639,42 @@ class Like(models.Model):
 
     class Meta:
         unique_together = (('user', 'comment'),)
+
+
+class Review(models.Model):
+
+    MAX_STAR_RATING = 20
+
+    VERIFIED = 'v'
+    UNVERIFIED = 'u'
+
+    STATUS_CHOICES = (
+        (VERIFIED, 'Verified'),
+        (UNVERIFIED, 'Unverified')
+    )
+
+    # General details
+    content = models.TextField()
+    author = models.ForeignKey(User)
+    provider = models.ForeignKey(Provider)
+    status = models.CharField(choices=STATUS_CHOICES, max_length=1, default=UNVERIFIED)
+
+    # Review properties
+    rating_overall = models.PositiveIntegerField(max_length=2, default=10, validators=[
+        MaxValueValidator(MAX_STAR_RATING)
+    ])
+
+    rating_support = models.PositiveIntegerField(max_length=2, default=10, validators=[
+        MaxValueValidator(MAX_STAR_RATING)
+    ])
+    rating_value = models.PositiveIntegerField(max_length=2, default=10, validators=[
+        MaxValueValidator(MAX_STAR_RATING)
+    ])
+    rating_uptime = models.PositiveIntegerField(max_length=2, default=10, validators=[
+        MaxValueValidator(MAX_STAR_RATING)
+    ])
+
+    # Date details
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
