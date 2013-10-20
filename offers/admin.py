@@ -7,7 +7,8 @@ from offers.models import (
     Location,
     TestIP,
     TestDownload,
-    Datacenter
+    Datacenter,
+    Review
 )
 import reversion
 from django.db.models import Q
@@ -78,6 +79,7 @@ admin.site.register(Plan)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Datacenter)
+admin.site.register(Review)
 
 # Celery
 from djcelery.models import (TaskState, WorkerState,

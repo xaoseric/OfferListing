@@ -38,7 +38,16 @@ class CustomIndexDashboard(Dashboard):
             _('Offer Administration'),
             column=1,
             collapsible=True,
-            children = [
+            children=[
+                modules.ModelList(
+                    _('Provider Details'),
+                    column=1,
+                    collapsible=True,
+                    models=(
+                        'offers.models.Provider',
+                        'offers.models.Review',
+                    ),
+                ),
                 modules.ModelList(
                     _('Offer Details'),
                     column=1,
