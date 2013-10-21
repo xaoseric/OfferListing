@@ -1,21 +1,22 @@
+import os
+import uuid
+import json
+from decimal import Decimal
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import pre_save
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
+from django.core.validators import MaxValueValidator
 from django.contrib.auth.models import User
 from django.conf import settings
-import os
-import uuid
 from django.utils import timezone
 from django.utils.text import slugify
-from template_helpers.cleaners import clean, super_clean
 from django_countries import CountryField
-import json
 import bbcode
 import html2text
-from decimal import Decimal
-from django.core.validators import MaxValueValidator
+from template_helpers.cleaners import clean, super_clean
+
 
 ############
 # Managers #
