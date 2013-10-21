@@ -1,5 +1,5 @@
 from django import forms
-from offers.models import Comment, Offer, Plan, Provider, Location, TestIP, TestDownload
+from offers.models import Comment, Offer, Plan, Provider, Location, TestIP, TestDownload, Review
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from crispy_forms.helper import FormHelper
@@ -184,3 +184,11 @@ class TestDownloadFormset(TestDownloadFormsetBase):
 
         for form in self:
             form.fields["size"].label = 'Size (MB)'
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+
+    def __init__(self, *args, **kwargs):
+        super(ReviewForm, self).__init__(*args, **kwargs)

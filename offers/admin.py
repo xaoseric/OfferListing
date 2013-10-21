@@ -10,6 +10,7 @@ from offers.models import (
     Datacenter,
     Review
 )
+from offers.forms import ReviewForm
 import reversion
 from django.db.models import Q
 from filebrowser.widgets import ClearableFileInput
@@ -73,13 +74,17 @@ class LocationAdmin(admin.ModelAdmin):
     ]
 
 
+class ReviewAdmin(admin.ModelAdmin):
+    form = ReviewForm
+
+
 admin.site.register(Provider, ProviderAdmin)
 admin.site.register(Offer, OfferAdmin)
 admin.site.register(Plan)
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Datacenter)
-admin.site.register(Review)
+admin.site.register(Review, ReviewAdmin)
 
 # Celery
 from djcelery.models import (TaskState, WorkerState,
