@@ -1,14 +1,14 @@
-from django.test import TestCase
-from offers.models import Offer, Provider, Plan, Comment, Location, Like
-from model_mommy import mommy
-from django.core.files import File
-from django.conf import settings
-from django.contrib.auth.models import User
 import os
 from datetime import timedelta
 from decimal import Decimal
-from django.utils.text import slugify
+from django.test import TestCase
+from django.conf import settings
+from django.core.files import File
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
+from django.utils.text import slugify
+from model_mommy import mommy
+from offers.models import Offer, Provider, Plan, Comment, Location, Like
 
 
 class OfferMethodTests(TestCase):
