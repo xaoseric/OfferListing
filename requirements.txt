@@ -34,3 +34,4 @@ django-grappelli
 django-filebrowser
 django-nose
 mysql-python
+django-filter
