@@ -15,7 +15,7 @@ urlpatterns = patterns('accounts.views',
 
 urlpatterns += patterns('django.contrib.auth.views',
     url(
-        r'login/',
+        r'^login/',
         'login',
         {"authentication_form": BetterAuthenticationForm, "template_name": "accounts/login.html"},
         name='login'
