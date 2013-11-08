@@ -108,3 +108,71 @@ makePagination = (meta_data) ->
           </li>
         </ul>
     """
+
+paginationNavigate = (url) ->
+    if url.length > 0
+      getAndRender(url)
+
+getAndRender = (url) ->
+    endpoint_data = $("#plan_list")
+    endpoint_data.html '<div class="ajax-loading"></div>'
+
+    currentRequest = $.get(
+       url,
+       (data) ->
+         endpoint_data.html ""
+
+         if data.meta.total_count == 0
+           endpoint_data.html "No plans with your filtering found!"
+           return
+
+         #for (var counter=0; counter < data["objects"].length; counter++){
+         #  var plan = data["objects"][counter];
+         #  endpoint_data.append(plan.html);
+         #}
+
+         for plan in data["objects"]
+           endpoint_data.append plan.html
+
+         endpoint_data.append makePagination data["meta"]
+
+         return
+    ).fail(() ->
+      endpoint_data.html """
+          There were errors in your filtering. Please check that you did not enter letters or punctuation in the
+          numerically filtered fields.
+      """
+      return
+    )
+
+    return
+
+filterPlans = () ->
+  urlOptions =
+      limit: 3
+      format: "json"
+
+  try
+      currentRequest.abort()
+  catch error
+
+  for select_field in multi_fields
+    if select_field.selector.val() != null
+      urlOptions[select_field.api + "__in"] = select_field.selector.val().join ','
+
+  for min_max in min_max_fields
+    if min_max.minField.val().length > 0
+      urlOptions[min_max.api + '__gte'] = min_max.minField.val()
+    if min_max.maxField.val().length > 0
+      urlOptions[min_max.api + '__lte'] = min_max.maxField.val()
+
+  # Ordering
+  if ordering.val() != "ALL"
+      urlOptions["order_by"] = ordering.val()
+
+
+  urlParameters = $.param(urlOptions);
+
+  getAndRender '/find/data/main/plan/?' + urlParameters
+
+  return
