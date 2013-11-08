@@ -176,3 +176,5 @@ filterPlans = () ->
   getAndRender '/find/data/main/plan/?' + urlParameters
 
   return
+
+$(document).ready(filterPlans)

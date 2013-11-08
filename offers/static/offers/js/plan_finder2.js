@@ -159,4 +159,6 @@
     getAndRender('/find/data/main/plan/?' + urlParameters);
   };
 
+  $(document).ready(filterPlans);
+
 }).call(this);
