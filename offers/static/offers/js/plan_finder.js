@@ -82,7 +82,7 @@
 
     setupInputTriggers();
 
-    makePagination = function(meta_data) {
+    makePagination = function(meta_data, endpoint) {
       var current_page, next_data, next_disabled, previous_data, previous_disabled, total_pages;
       previous_disabled = '';
       previous_data = '';
@@ -100,7 +100,13 @@
       } else {
         next_data = meta_data.next;
       }
-      return "<ul class='pagination'>\n  <li class='" + previous_disabled + "'>\n    <a onclick='paginationNavigate(\"" + previous_data + "\")'>&laquo;</a>\n  </li>\n  <li><a>Page " + current_page + " of " + total_pages + "</a></li>\n  <li class='" + next_disabled + "'>\n    <a onclick='paginationNavigate(\"" + next_data + "\")'>&raquo;</a>\n  </li>\n</ul>";
+      endpoint.append("<ul class='pagination'>\n  <li class='" + previous_disabled + "'>\n    <a id='plan-finder-prev'>&laquo;</a>\n  </li>\n  <li><a>Page " + current_page + " of " + total_pages + "</a></li>\n  <li class='" + next_disabled + "'>\n    <a id='plan-finder-next'>&raquo;</a>\n  </li>\n</ul>");
+      $("#plan-finder-prev").click(function() {
+        return paginationNavigate(previous_data);
+      });
+      $("#plan-finder-next").click(function() {
+        return paginationNavigate(next_data);
+      });
     };
 
     paginationNavigate = function(url) {
@@ -125,7 +131,7 @@
           plan = _ref[_i];
           endpoint_data.append(plan.html);
         }
-        endpoint_data.append(makePagination(data["meta"]));
+        makePagination(data["meta"], endpoint_data);
       }).fail(function() {
         endpoint_data.html("There were errors in your filtering. Please check that you did not enter letters or punctuation in the\nnumerically filtered fields.");
       });

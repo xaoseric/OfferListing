@@ -75,7 +75,7 @@ class PlanFinder
 
   do setupInputTriggers
 
-  makePagination = (meta_data) ->
+  makePagination = (meta_data, endpoint) ->
 
       previous_disabled = '';
       previous_data = '';
@@ -98,17 +98,22 @@ class PlanFinder
 
 
 
-      return """
+      endpoint.append """
           <ul class='pagination'>
             <li class='#{previous_disabled}'>
-              <a onclick='paginationNavigate("#{previous_data}")'>&laquo;</a>
+              <a id='plan-finder-prev'>&laquo;</a>
             </li>
             <li><a>Page #{current_page} of #{total_pages}</a></li>
             <li class='#{next_disabled}'>
-              <a onclick='paginationNavigate("#{next_data}")'>&raquo;</a>
+              <a id='plan-finder-next'>&raquo;</a>
             </li>
           </ul>
       """
+
+      $("#plan-finder-prev").click(() -> paginationNavigate(previous_data))
+      $("#plan-finder-next").click(() -> paginationNavigate(next_data))
+
+      return
 
   paginationNavigate = (url) ->
       if url.length > 0
@@ -127,15 +132,10 @@ class PlanFinder
              endpoint_data.html "No plans with your filtering found!"
              return
 
-           #for (var counter=0; counter < data["objects"].length; counter++){
-           #  var plan = data["objects"][counter];
-           #  endpoint_data.append(plan.html);
-           #}
-
            for plan in data["objects"]
              endpoint_data.append plan.html
 
-           endpoint_data.append makePagination data["meta"]
+           makePagination data["meta"], endpoint_data
 
            return
       ).fail(() ->
