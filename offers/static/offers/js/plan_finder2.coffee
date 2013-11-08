@@ -1,5 +1,5 @@
 class PlanFinder
-  ordering = $("orderingSelect")
+  ordering = $("#orderingSelect")
 
   multi_fields = [
       {
