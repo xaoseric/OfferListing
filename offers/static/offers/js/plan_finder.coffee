@@ -73,8 +73,6 @@ class PlanFinder
       min_max.minField.on 'input', filterPlans
       min_max.maxField.on 'input', filterPlans
 
-  do setupInputTriggers
-
   makePagination = (meta_data, endpoint) ->
 
       previous_disabled = '';
@@ -178,5 +176,9 @@ class PlanFinder
 
     return
 
-  $(document).ready(filterPlans)
+  $(document).ready(() ->
+    setupInputTriggers()
+    filterPlans()
+    return
+  )
   $("#filter-plans-btn").on 'click', filterPlans

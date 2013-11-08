@@ -80,8 +80,6 @@
       return _results;
     };
 
-    setupInputTriggers();
-
     makePagination = function(meta_data, endpoint) {
       var current_page, next_data, next_disabled, previous_data, previous_disabled, total_pages;
       previous_disabled = '';
@@ -170,7 +168,10 @@
       getAndRender('/find/data/main/plan/?' + urlParameters);
     };
 
-    $(document).ready(filterPlans);
+    $(document).ready(function() {
+      setupInputTriggers();
+      filterPlans();
+    });
 
     $("#filter-plans-btn").on('click', filterPlans);
 
