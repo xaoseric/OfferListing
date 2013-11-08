@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_filters %}
+{% load static %}
 
 {% block title %}Edit Request{% endblock %}
 
-{% block page_title %}Edit an offer request{% endblock %}
+{% block page_title %}
+  Edit an offer request
+  <a href="#" class="btn btn-info" onclick="preview_request('{% url "offer:admin_request_preview" offer.pk %}')">Preview</a>
+{% endblock %}
 
 {% block content %}
   <form action="{% url 'offer:admin_request_edit' offer.pk %}" method="POST">
@@ -29,4 +33,5 @@
 
 {% block extra_js %}
   {% include 'offers/manage/textarea_wysiwyg.html' with editor_name='content' %}
+  <script src="{% static 'offers/js/preview_request.min.js' %}"></script>
 {% endblock %}
