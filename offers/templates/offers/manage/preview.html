@@ -7,5 +7,7 @@
 {% endblock %}
 
 {% block comments_section %}
-  Comments will be enabled once the offer is published.
+  <p>Comments will be enabled once the offer is published.</p>
+
+  <a class="btn btn-info" href="{% url 'offer:admin_request_edit' offer.pk %}">Edit this offer</a>
 {% endblock %}
