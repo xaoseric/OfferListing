@@ -169,7 +169,6 @@ class PlanFinder
 
     # Ordering
     if ordering.val() != "ALL"
-      console.log ordering.val()
       urlOptions["order_by"] = ordering.val()
 
 
