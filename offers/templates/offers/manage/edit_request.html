@@ -7,7 +7,7 @@
 
 {% block page_title %}
   Edit an offer request
-  <a href="#" class="btn btn-info" onclick="preview_request('{% url "offer:admin_request_preview" offer.pk %}')">Preview</a>
+  <a href="#" class="btn btn-info pull-right" onclick="preview_request('{% url "offer:admin_request_preview" offer.pk %}')">Preview</a>
 {% endblock %}
 
 {% block content %}
