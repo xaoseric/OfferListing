@@ -366,6 +366,18 @@ def admin_provider_update_offer(request, offer_pk):
     })
 
 
+@user_is_provider
+def admin_preview_request(request, offer_pk):
+    offer = get_object_or_404(
+        Offer.requests.for_user(request.user),
+        pk=offer_pk
+    )
+
+    return render(request, 'offers/manage/preview.html', {
+        "offer": offer
+    })
+
+
 # Provider Locations
 @user_is_provider
 def admin_provider_locations(request):

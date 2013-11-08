@@ -1,0 +1,11 @@
+{% extends 'offers/view.html' %}
+
+{% block page_title %}
+  {{ offer.name }}
+  <a href="{{ offer.provider.get_absolute_url }}"><small>{{ offer.provider.name }}</small></a>
+  <p class="pull-right text-danger">PREVIEW</p>
+{% endblock %}
+
+{% block comments_section %}
+  Comments will be enabled once the offer is published.
+{% endblock %}
