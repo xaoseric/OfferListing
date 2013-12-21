@@ -395,6 +395,8 @@ class Plan(models.Model):
     OPENVZ = 'o'
     XEN = 'x'
     VMWARE = 'v'
+    VIRTUOZZO = 'i'
+    PCS = 'p'
 
     DEDICATED = 'd'
 
@@ -405,6 +407,8 @@ class Plan(models.Model):
             (OPENVZ, 'OpenVZ'),
             (XEN, 'Xen'),
             (VMWARE, 'VMware'),
+            (VIRTUOZZO, 'Virtuozzo'),
+            (PCS, 'Parallels Cloud Server'),
         )),
     )
 
