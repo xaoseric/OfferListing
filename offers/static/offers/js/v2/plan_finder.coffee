@@ -4,7 +4,7 @@ class PlanFinder
   multi_fields = [
       {
           selector: $("#countrySelect"),
-          api: "location__country"
+          api: "locations__country"
       },
       {
           selector: $("#providerSelect"),
@@ -16,7 +16,7 @@ class PlanFinder
       },
       {
           selector: $("#datacenterSelect"),
-          api: "location__datacenter__id"
+          api: "locations__datacenter__id"
       },
       {
           selector: $("#serverTypeSelect"),
