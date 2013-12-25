@@ -326,8 +326,9 @@ class Offer(models.Model):
     def get_plan_locations(self):
         locations = []
         for plan in self.plan_set.all():
-            if plan.location not in locations:
-                locations.append(plan.location)
+            for location in plan.locations:
+                if plan.location not in locations:
+                    locations.append(plan.location)
         return locations
 
     def get_min_max_cost(self):
