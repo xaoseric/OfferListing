@@ -82,7 +82,7 @@ PLAN_FIELDS = (
     'url',
     'promo_code',
     'cost',
-    'location',
+    'locations',
 )
 
 PlanFormsetBase = inlineformset_factory(
@@ -101,7 +101,7 @@ class PlanFormset(PlanFormsetBase):
         super(PlanFormset, self).__init__(*args, **kwargs)
 
         for form in self:
-            form.fields["location"].queryset = Location.objects.filter(provider=provider)
+            form.fields["locations"].queryset = Location.objects.filter(provider=provider)
 
             form.fields["ipv4_space"].help_text = "The number of IPv4 addresses that this plan has."
             form.fields["ipv6_space"].help_text = "The number of IPv6 addresses that this plan has."
@@ -119,7 +119,7 @@ PlanFormsetHelper.layout = Layout(
         AppendedText('memory', 'MB'),
         'cpu_cores',
         'server_type',
-        'location',
+        'locations',
     ),
     Fieldset(
         'IP Space',
