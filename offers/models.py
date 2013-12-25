@@ -456,15 +456,15 @@ class Plan(models.Model):
     offer = models.ForeignKey(Offer)
 
     # Data attributes
-    bandwidth = models.BigIntegerField()  # In gigabytes
-    disk_space = models.BigIntegerField()  # In gigabytes
-    memory = models.BigIntegerField()  # In megabytes
-    cpu_cores = models.IntegerField(default=1)
+    bandwidth = models.PositiveIntegerField()  # In gigabytes
+    disk_space = models.PositiveIntegerField()  # In gigabytes
+    memory = models.PositiveIntegerField()  # In megabytes
+    cpu_cores = models.PositiveIntegerField(default=1)
     locations = models.ManyToManyField(Location, related_name='plans')
 
     # Ip space
-    ipv4_space = models.IntegerField()
-    ipv6_space = models.IntegerField()
+    ipv4_space = models.PositiveIntegerField()
+    ipv6_space = models.PositiveIntegerField()
 
     # Billing details
     billing_time = models.CharField(max_length=1, choices=BILLING_CHOICES, default=MONTHLY)
