@@ -1,5 +1,4 @@
 {% load humanize %}
-{% load fb_versions %}
 
 <div class="panel panel-default {% if not offer.offer_active %}panel-warning{% endif %}">
   <div class="panel-heading">
@@ -14,7 +13,9 @@
         {{ offer.content|truncatewords_html:200|safe }}
       </div>
       <div class="col-lg-2 col-sm-3 text-center">
-        <img src="{% version offer.provider.logo 'small' %}" class="img-responsive img-thumbnail" />
+        {% with offer.provider.get_small_profile_image as im %}
+          <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" class="img-responsive img-thumbnail" />
+        {% endwith %}
       </div>
     </div>
   </div>

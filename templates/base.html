@@ -10,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
     <link href="{% static 'datepicker/css/datepicker.css' %}" rel="stylesheet">
+    <link href="{% static 'fa/css/font-awesome.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/main.css' %}" rel="stylesheet" media="screen">
     {% block extra_head %}{% endblock %}
   </head>
@@ -40,23 +41,23 @@
                   </a>
                   <ul class="dropdown-menu">
                     <li><a href="{% url 'offer:admin_home' %}">
-                      <span class="glyphicon glyphicon-user"></span>
+                      <i class="fa fa-briefcase"></i>
                       Provider profile
                     </a></li>
                     <li><a href="{% url 'offer:admin_offers' %}">
-                      <span class="glyphicon glyphicon-folder-close"></span>
+                      <i class="fa fa-tags text-success"></i>
                       Current offers
                     </a></li>
                     <li><a href="{% url 'offer:admin_requests' %}">
-                      <span class="glyphicon glyphicon-folder-open"></span>
+                      <i class="fa fa-tags text-warning"></i>
                       Current offer requests
                     </a></li>
                     <li><a href="{% url 'offer:admin_request_new' %}">
-                      <span class="glyphicon glyphicon-pencil"></span>
+                      <i class="fa fa-plus"></i>
                       New offer request
                     </a></li>
                     <li><a href="{% url 'offer:admin_locations' %}">
-                      <span class="glyphicon glyphicon-globe"></span>
+                      <i class="fa fa-globe"></i>
                       Provider Locations
                     </a></li>
                   </ul>
@@ -72,13 +73,28 @@
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">My Account <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                  <li><a href="{% url 'self_profile' %}">My Profile</a></li>
-                  <li><a href="{% url 'edit_account' %}">Edit Account</a></li>
+                  <li><a href="{% url 'self_profile' %}">
+                    <i class="fa fa-dashboard"></i>
+                    My Profile
+                  </a></li>
+                  <li><a href="{% url 'edit_account' %}">
+                    <i class="fa fa-cog"></i>
+                    Edit Account
+                  </a></li>
                   {% if request.user.is_staff %}
-                    <li><a href="{% url 'admin:index' %}">Site Administration</a></li>
+                    <li><a href="{% url 'admin:index' %}">
+                      <i class="fa fa-cogs"></i>
+                      Site Administration
+                    </a></li>
                   {% endif %}
-                  <li><a href="{% url 'change_password' %}">Change Password</a></li>
-                  <li><a href="{% url 'logout' %}">Logout</a></li>
+                  <li><a href="{% url 'change_password' %}">
+                    <i class="fa fa-lock"></i>
+                    Change Password
+                  </a></li>
+                  <li><a href="{% url 'logout' %}">
+                    <i class="fa fa-sign-out"></i>
+                    Logout
+                  </a></li>
                 </ul>
               </li>
             {% else %}

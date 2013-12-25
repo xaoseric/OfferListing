@@ -15,6 +15,7 @@ import json
 import bbcode
 import html2text
 from decimal import Decimal
+from sorl.thumbnail import get_thumbnail
 
 ############
 # Managers #
@@ -169,6 +170,28 @@ class Provider(models.Model):
         """
         return Plan.active_plans.for_provider(self).count()
 
+    def get_small_profile_image(self):
+        if not self.logo:
+            image = settings.STATIC_URL + 'img/no_logo_small.png'
+            return {
+                "url": image,
+                "width": 200,
+                "height": 200,
+            }
+        image = get_thumbnail(self.logo, '200x200', crop='center')
+        return image
+
+    def get_large_profile_image(self):
+        if not self.logo:
+            image = settings.STATIC_URL + 'img/no_logo_large.png'
+            return {
+                "url": image,
+                "width": 400,
+                "height": 400,
+            }
+        image = get_thumbnail(self.logo, '400x400', crop='center')
+        return image
+
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         self.name_slug = slugify(self.name)
@@ -264,7 +287,7 @@ class Offer(models.Model):
     followers = models.ManyToManyField(User, blank=True, null=True, related_name="followed_offers")
 
     def __unicode__(self):
-        return "{0} ({1})".format(self.name, self.provider.name)
+        return u"{0} ({1})".format(self.name, self.provider.name)
 
     def get_absolute_url(self):
         """
@@ -326,8 +349,9 @@ class Offer(models.Model):
     def get_plan_locations(self):
         locations = []
         for plan in self.plan_set.all():
-            if plan.location not in locations:
-                locations.append(plan.location)
+            for location in plan.locations.all():
+                if location not in locations:
+                    locations.append(location)
         return locations
 
     def get_min_max_cost(self):
@@ -335,12 +359,15 @@ class Offer(models.Model):
         Get the minimum and maximum values of the plans for each
         """
 
-        billing_type_lookup = dict(Plan.BILLING_CHOICES)
-
         min_maxes = []
+        billing_types = self.plan_set.values('billing_time').distinct()
+        billing_types = [x["billing_time"] for x in billing_types]
 
-        for billing_type in self.plan_set.values('billing_time').distinct():
-            billing_type = billing_type["billing_time"]
+        for billing_type in Plan.BILLING_CHOICES:
+            if not billing_type[0] in billing_types:
+                continue
+            billing_type_name = billing_type[1]
+            billing_type = billing_type[0]
 
             min_cost = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Min('cost'))["cost"]
             max_cost = self.plan_set.filter(billing_time=billing_type).aggregate(cost=models.Max('cost'))["cost"]
@@ -351,7 +378,7 @@ class Offer(models.Model):
 
             min_maxes.append({
                 "code": billing_type,
-                "name": billing_type_lookup[billing_type],
+                "name": billing_type_name,
                 "min_cost": Plan.get_cost_for_decimal(min_cost),
                 "max_cost": Plan.get_cost_for_decimal(max_cost),
                 "same": is_same,
@@ -429,15 +456,15 @@ class Plan(models.Model):
     offer = models.ForeignKey(Offer)
 
     # Data attributes
-    bandwidth = models.BigIntegerField()  # In gigabytes
-    disk_space = models.BigIntegerField()  # In gigabytes
-    memory = models.BigIntegerField()  # In megabytes
-    cpu_cores = models.IntegerField(default=1)
-    location = models.ForeignKey(Location)
+    bandwidth = models.PositiveIntegerField()  # In gigabytes
+    disk_space = models.PositiveIntegerField()  # In gigabytes
+    memory = models.PositiveIntegerField()  # In megabytes
+    cpu_cores = models.PositiveIntegerField(default=1)
+    locations = models.ManyToManyField(Location, related_name='plans')
 
     # Ip space
-    ipv4_space = models.IntegerField()
-    ipv6_space = models.IntegerField()
+    ipv4_space = models.PositiveIntegerField()
+    ipv6_space = models.PositiveIntegerField()
 
     # Billing details
     billing_time = models.CharField(max_length=1, choices=BILLING_CHOICES, default=MONTHLY)
@@ -513,7 +540,7 @@ class Plan(models.Model):
         return self.get_cost_for_decimal(self.cost)
 
     def __unicode__(self):
-        return "{} ({})".format(self.offer.name, self.get_memory())
+        return u"{} ({})".format(self.offer.name, self.get_memory())
 
     @classmethod
     def get_cost_for_decimal(cls, decimal):

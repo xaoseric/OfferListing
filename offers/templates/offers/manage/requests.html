@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load static %}
 
 {% block title %}Requests{% endblock %}
 
@@ -17,7 +18,7 @@
     </tr>
     {% for offer in requests %}
       <tr>
-        <td>{{ offer.name }}</td>
+        <td><a href="#" onclick="preview_request('{% url 'offer:admin_request_preview' offer.pk %}')">{{ offer.name }}</a></td>
         <td>{{ offer.plan_count }}</td>
         <td class="text-center">
           {{ offer.created_at }}<br>
@@ -45,4 +46,8 @@
       </tr>
     {% endfor %}
   </table>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'offers/js/preview_request.min.js' %}"></script>
 {% endblock %}

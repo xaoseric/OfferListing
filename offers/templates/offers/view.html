@@ -36,14 +36,16 @@
     {% include 'offers/location_detail.html' with location=location %}
   {% endfor %}
   <hr>
-  <a name="comments"></a>
-  <h2>Comments:</h2>
-  {% include 'offers/comments.html' with comments=offer.get_comments %}
-  {% if request.user.is_authenticated %}
-    <a name="new-comment"></a>
-    <h3>Add a comment</h3>
-    {% crispy form %}
-  {% endif %}
+  {% block comments_section %}
+    <a name="comments"></a>
+    <h2>Comments:</h2>
+    {% include 'offers/comments.html' with comments=offer.get_comments %}
+    {% if request.user.is_authenticated %}
+      <a name="new-comment"></a>
+      <h3>Add a comment</h3>
+      {% crispy form %}
+    {% endif %}
+  {% endblock %}
 {% endblock %}
 
 {% block extra_js %}
