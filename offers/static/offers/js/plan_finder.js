@@ -12,7 +12,7 @@
     multi_fields = [
       {
         selector: $("#countrySelect"),
-        api: "location__country"
+        api: "locations__country"
       }, {
         selector: $("#providerSelect"),
         api: "offer__provider__id"
@@ -21,7 +21,7 @@
         api: "billing_time"
       }, {
         selector: $("#datacenterSelect"),
-        api: "location__datacenter__id"
+        api: "locations__datacenter__id"
       }, {
         selector: $("#serverTypeSelect"),
         api: "server_type"
