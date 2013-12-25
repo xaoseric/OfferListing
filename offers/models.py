@@ -436,7 +436,7 @@ class Plan(models.Model):
     disk_space = models.BigIntegerField()  # In gigabytes
     memory = models.BigIntegerField()  # In megabytes
     cpu_cores = models.IntegerField(default=1)
-    location = models.ForeignKey(Location)
+    locations = models.ManyToManyField(Location, related_name='plans')
 
     # Ip space
     ipv4_space = models.IntegerField()
