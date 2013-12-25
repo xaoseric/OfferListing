@@ -15,6 +15,7 @@ import json
 import bbcode
 import html2text
 from decimal import Decimal
+from sorl.thumbnail import get_thumbnail
 
 ############
 # Managers #
@@ -168,6 +169,28 @@ class Provider(models.Model):
         (and article with the status PUBLISHED).
         """
         return Plan.active_plans.for_provider(self).count()
+
+    def get_small_profile_image(self):
+        if not self.logo:
+            image = settings.STATIC_URL + 'img/no_logo_small.png'
+            return {
+                "url": image,
+                "width": 200,
+                "height": 200,
+            }
+        image = get_thumbnail(self.logo, '200x200', crop='center')
+        return image
+
+    def get_large_profile_image(self):
+        if not self.logo:
+            image = settings.STATIC_URL + 'img/no_logo_large.png'
+            return {
+                "url": image,
+                "width": 400,
+                "height": 400,
+            }
+        image = get_thumbnail(self.logo, '400x400', crop='center')
+        return image
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):

@@ -1,10 +1,11 @@
 {% load humanize %}
-{% load fb_versions %}
 
 <div class="well">
   <div class="row">
     <div class="col-lg-4 col-md-6">
-      <img src="{% version provider.logo 'profile' %}" class="img-responsive img-thumbnail">
+      {% with provider.get_large_profile_image as im %}
+        <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" class="img-responsive img-thumbnail" />
+      {% endwith %}
     </div>
     <div class="col-lg-8 col-md-6">
       <h1>{{ provider.name }}</h1>

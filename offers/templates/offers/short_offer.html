@@ -1,5 +1,4 @@
 {% load humanize %}
-{% load thumbnail %}
 
 <div class="panel panel-default {% if not offer.offer_active %}panel-warning{% endif %}">
   <div class="panel-heading">
@@ -14,9 +13,9 @@
         {{ offer.content|truncatewords_html:200|safe }}
       </div>
       <div class="col-lg-2 col-sm-3 text-center">
-        {% thumbnail offer.provider.logo "200x200" crop="center" as im %}
+        {% with offer.provider.get_small_profile_image as im %}
           <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" class="img-responsive img-thumbnail" />
-        {% endthumbnail %}
+        {% endwith %}
       </div>
     </div>
   </div>
