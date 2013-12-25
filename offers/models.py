@@ -10,7 +10,7 @@ import uuid
 from django.utils import timezone
 from django.utils.text import slugify
 from template_helpers.cleaners import clean, super_clean
-from django_countries import CountryField
+from django_countries.fields import CountryField
 import json
 import bbcode
 import html2text
