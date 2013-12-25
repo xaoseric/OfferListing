@@ -1021,7 +1021,7 @@ class ProviderEditRequestViewTests(WebTest):
             Plan,
             offer=self.offer,
             _quantity=2,
-            location=self.location,
+            locations=[self.location],
             cost=20.01,
             url="http://example.com/"
         )
@@ -1044,7 +1044,7 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-0-disk_space"].value, unicode(plan.disk_space))
         self.assertEqual(form["plan_set-0-memory"].value, unicode(plan.memory))
         self.assertEqual(form["plan_set-0-server_type"].value, plan.server_type)
-        self.assertEqual(form["plan_set-0-location"].value, unicode(plan.location.pk))
+        self.assertEqual(form["plan_set-0-locations"].value, unicode(plan.locations.all()[0].pk))
         self.assertEqual(form["plan_set-0-ipv4_space"].value, unicode(plan.ipv4_space))
         self.assertEqual(form["plan_set-0-ipv6_space"].value, unicode(plan.ipv6_space))
         self.assertEqual(form["plan_set-0-billing_time"].value, plan.billing_time)
@@ -1058,7 +1058,7 @@ class ProviderEditRequestViewTests(WebTest):
         self.assertEqual(form["plan_set-1-disk_space"].value, unicode(plan.disk_space))
         self.assertEqual(form["plan_set-1-memory"].value, unicode(plan.memory))
         self.assertEqual(form["plan_set-1-server_type"].value, plan.server_type)
-        self.assertEqual(form["plan_set-1-location"].value, unicode(plan.location.pk))
+        self.assertEqual(form["plan_set-1-locations"].value, unicode(plan.locations.all()[0].pk))
         self.assertEqual(form["plan_set-1-ipv4_space"].value, unicode(plan.ipv4_space))
         self.assertEqual(form["plan_set-1-ipv6_space"].value, unicode(plan.ipv6_space))
         self.assertEqual(form["plan_set-1-billing_time"].value, plan.billing_time)
