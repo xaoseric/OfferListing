@@ -1,6 +1,6 @@
-Django==1.5.4
-South==0.8.2
-django-crispy-forms==1.4.0
+Django==1.6.1
+South
+django-crispy-forms
 pytz==2013d
 model_mommy
 django-gravatar2
