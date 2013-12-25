@@ -102,6 +102,8 @@ class PlanFormset(PlanFormsetBase):
 
         for form in self:
             form.fields["locations"].queryset = Location.objects.filter(provider=provider)
+            form.fields["locations"].widget = forms.CheckboxSelectMultiple()
+            form.fields["locations"].help_text = "Select all of the locations that you offer this plan from."
 
             form.fields["ipv4_space"].help_text = "The number of IPv4 addresses that this plan has."
             form.fields["ipv6_space"].help_text = "The number of IPv6 addresses that this plan has."
