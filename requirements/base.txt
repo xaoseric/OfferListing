@@ -22,4 +22,4 @@ html2bbcode
 html2text
 django-grappelli
 sorl-thumbnail
-mysql-python
+psycopg2
