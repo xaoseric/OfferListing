@@ -9,4 +9,3 @@ django-extensions
 werkzeug
 webtest
 django-webtest
-django-nose

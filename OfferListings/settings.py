@@ -194,7 +194,8 @@ INSTALLED_APPS = (
     'tastypie',
     'djcelery',
     'reversion',
-    'django_nose',
+    'django_jenkins',
+    'django_extensions',
 
     # Custom applications
     'offers',
@@ -217,23 +218,16 @@ CAPTCHA_FONT_SIZE = 44
 GRAPPELLI_INDEX_DASHBOARD = 'OfferListings.dashboard.CustomIndexDashboard'
 GRAPPELLI_ADMIN_TITLE = 'Offer Listings Admin'
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
 # Settings for testing
-if os.getenv('TEST_RUNNING', False):
-    INSTALLED_APPS += ('django_jenkins',)
+JENKINS_TASKS = (
+    'django_jenkins.tasks.django_tests',
+    'django_jenkins.tasks.with_coverage',
+    'django_jenkins.tasks.run_pyflakes',
+    'django_jenkins.tasks.run_pep8',
+    'django_jenkins.tasks.run_csslint',
+)
 
-    JENKINS_TASKS = (
-        'django_jenkins.tasks.django_tests',
-        'django_jenkins.tasks.with_coverage',
-        'django_jenkins.tasks.run_pyflakes',
-        'django_jenkins.tasks.run_pep8',
-        'django_jenkins.tasks.run_csslint',
-    )
-    IS_TEST = True
-else:
-    INSTALLED_APPS += ('django_extensions',)
-    IS_TEST = False
+IS_TEST = os.getenv('TEST_RUNNING', False)
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
