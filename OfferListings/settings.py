@@ -196,6 +196,7 @@ INSTALLED_APPS = (
     'reversion',
     'django_jenkins',
     'django_extensions',
+    'sorl.thumbnail',
 
     # Custom applications
     'offers',

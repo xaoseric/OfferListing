@@ -24,5 +24,6 @@ django-grappelli
 
 # django-filebrowser
 https://github.com/sehmaschine/django-filebrowser/archive/stable/3.5.x.zip
+sorl-thumbnail
 
 mysql-python
