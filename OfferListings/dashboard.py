@@ -58,18 +58,6 @@ class CustomIndexDashboard(Dashboard):
                 )
             ]
         ))
-        
-        self.children.append(modules.LinkList(
-            _('Media Management'),
-            column=2,
-            children=[
-                {
-                    'title': _('FileBrowser'),
-                    'url': '/admin/filebrowser/browse/',
-                    'external': False,
-                },
-            ]
-        ))
 
         # append a recent actions module
         self.children.append(modules.RecentActions(

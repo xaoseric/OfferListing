@@ -4,7 +4,7 @@ class PlanFinder
   multi_fields = [
       {
           selector: $("#countrySelect"),
-          api: "location__country"
+          api: "locations__country"
       },
       {
           selector: $("#providerSelect"),
@@ -16,7 +16,7 @@ class PlanFinder
       },
       {
           selector: $("#datacenterSelect"),
-          api: "location__datacenter__id"
+          api: "locations__datacenter__id"
       },
       {
           selector: $("#serverTypeSelect"),
@@ -72,6 +72,8 @@ class PlanFinder
     for min_max in min_max_fields
       min_max.minField.on 'input', filterPlans
       min_max.maxField.on 'input', filterPlans
+
+    ordering.on 'change', filterPlans
 
   makePagination = (meta_data, endpoint) ->
 

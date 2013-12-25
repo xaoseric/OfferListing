@@ -314,9 +314,9 @@ class OfferMethodTests(TestCase):
         location2 = mommy.make(Location, provider=self.provider)
         location3 = mommy.make(Location, provider=self.provider)
 
-        mommy.make(Plan, _quantity=5, location=location1, offer=self.offer)
-        mommy.make(Plan, _quantity=5, location=location2, offer=self.offer)
-        mommy.make(Plan, _quantity=5, location=location3, offer=self.offer)
+        mommy.make(Plan, _quantity=5, locations=[location1], offer=self.offer)
+        mommy.make(Plan, _quantity=5, locations=[location2], offer=self.offer)
+        mommy.make(Plan, _quantity=5, locations=[location3], offer=self.offer)
 
         locations = self.offer.get_plan_locations()
 
@@ -335,9 +335,9 @@ class OfferMethodTests(TestCase):
         location2 = mommy.make(Location, provider=self.provider)
         location3 = mommy.make(Location, provider=self.provider)
 
-        mommy.make(Plan, _quantity=5, location=location1, offer=self.offer)
-        mommy.make(Plan, _quantity=5, location=location2, offer=self.offer)
-        mommy.make(Plan, _quantity=5, location=location3, offer=self.offer)
+        mommy.make(Plan, _quantity=5, locations=[location1], offer=self.offer)
+        mommy.make(Plan, _quantity=5, locations=[location2], offer=self.offer)
+        mommy.make(Plan, _quantity=5, locations=[location3], offer=self.offer)
 
         # Fake locations
         mommy.make(Plan, _quantity=10)

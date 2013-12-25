@@ -63,7 +63,7 @@ class LocationResource(ModelResource):
 class PlanResource(ModelResource):
 
     offer = fields.ForeignKey(OfferResource, 'offer', full=True)
-    location = fields.ForeignKey(LocationResource, 'location', full=True)
+    locations = fields.ManyToManyField(LocationResource, 'locations', full=True)
 
     html = fields.CharField()
 
@@ -93,7 +93,7 @@ class PlanResource(ModelResource):
             "promo_code": ALL,
             "cost": ALL,
 
-            "location": ALL_WITH_RELATIONS,
+            "locations": ALL_WITH_RELATIONS,
             "offer": ALL_WITH_RELATIONS,
         }
 

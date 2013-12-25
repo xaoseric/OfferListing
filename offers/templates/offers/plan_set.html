@@ -53,10 +53,15 @@
           <tr>
             <td>Location</td>
             <td>
-              <img src="{{ plan.location.country.flag }}">
-              {{ plan.location.city }},
-              {{ plan.location.country.name }}
-              ({{ plan.location.datacenter.name }})
+              {% for location in plan.locations.all %}
+                <img src="{{ location.country.flag }}">
+                {{ location.city }},
+                {{ location.country.name }}
+                ({{ location.datacenter.name }})
+                {% if not forloop.last %}
+                  <br>
+                {% endif %}
+              {% endfor %}
             </td>
           </tr>
           <tr>

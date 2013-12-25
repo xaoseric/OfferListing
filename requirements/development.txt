@@ -1,0 +1,11 @@
+-r base.txt
+model_mommy
+coverage
+django-jenkins
+pyflakes
+pep8
+selenium
+django-extensions
+werkzeug
+webtest
+django-webtest
