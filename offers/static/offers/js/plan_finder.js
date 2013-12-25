@@ -66,18 +66,17 @@
     currentRequest = null;
 
     setupInputTriggers = function() {
-      var min_max, select_field, _i, _j, _len, _len1, _results;
+      var min_max, select_field, _i, _j, _len, _len1;
       for (_i = 0, _len = multi_fields.length; _i < _len; _i++) {
         select_field = multi_fields[_i];
         select_field.selector.change(filterPlans);
       }
-      _results = [];
       for (_j = 0, _len1 = min_max_fields.length; _j < _len1; _j++) {
         min_max = min_max_fields[_j];
         min_max.minField.on('input', filterPlans);
-        _results.push(min_max.maxField.on('input', filterPlans));
+        min_max.maxField.on('input', filterPlans);
       }
-      return _results;
+      return ordering.on('change', filterPlans);
     };
 
     makePagination = function(meta_data, endpoint) {

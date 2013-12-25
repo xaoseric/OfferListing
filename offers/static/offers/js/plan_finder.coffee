@@ -73,6 +73,8 @@ class PlanFinder
       min_max.minField.on 'input', filterPlans
       min_max.maxField.on 'input', filterPlans
 
+    ordering.on 'change', filterPlans
+
   makePagination = (meta_data, endpoint) ->
 
       previous_disabled = '';
