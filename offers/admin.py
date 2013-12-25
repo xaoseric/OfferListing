@@ -11,14 +11,11 @@ from offers.models import (
 )
 import reversion
 from django.db.models import Q
-from filebrowser.widgets import ClearableFileInput
 from django.db import models
 
 
 class ProviderAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        models.ImageField: {'widget': ClearableFileInput},
-    }
+    pass
 
 
 class PlanInlineAdmin(admin.TabularInline):
