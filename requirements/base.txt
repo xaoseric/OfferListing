@@ -1,7 +1,7 @@
 Django==1.6.1
 South
 django-crispy-forms
-pytz==2013d
+pytz
 django-gravatar2
 pillow
 fabric
