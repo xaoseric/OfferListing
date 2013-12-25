@@ -21,5 +21,8 @@ bbcode
 html2bbcode
 html2text
 django-grappelli
-django-filebrowser
+
+# django-filebrowser
+https://github.com/sehmaschine/django-filebrowser/archive/stable/3.5.x.zip
+
 mysql-python
