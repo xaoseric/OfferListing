@@ -1,6 +1,5 @@
 from django.db import models
-from django.db.models import Q
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -431,6 +430,7 @@ def offer_update_published(sender, instance, raw, **kwargs):
 
 def offer_clear_cache(sender, instance, raw, **kwargs):
     instance.delete_html_cache()
+    instance.html_content()
 
 
 def clean_offer_on_save(sender, instance, raw, **kwargs):
@@ -439,7 +439,7 @@ def clean_offer_on_save(sender, instance, raw, **kwargs):
 
 pre_save.connect(clean_offer_on_save, sender=Offer)
 pre_save.connect(offer_update_published, sender=Offer)
-pre_save.connect(offer_clear_cache, sender=Offer)
+post_save.connect(offer_clear_cache, sender=Offer)
 
 
 class Plan(models.Model):
