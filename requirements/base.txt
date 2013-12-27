@@ -6,7 +6,6 @@ django-gravatar2
 pillow
 fabric
 raven
-bleach
 django-countries
 django-simple-captcha
 beautifulsoup4

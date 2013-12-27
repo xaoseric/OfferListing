@@ -13,9 +13,9 @@ from django_countries.fields import CountryField
 import json
 import bbcode
 import html2text
-from markdown2 import Markdown
 from decimal import Decimal
 from sorl.thumbnail import get_thumbnail
+from template_helpers.converters import markdown_converter
 
 ############
 # Managers #
@@ -399,7 +399,6 @@ class Offer(models.Model):
         cache_key = self.get_cache_key()
         html_content = cache.get(cache_key)
         if html_content is None:
-            markdown_converter = Markdown(extras=["wiki-tables", "fenced-code-blocks", "smarty-pants"])
             html_content = markdown_converter.convert(self.content)
 
             # Set the cache for 12 hours
