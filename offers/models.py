@@ -404,8 +404,8 @@ class Offer(models.Model):
             markdown_converter = Markdown(extras=["wiki-tables", "fenced-code-blocks", "smarty-pants"])
             html_content = markdown_converter.convert(self.content)
 
-            # Set the cache for 30 minutes
-            cache.set(cache_key, html_content, 60*30)
+            # Set the cache for 12 hours
+            cache.set(cache_key, html_content, 60*60*12)
         return html_content
 
     class Meta:
