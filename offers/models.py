@@ -5,6 +5,7 @@ from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.cache import cache
 import os
 import uuid
 from django.utils import timezone
@@ -387,8 +388,15 @@ class Offer(models.Model):
         return min_maxes
 
     def html_content(self):
-        markdown_converter = Markdown(extras=["wiki-tables", "fenced-code-blocks", "smarty-pants"])
-        return markdown_converter.convert(self.content)
+        cache_key = "offer-{}-html-content".format(self.pk)
+        html_content = cache.get(cache_key)
+        if html_content is None:
+            markdown_converter = Markdown(extras=["wiki-tables", "fenced-code-blocks", "smarty-pants"])
+            html_content = markdown_converter.convert(self.content)
+
+            # Set the cache for 30 minutes
+            cache.set(cache_key, html_content, 60*30)
+        return html_content
 
     class Meta:
         ordering = ['-published_at']
