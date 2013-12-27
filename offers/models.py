@@ -14,6 +14,7 @@ from django_countries.fields import CountryField
 import json
 import bbcode
 import html2text
+from markdown2 import Markdown
 from decimal import Decimal
 from sorl.thumbnail import get_thumbnail
 
@@ -384,6 +385,10 @@ class Offer(models.Model):
                 "same": is_same,
             })
         return min_maxes
+
+    def html_content(self):
+        markdown_converter = Markdown()
+        return markdown_converter.convert(self.content)
 
     class Meta:
         ordering = ['-published_at']

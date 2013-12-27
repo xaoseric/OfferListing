@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-  {{ offer.content | safe }}
+  {{ offer.html_content | safe }}
   <br />
   <p>
     <strong>Terms of service: </strong><a href="{{ offer.provider.tos }}">{{ offer.provider.tos }}</a>
