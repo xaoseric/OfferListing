@@ -1,5 +1,6 @@
 from django import forms
 from offers.models import Comment, Offer, Plan, Provider, Location, TestIP, TestDownload
+from offers.widgets import MarkdownTextField
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from crispy_forms.helper import FormHelper
@@ -65,6 +66,8 @@ class OfferForm(forms.ModelForm):
         super(OfferForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
+
+        self.fields["content"].widget = MarkdownTextField()
 
     class Meta:
         model = Offer
