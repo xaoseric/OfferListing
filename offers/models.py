@@ -387,8 +387,18 @@ class Offer(models.Model):
             })
         return min_maxes
 
+    def get_cache_key(self):
+        if self.pk is None:
+            return None
+        return "offer-{}-html-content".format(self.pk)
+
+    def delete_html_cache(self):
+        if self.pk is None:
+            return
+        cache.delete(self.get_cache_key())
+
     def html_content(self):
-        cache_key = "offer-{}-html-content".format(self.pk)
+        cache_key = self.get_cache_key()
         html_content = cache.get(cache_key)
         if html_content is None:
             markdown_converter = Markdown(extras=["wiki-tables", "fenced-code-blocks", "smarty-pants"])
@@ -419,12 +429,17 @@ def offer_update_published(sender, instance, raw, **kwargs):
                 instance.readied_at = timezone.now()
 
 
+def offer_clear_cache(sender, instance, raw, **kwargs):
+    instance.delete_html_cache()
+
+
 def clean_offer_on_save(sender, instance, raw, **kwargs):
     instance.content = clean(instance.content)
 
 
 pre_save.connect(clean_offer_on_save, sender=Offer)
 pre_save.connect(offer_update_published, sender=Offer)
+pre_save.connect(offer_clear_cache, sender=Offer)
 
 
 class Plan(models.Model):
