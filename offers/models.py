@@ -9,7 +9,6 @@ import os
 import uuid
 from django.utils import timezone
 from django.utils.text import slugify
-from template_helpers.cleaners import clean, super_clean
 from django_countries.fields import CountryField
 import json
 import bbcode
@@ -433,11 +432,6 @@ def offer_clear_cache(sender, instance, raw, **kwargs):
     instance.html_content()
 
 
-def clean_offer_on_save(sender, instance, raw, **kwargs):
-    instance.content = clean(instance.content)
-
-
-pre_save.connect(clean_offer_on_save, sender=Offer)
 pre_save.connect(offer_update_published, sender=Offer)
 post_save.connect(offer_clear_cache, sender=Offer)
 
