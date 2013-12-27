@@ -387,7 +387,7 @@ class Offer(models.Model):
         return min_maxes
 
     def html_content(self):
-        markdown_converter = Markdown()
+        markdown_converter = Markdown(extras=["wiki-tables", "fenced-code-blocks", "smarty-pants"])
         return markdown_converter.convert(self.content)
 
     class Meta:
