@@ -22,6 +22,6 @@ html2text
 django-grappelli
 sorl-thumbnail
 psycopg2
-markdown2
+markdown
 pygments
 django-braces

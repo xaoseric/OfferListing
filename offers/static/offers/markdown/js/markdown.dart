@@ -85,7 +85,15 @@ class MarkdownHTMLConverter {
   void _htmlContentReceived(HttpRequest request) {
     var responseData = JSON.decode(request.responseText);
     
-    _renderedField.setInnerHtml(responseData["html"]);
+    NodeValidatorBuilder _htmlValidator = new NodeValidatorBuilder();
+    _htmlValidator..allowHtml5()
+                  ..allowImages()
+                  ..allowInlineStyles()
+                  ..allowSvg()
+                  ..allowElement('a', attributes: ["href", "rev", "rel"])
+                  ..allowElement('img', attributes: ['src']);
+    
+    _renderedField.setInnerHtml(responseData["html"], validator: _htmlValidator);
     _refreshButton.classes.remove("disabled");
   }
 }
