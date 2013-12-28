@@ -68,6 +68,13 @@ class OfferForm(forms.ModelForm):
         self.helper.form_tag = False
 
         self.fields["content"].widget = MarkdownTextField()
+        self.fields["content"].help_text = "All content is written in " + \
+                                           "<a href='http://daringfireball.net/projects/markdown/syntax'>" + \
+                                           "markdown syntax" + \
+                                           "</a> " + \
+                                           "You can preview the markdown live above. " + \
+                                           "The text will update as you type. Optionally, you can force refresh the " \
+                                           "preview by clicking the refresh button."
 
     class Meta:
         model = Offer
