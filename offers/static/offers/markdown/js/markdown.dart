@@ -12,27 +12,47 @@ class MarkdownHTMLConverter {
   DivElement _htmlOutputMaster;
   DivElement _renderedField;
   ButtonElement _refreshButton;
+  ButtonElement _togglePaneButton;
   String _csrfToken;
   
   var _refreshSubscription;
+  bool _renderMarkdownText;
   
   MarkdownHTMLConverter(String textAreaClass, String divOutputClass){
     _textInput = querySelectorAll(textAreaClass)[0];
     _htmlOutputMaster = querySelectorAll(divOutputClass)[0];
     _htmlOutputMaster.appendHtml('<span class="title-text">Preview</span>');
     
+    /* Add new buttons */
+    
     _refreshButton = new ButtonElement();
-    _refreshButton.classes.addAll(["btn", "btn-success", "btn-xs", "pull-right"]);
+    _refreshButton.classes.addAll(["btn", "btn-success", "btn-xs"]);
     _refreshButton.text = "Refresh";
     _refreshButton.type = "button";
     _refreshButton.onClick.listen(_refreshButtonClick);
-    _htmlOutputMaster.append(_refreshButton);
+    
+    _togglePaneButton = new ButtonElement();
+    _togglePaneButton.classes.addAll(["btn", "btn-primary", "btn-xs"]);
+    _togglePaneButton.text = "Show preview";
+    _togglePaneButton.type = "button";
+    _togglePaneButton.onClick.listen(_toggleButtonClick);
+    
+    DivElement buttonContainer = new DivElement();
+    buttonContainer.append(_refreshButton);
+    buttonContainer.append(_togglePaneButton);
+    buttonContainer.classes.add("pull-right");
+    
+    _htmlOutputMaster.append(buttonContainer);
+    
+    /* Set up render fields */
 
     _renderedField = new DivElement();
     _renderedField.classes.add("render-field");
-    _renderedField.text = "Loaded";
 
     _htmlOutputMaster.append(_renderedField);
+    
+    // Auto-hide preview
+    hidePreview();
 
     // Get csrf token for post requests
     _csrfToken = querySelectorAll("[name=csrfmiddlewaretoken]")[0].value;
@@ -68,6 +88,8 @@ class MarkdownHTMLConverter {
   }
   
   void refreshMarkdownContent(){
+    if (!_renderMarkdownText) return;
+        
     _refreshButton.classes.add("disabled");
     var url = "/helper/markdown/";
     
@@ -95,5 +117,36 @@ class MarkdownHTMLConverter {
     
     _renderedField.setInnerHtml(responseData["html"], validator: _htmlValidator);
     _refreshButton.classes.remove("disabled");
+  }
+  
+  void _toggleButtonClick(Event e){
+    if (_renderMarkdownText){
+      // Pane is currently open, close it
+      hidePreview();
+    } else {
+      showPreview();
+    }
+  }
+  
+  void hidePreview(){
+    _renderMarkdownText = false;
+    
+    _refreshButton.classes.add("disabled");
+    _renderedField.hidden = true;
+    
+    _togglePaneButton.text = "Show preview";
+    _togglePaneButton.classes.remove("btn-info");
+    _togglePaneButton.classes.add("btn-primary");
+  }
+  
+  void showPreview(){
+    _renderMarkdownText = true;
+    refreshMarkdownContent();
+    
+    _renderedField.hidden = false;
+    
+    _togglePaneButton.text = "Hide preview";
+    _togglePaneButton.classes.remove("btn-primary");
+    _togglePaneButton.classes.add("btn-info");
   }
 }

@@ -7310,7 +7310,7 @@ main: function() {
   T.MarkdownHTMLConverter$(".markdowntextfield", ".markdown-render").refreshMarkdownContent$0();
 },
 
-MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,_refreshButton,_csrfToken,_refreshSubscription",
+MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,_refreshButton,_togglePaneButton,_csrfToken,_refreshSubscription,_renderMarkdownText",
   _textInputKeyDown$1: function(e) {
     this._cancelMarkdownStream$0();
   },
@@ -7339,6 +7339,8 @@ MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,
   },
   refreshMarkdownContent$0: function() {
     var t1, requestData;
+    if (this._renderMarkdownText !== true)
+      return;
     t1 = J.get$classes$x(this._refreshButton);
     t1.add$1(t1, "disabled");
     requestData = W.FormData_FormData(null);
@@ -7366,8 +7368,38 @@ MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,
   get$_htmlContentReceived: function() {
     return new H.BoundClosure$1(this, T.MarkdownHTMLConverter.prototype._htmlContentReceived$1, null, "_htmlContentReceived$1");
   },
+  _toggleButtonClick$1: function(e) {
+    if (this._renderMarkdownText === true)
+      this.hidePreview$0();
+    else
+      this.showPreview$0();
+  },
+  get$_toggleButtonClick: function() {
+    return new H.BoundClosure$1(this, T.MarkdownHTMLConverter.prototype._toggleButtonClick$1, null, "_toggleButtonClick$1");
+  },
+  hidePreview$0: function() {
+    this._renderMarkdownText = false;
+    var t1 = J.get$classes$x(this._refreshButton);
+    t1.add$1(t1, "disabled");
+    this._renderedField.hidden = true;
+    this._togglePaneButton.textContent = "Show preview";
+    t1 = J.get$classes$x(this._togglePaneButton);
+    t1.remove$1(t1, "btn-info");
+    t1 = J.get$classes$x(this._togglePaneButton);
+    t1.add$1(t1, "btn-primary");
+  },
+  showPreview$0: function() {
+    this._renderMarkdownText = true;
+    this.refreshMarkdownContent$0();
+    this._renderedField.hidden = false;
+    this._togglePaneButton.textContent = "Hide preview";
+    var t1 = J.get$classes$x(this._togglePaneButton);
+    t1.remove$1(t1, "btn-primary");
+    t1 = J.get$classes$x(this._togglePaneButton);
+    t1.add$1(t1, "btn-info");
+  },
   MarkdownHTMLConverter$2: function(textAreaClass, divOutputClass) {
-    var t1, t2;
+    var t1, t2, t3, buttonContainer;
     t1 = W._FrozenElementList$_wrap(document.querySelectorAll(textAreaClass), null)._nodeList;
     if (0 >= t1.length)
       throw H.ioore(t1, 0);
@@ -7379,41 +7411,60 @@ MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,
     J.appendHtml$1$x(this._htmlOutputMaster, "<span class=\"title-text\">Preview</span>");
     this._refreshButton = document.createElement("button", null);
     t1 = J.get$classes$x(this._refreshButton);
-    t1.addAll$1(t1, ["btn", "btn-success", "btn-xs", "pull-right"]);
+    t1.addAll$1(t1, ["btn", "btn-success", "btn-xs"]);
     this._refreshButton.textContent = "Refresh";
     J.set$type$x(this._refreshButton, "button");
     t1 = this._refreshButton;
     t1.toString;
-    t1 = new W._ElementEventStreamImpl(t1, C.EventStreamProvider_click._eventType, false);
+    t2 = C.EventStreamProvider_click._eventType;
+    t1 = new W._ElementEventStreamImpl(t1, t2, false);
     H.setRuntimeTypeInfo(t1, [null]);
-    t2 = this.get$_refreshButtonClick();
-    t2 = new W._EventStreamSubscription(0, t1._html$_target, t1._eventType, W._wrapZone(t2), t1._useCapture);
-    H.setRuntimeTypeInfo(t2, [H.getRuntimeTypeArgument(t1, "_EventStream", 0)]);
-    t2._tryResume$0();
-    this._htmlOutputMaster.appendChild(this._refreshButton);
+    t3 = this.get$_refreshButtonClick();
+    t3 = new W._EventStreamSubscription(0, t1._html$_target, t1._eventType, W._wrapZone(t3), t1._useCapture);
+    H.setRuntimeTypeInfo(t3, [H.getRuntimeTypeArgument(t1, "_EventStream", 0)]);
+    t3._tryResume$0();
+    this._togglePaneButton = document.createElement("button", null);
+    t3 = J.get$classes$x(this._togglePaneButton);
+    t3.addAll$1(t3, ["btn", "btn-primary", "btn-xs"]);
+    this._togglePaneButton.textContent = "Show preview";
+    J.set$type$x(this._togglePaneButton, "button");
+    t3 = this._togglePaneButton;
+    t3.toString;
+    t2 = new W._ElementEventStreamImpl(t3, t2, false);
+    H.setRuntimeTypeInfo(t2, [null]);
+    t3 = this.get$_toggleButtonClick();
+    t3 = new W._EventStreamSubscription(0, t2._html$_target, t2._eventType, W._wrapZone(t3), t2._useCapture);
+    H.setRuntimeTypeInfo(t3, [H.getRuntimeTypeArgument(t2, "_EventStream", 0)]);
+    t3._tryResume$0();
+    buttonContainer = document.createElement("div", null);
+    buttonContainer.appendChild(this._refreshButton);
+    buttonContainer.appendChild(this._togglePaneButton);
+    t3 = J.get$classes$x(buttonContainer);
+    t3.add$1(t3, "pull-right");
+    this._htmlOutputMaster.appendChild(buttonContainer);
     this._renderedField = document.createElement("div", null);
-    t2 = J.get$classes$x(this._renderedField);
-    t2.add$1(t2, "render-field");
-    this._renderedField.textContent = "Loaded";
+    t3 = J.get$classes$x(this._renderedField);
+    t3.add$1(t3, "render-field");
     this._htmlOutputMaster.appendChild(this._renderedField);
-    t2 = W._FrozenElementList$_wrap(document.querySelectorAll("[name=csrfmiddlewaretoken]"), null)._nodeList;
-    if (0 >= t2.length)
-      throw H.ioore(t2, 0);
-    this._csrfToken = J.get$value$x(t2[0]);
-    t2 = J.get$onKeyDown$x(this._textInput);
-    t1 = this.get$_textInputKeyDown();
-    t1 = new W._EventStreamSubscription(0, t2._html$_target, t2._eventType, W._wrapZone(t1), t2._useCapture);
-    H.setRuntimeTypeInfo(t1, [H.getRuntimeTypeArgument(t2, "_EventStream", 0)]);
-    t1._tryResume$0();
-    t1 = J.get$onKeyUp$x(this._textInput);
-    t2 = this.get$_textInputKeyUp();
-    t2 = new W._EventStreamSubscription(0, t1._html$_target, t1._eventType, W._wrapZone(t2), t1._useCapture);
-    H.setRuntimeTypeInfo(t2, [H.getRuntimeTypeArgument(t1, "_EventStream", 0)]);
+    this.hidePreview$0();
+    t3 = W._FrozenElementList$_wrap(document.querySelectorAll("[name=csrfmiddlewaretoken]"), null)._nodeList;
+    if (0 >= t3.length)
+      throw H.ioore(t3, 0);
+    this._csrfToken = J.get$value$x(t3[0]);
+    t3 = J.get$onKeyDown$x(this._textInput);
+    t2 = this.get$_textInputKeyDown();
+    t2 = new W._EventStreamSubscription(0, t3._html$_target, t3._eventType, W._wrapZone(t2), t3._useCapture);
+    H.setRuntimeTypeInfo(t2, [H.getRuntimeTypeArgument(t3, "_EventStream", 0)]);
     t2._tryResume$0();
+    t2 = J.get$onKeyUp$x(this._textInput);
+    t3 = this.get$_textInputKeyUp();
+    t3 = new W._EventStreamSubscription(0, t2._html$_target, t2._eventType, W._wrapZone(t3), t2._useCapture);
+    H.setRuntimeTypeInfo(t3, [H.getRuntimeTypeArgument(t2, "_EventStream", 0)]);
+    t3._tryResume$0();
   },
   static: {
 MarkdownHTMLConverter$: function(textAreaClass, divOutputClass) {
-  var t1 = new T.MarkdownHTMLConverter(null, null, null, null, null, null);
+  var t1 = new T.MarkdownHTMLConverter(null, null, null, null, null, null, null, null);
   t1.MarkdownHTMLConverter$2(textAreaClass, divOutputClass);
   return t1;
 }}
