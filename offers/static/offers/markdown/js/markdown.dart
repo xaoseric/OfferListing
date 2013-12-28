@@ -4,6 +4,7 @@ import 'dart:async';
 
 void main(){  
   MarkdownHTMLConverter converter = new MarkdownHTMLConverter(".markdowntextfield", ".markdown-render");
+  converter.refreshMarkdownContent();
 }
 
 class MarkdownHTMLConverter {
@@ -47,7 +48,7 @@ class MarkdownHTMLConverter {
   
   void _textInputKeyUp(Event e){
     _cancelMarkdownStream();
-    var future = new Future.delayed(const Duration(milliseconds: 600));
+    var future = new Future.delayed(const Duration(milliseconds: 300));
     _refreshSubscription = future.asStream().listen((Stream stream) => refreshMarkdownContent());
   }
   
@@ -63,11 +64,11 @@ class MarkdownHTMLConverter {
   }
 
   void _refreshButtonClick(Event e){
-    _refreshButton.classes.add("disabled");
     refreshMarkdownContent();
   }
   
   void refreshMarkdownContent(){
+    _refreshButton.classes.add("disabled");
     var url = "/helper/markdown/";
     
     FormData requestData = new FormData();
