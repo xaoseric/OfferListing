@@ -1,5 +1,6 @@
 import 'dart:html';
 import 'dart:convert';
+import 'dart:async';
 
 void main(){  
   MarkdownHTMLConverter converter = new MarkdownHTMLConverter(".markdowntextfield", ".markdown-render");
@@ -11,6 +12,8 @@ class MarkdownHTMLConverter {
   DivElement _renderedField;
   ButtonElement _refreshButton;
   String _csrfToken;
+  
+  var _refreshSubscription;
   
   MarkdownHTMLConverter(String textAreaClass, String divOutputClass){
     _textInput = querySelectorAll(textAreaClass)[0];
@@ -32,6 +35,27 @@ class MarkdownHTMLConverter {
 
     // Get csrf token for post requests
     _csrfToken = querySelectorAll("[name=csrfmiddlewaretoken]")[0].value;
+    
+    // Set timers for rendering markdown
+    _textInput.onKeyDown.listen(_textInputKeyDown);
+    _textInput.onKeyUp.listen(_textInputKeyUp);
+  }
+  
+  void _textInputKeyDown(Event e){
+    _cancelMarkdownStream();
+  }
+  
+  void _textInputKeyUp(Event e){
+    _cancelMarkdownStream();
+    var future = new Future.delayed(const Duration(milliseconds: 600));
+    _refreshSubscription = future.asStream().listen((Stream stream) => refreshMarkdownContent());
+  }
+  
+  void _cancelMarkdownStream(){
+    if (_refreshSubscription != null){
+      _refreshSubscription.cancel();
+      _refreshSubscription = null;
+    }
   }
   
   String getMarkdownContent(){
