@@ -7339,7 +7339,6 @@ MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,
   },
   refreshMarkdownContent$0: function() {
     var t1, requestData;
-    P.print("Rendering content...");
     t1 = J.get$classes$x(this._refreshButton);
     t1.add$1(t1, "disabled");
     requestData = W.FormData_FormData(null);
