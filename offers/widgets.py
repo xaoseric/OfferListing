@@ -10,4 +10,8 @@ class MarkdownTextField(forms.Textarea):
         if value is None:
             value = ''
         final_attrs = self.build_attrs(attrs, name=name)
-        return format_html('<textarea{0}>\r\n{1}</textarea>', flatatt(final_attrs), force_text(value))
+        return format_html(
+            '<textarea{0}>\r\n{1}</textarea><br><div class="markdown-render"></div>',
+            flatatt(final_attrs),
+            force_text(value)
+        )

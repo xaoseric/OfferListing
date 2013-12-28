@@ -35,4 +35,9 @@
 
 {% block extra_js %}
   <script src="{% static 'offers/js/preview_request.min.js' %}"></script>
+  <script src="{% static 'offers/markdown/js/markdown.js' %}"></script>
+{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'offers/markdown/css/markdown.css' %}">
 {% endblock %}
