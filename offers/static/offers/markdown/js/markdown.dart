@@ -36,7 +36,7 @@ class MarkdownHTMLConverter {
   }
   
   String getMarkdownContent(){
-    return _textInput.text;
+    return _textInput.value;
   }
 
   void _refreshButtonClick(Event e){
@@ -45,7 +45,6 @@ class MarkdownHTMLConverter {
   }
   
   void refreshMarkdownContent(){
-    print("Going to refresh!");
     var url = "/helper/markdown/";
     
     FormData requestData = new FormData();
@@ -60,7 +59,9 @@ class MarkdownHTMLConverter {
   }
 
   void _htmlContentReceived(HttpRequest request) {
-    print(request.responseText);
+    var responseData = JSON.decode(request.responseText);
+    
+    _renderedField.setInnerHtml(responseData["html"]);
     _refreshButton.classes.remove("disabled");
   }
 }

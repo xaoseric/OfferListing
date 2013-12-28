@@ -295,7 +295,7 @@ JSArray: {"": "List/Interceptor;",
   addAll$1: function(receiver, collection) {
     var t1;
     for (t1 = new H.ListIterator(collection, collection.length, 0, null); t1.moveNext$0();)
-      this.add$1(receiver, t1._current);
+      this.add$1(receiver, t1._dev$_current);
   },
   forEach$1: function(receiver, f) {
     return H.IterableMixinWorkaround_forEach(receiver, f);
@@ -392,7 +392,7 @@ JSNumber: {"": "num/Interceptor;",
   },
   $shr: function(receiver, other) {
     if (other < 0)
-      throw H.wrapException(new P.ArgumentError(other));
+      throw H.wrapException(P.ArgumentError$(other));
     if (receiver > 0) {
       if (other > 31)
         return 0;
@@ -404,7 +404,7 @@ JSNumber: {"": "num/Interceptor;",
   },
   $lt: function(receiver, other) {
     if (typeof other !== "number")
-      throw H.wrapException(new P.ArgumentError(other));
+      throw H.wrapException(P.ArgumentError$(other));
     return receiver < other;
   },
   $gt: function(receiver, other) {
@@ -414,7 +414,7 @@ JSNumber: {"": "num/Interceptor;",
   },
   $ge: function(receiver, other) {
     if (typeof other !== "number")
-      throw H.wrapException(new P.ArgumentError(other));
+      throw H.wrapException(P.ArgumentError$(other));
     return receiver >= other;
   },
   $isnum: true,
@@ -437,6 +437,18 @@ JSString: {"": "String/Interceptor;",
     if (index >= receiver.length)
       throw H.wrapException(P.RangeError$value(index));
     return receiver.charCodeAt(index);
+  },
+  startsWith$2: function(receiver, pattern, index) {
+    var endIndex;
+    if (index < 0 || index > receiver.length)
+      throw H.wrapException(P.RangeError$range(index, 0, receiver.length));
+    endIndex = index + pattern.length;
+    if (endIndex > receiver.length)
+      return false;
+    return pattern === receiver.substring(index, endIndex);
+  },
+  startsWith$1: function($receiver, pattern) {
+    return this.startsWith$2($receiver, pattern, 0);
   },
   substring$2: function(receiver, startIndex, endIndex) {
     if (endIndex == null)
@@ -1514,16 +1526,16 @@ Primitives_stringFromCodePoints: function(codePoints) {
   a = [];
   a.$builtinTypeInfo = [J.JSInt];
   for (t1 = new H.ListIterator(codePoints, codePoints.length, 0, null); t1.moveNext$0();) {
-    i = t1._current;
+    i = t1._dev$_current;
     if (typeof i !== "number" || Math.floor(i) !== i)
-      throw H.wrapException(new P.ArgumentError(i));
+      throw H.wrapException(P.ArgumentError$(i));
     if (i <= 65535)
       a.push(i);
     else if (i <= 1114111) {
       a.push(55296 + (C.JSInt_methods.$shr(i - 65536, 10) & 1023));
       a.push(56320 + (i & 1023));
     } else
-      throw H.wrapException(new P.ArgumentError(i));
+      throw H.wrapException(P.ArgumentError$(i));
   }
   return H.Primitives__fromCharCodeApply(a);
 },
@@ -1531,11 +1543,11 @@ Primitives_stringFromCodePoints: function(codePoints) {
 Primitives_stringFromCharCodes: function(charCodes) {
   var t1, i;
   for (t1 = new H.ListIterator(charCodes, charCodes.length, 0, null); t1.moveNext$0();) {
-    i = t1._current;
+    i = t1._dev$_current;
     if (typeof i !== "number" || Math.floor(i) !== i)
-      throw H.wrapException(new P.ArgumentError(i));
+      throw H.wrapException(P.ArgumentError$(i));
     if (i < 0)
-      throw H.wrapException(new P.ArgumentError(i));
+      throw H.wrapException(P.ArgumentError$(i));
     if (i > 65535)
       return H.Primitives_stringFromCodePoints(charCodes);
   }
@@ -2239,13 +2251,13 @@ Arrays_copy: function(src, srcStart, dst, dstStart, count) {
 IterableMixinWorkaround_forEach: function(iterable, f) {
   var t1;
   for (t1 = new H.ListIterator(iterable, iterable.length, 0, null); t1.moveNext$0();)
-    f.call$1(t1._current);
+    f.call$1(t1._dev$_current);
 },
 
 IterableMixinWorkaround_any: function(iterable, f) {
   var t1;
   for (t1 = new H.ListIterator(iterable, iterable.length, 0, null); t1.moveNext$0();)
-    if (f.call$1(t1._current) === true)
+    if (f.call$1(t1._dev$_current) === true)
       return true;
   return false;
 },
@@ -2333,23 +2345,23 @@ ListIterable: {"": "IterableBase;",
   $isEfficientLength: true
 },
 
-ListIterator: {"": "Object;_iterable,_length,_index,_current",
+ListIterator: {"": "Object;_iterable,_dev$_length,_index,_dev$_current",
   get$current: function() {
-    return this._current;
+    return this._dev$_current;
   },
   moveNext$0: function() {
     var t1, t2, $length, t3;
     t1 = this._iterable;
     t2 = J.getInterceptor$asx(t1);
     $length = t2.get$length(t1);
-    if (this._length !== $length)
+    if (this._dev$_length !== $length)
       throw H.wrapException(P.ConcurrentModificationError$(t1));
     t3 = this._index;
     if (t3 >= $length) {
-      this._current = null;
+      this._dev$_current = null;
       return false;
     }
-    this._current = t2.elementAt$1(t1, t3);
+    this._dev$_current = t2.elementAt$1(t1, t3);
     this._index = this._index + 1;
     return true;
   }
@@ -2387,21 +2399,21 @@ MappedIterable_MappedIterable: function(iterable, $function, $S, $T) {
 
 EfficientLengthMappedIterable: {"": "MappedIterable;_iterable,_f", $asMappedIterable: null, $isEfficientLength: true},
 
-MappedIterator: {"": "Iterator;_current,_iterator,_f",
+MappedIterator: {"": "Iterator;_dev$_current,_iterator,_f",
   _f$1: function(arg0) {
     return this._f.call$1(arg0);
   },
   moveNext$0: function() {
     var t1 = this._iterator;
     if (t1.moveNext$0()) {
-      this._current = this._f$1(t1.get$current());
+      this._dev$_current = this._f$1(t1.get$current());
       return true;
     }
-    this._current = null;
+    this._dev$_current = null;
     return false;
   },
   get$current: function() {
-    return this._current;
+    return this._dev$_current;
   },
   $asIterator: function($S, $T) {
     return [$T];
@@ -2487,7 +2499,7 @@ Future_wait: function(futures) {
   t2 = new P.Future_wait_handleError(t1);
   t1.remaining_2 = 0;
   for (t3 = new H.ListIterator(futures, futures.length, 0, null); t3.moveNext$0();) {
-    future = t3._current;
+    future = t3._dev$_current;
     pos = t1.remaining_2;
     t1.remaining_2 = pos + 1;
     t4 = future.catchError$1(t2);
@@ -4585,7 +4597,7 @@ _HashSet: {"": "_HashSetBase;",
   addAll$1: function(_, objects) {
     var t1;
     for (t1 = new H.ListIterator(objects, objects.length, 0, null); t1.moveNext$0();)
-      this.add$1(this, t1._current);
+      this.add$1(this, t1._dev$_current);
   },
   remove$1: function(_, object) {
     var rest, bucket, index;
@@ -4967,6 +4979,16 @@ IterableBase: {"": "Object;",
       ++count;
     return count;
   },
+  get$single: function(_) {
+    var it, result;
+    it = this.get$iterator(this);
+    if (!it.moveNext$0())
+      throw H.wrapException(P.StateError$("No elements"));
+    result = it.get$current();
+    if (it.moveNext$0())
+      throw H.wrapException(P.StateError$("More than one element"));
+    return result;
+  },
   elementAt$1: function(_, index) {
     var t1, remaining, element;
     if (index < 0)
@@ -5015,7 +5037,7 @@ ListMixin: {"": "Object;",
   addAll$1: function(receiver, iterable) {
     var t1, element, t2;
     for (t1 = new H.ListIterator(iterable, iterable.length, 0, null); t1.moveNext$0();) {
-      element = t1._current;
+      element = t1._dev$_current;
       t2 = this.get$length(receiver);
       this.set$length(receiver, t2 + 1);
       this.$indexSet(receiver, t2, element);
@@ -5208,7 +5230,7 @@ ListQueue__nextPowerOf2: function(number) {
 
 },
 
-_ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_position,_collection$_current",
+_ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_collection$_position,_collection$_current",
   get$current: function() {
     return this._collection$_current;
   },
@@ -5217,7 +5239,7 @@ _ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_position,_colle
     t1 = this._queue;
     if (this._modificationCount !== t1._modificationCount)
       H.throwExpression(P.ConcurrentModificationError$(t1));
-    t2 = this._position;
+    t2 = this._collection$_position;
     if (t2 === this._end) {
       this._collection$_current = null;
       return false;
@@ -5226,7 +5248,7 @@ _ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_position,_colle
     if (t2 < 0 || t2 >= t3.length)
       throw H.ioore(t3, t2);
     this._collection$_current = t3[t2];
-    this._position = (this._position + 1 & t1._table.length - 1) >>> 0;
+    this._collection$_position = (this._collection$_position + 1 & t1._table.length - 1) >>> 0;
     return true;
   },
   static: {
@@ -5235,6 +5257,75 @@ _ListQueueIterator$: function(queue) {
 }}
 
 }}],
+["dart.convert", "dart:convert", , P, {
+_convertJsonToDart: function(json, reviver) {
+  var revive = new P._convertJsonToDart_closure();
+  return revive.call$2(null, new P._convertJsonToDart_walk(revive).call$1(json));
+},
+
+_parseJson: function(source, reviver) {
+  var parsed, e, t1, exception;
+  t1 = source;
+  if (typeof t1 !== "string")
+    throw H.wrapException(new P.ArgumentError(source));
+  parsed = null;
+  try {
+    parsed = JSON.parse(source);
+  } catch (exception) {
+    t1 = H.unwrapException(exception);
+    e = t1;
+    throw H.wrapException(P.FormatException$(String(e)));
+  }
+
+  return P._convertJsonToDart(parsed, reviver);
+},
+
+_convertJsonToDart_closure: {"": "Closure;",
+  call$2: function(key, value) {
+    return value;
+  },
+  $is_args2: true
+},
+
+_convertJsonToDart_walk: {"": "Closure;revive_0",
+  call$1: function(e) {
+    var list, t1, i, keys, map, key, proto;
+    if (e == null || typeof e != "object")
+      return e;
+    if (Object.getPrototypeOf(e) === Array.prototype) {
+      list = e;
+      for (t1 = this.revive_0, i = 0; i < list.length; ++i)
+        list[i] = t1.call$2(i, this.call$1(list[i]));
+      return list;
+    }
+    keys = Object.keys(e);
+    map = H.fillLiteralMap([], P.LinkedHashMap_LinkedHashMap(null, null, null, null, null));
+    for (t1 = this.revive_0, i = 0; i < keys.length; ++i) {
+      key = keys[i];
+      map.$indexSet(map, key, t1.call$2(key, this.call$1(e[key])));
+    }
+    proto = e.__proto__;
+    if (typeof proto !== "undefined" && proto !== Object.prototype)
+      map.$indexSet(map, "__proto__", t1.call$2("__proto__", this.call$1(proto)));
+    return map;
+  },
+  $is_args1: true
+},
+
+Codec: {"": "Object;"},
+
+Converter: {"": "Object;"},
+
+JsonCodec: {"": "Codec;",
+  decode$2$reviver: function(source, reviver) {
+    return P._parseJson(source, C.JsonDecoder_null._reviver);
+  },
+  decode$1: function(source) {
+    return this.decode$2$reviver(source, null);
+  }
+},
+
+JsonDecoder: {"": "Converter;_reviver"}}],
 ["dart.core", "dart:core", , P, {
 _symbolToString: function(symbol) {
   return H.Symbol_getName(symbol);
@@ -5303,14 +5394,14 @@ List_List: function($length, $E) {
   if ($length == null)
     return new Array(0);
   if (typeof $length !== "number" || Math.floor($length) !== $length || $length < 0)
-    throw H.wrapException(new P.ArgumentError("Length must be a positive integer: " + H.S($length) + "."));
+    throw H.wrapException(P.ArgumentError$("Length must be a positive integer: " + H.S($length) + "."));
   return H.Primitives_newFixedList($length);
 },
 
 List_List$filled: function($length, fill, $E) {
   var result, t1, i;
   if ($length < 0)
-    throw H.wrapException(new P.ArgumentError("Length must be a positive integer: " + $length + "."));
+    throw H.wrapException(P.ArgumentError$("Length must be a positive integer: " + $length + "."));
   result = H.Primitives_newFixedList($length);
   if ($length !== 0 && true)
     for (t1 = result.length, i = 0; i < t1; ++i)
@@ -5542,6 +5633,17 @@ _ExceptionImplementation: {"": "Object;message",
   }
 },
 
+FormatException: {"": "Object;message",
+  toString$0: function(_) {
+    return "FormatException: " + this.message;
+  },
+  static: {
+FormatException$: function(message) {
+  return new P.FormatException(message);
+}}
+
+},
+
 Expando: {"": "Object;name",
   toString$0: function(_) {
     return "Expando:" + H.S(this.name);
@@ -5650,6 +5752,15 @@ AnchorElement_AnchorElement: function(href) {
   return e;
 },
 
+Element_Element$html: function(html, treeSanitizer, validator) {
+  var fragment, t1;
+  fragment = J.createFragment$3$treeSanitizer$validator$x(document.body, html, treeSanitizer, validator);
+  fragment.toString;
+  t1 = new W._ChildNodeListLazy(fragment);
+  t1 = t1.where$1(t1, new W.Element_Element$html_closure());
+  return t1.get$single(t1);
+},
+
 FormData_FormData: function(form) {
   return new FormData();
 },
@@ -5696,7 +5807,7 @@ _wrapZone: function(callback) {
   return t1.bindUnaryCallback$2$runGuarded(callback, true);
 },
 
-HtmlElement: {"": "Element;", "%": "HTMLAppletElement|HTMLBRElement|HTMLBaseFontElement|HTMLCanvasElement|HTMLContentElement|HTMLDListElement|HTMLDataListElement|HTMLDetailsElement|HTMLDialogElement|HTMLDirectoryElement|HTMLDivElement|HTMLFontElement|HTMLFrameElement|HTMLFrameSetElement|HTMLHRElement|HTMLHeadElement|HTMLHeadingElement|HTMLHtmlElement|HTMLImageElement|HTMLLabelElement|HTMLLegendElement|HTMLMarqueeElement|HTMLMenuElement|HTMLModElement|HTMLOptGroupElement|HTMLParagraphElement|HTMLPreElement|HTMLQuoteElement|HTMLShadowElement|HTMLSpanElement|HTMLTableCaptionElement|HTMLTableCellElement|HTMLTableColElement|HTMLTableDataCellElement|HTMLTableElement|HTMLTableHeaderCellElement|HTMLTableRowElement|HTMLTableSectionElement|HTMLTitleElement|HTMLTrackElement|HTMLUListElement|HTMLUnknownElement;HTMLElement"},
+HtmlElement: {"": "Element;", "%": "HTMLAppletElement|HTMLBRElement|HTMLBaseFontElement|HTMLCanvasElement|HTMLContentElement|HTMLDListElement|HTMLDataListElement|HTMLDetailsElement|HTMLDialogElement|HTMLDirectoryElement|HTMLDivElement|HTMLFontElement|HTMLFrameElement|HTMLFrameSetElement|HTMLHRElement|HTMLHeadElement|HTMLHeadingElement|HTMLHtmlElement|HTMLImageElement|HTMLLabelElement|HTMLLegendElement|HTMLMarqueeElement|HTMLMenuElement|HTMLModElement|HTMLOptGroupElement|HTMLParagraphElement|HTMLPreElement|HTMLQuoteElement|HTMLShadowElement|HTMLSpanElement|HTMLTableCaptionElement|HTMLTableCellElement|HTMLTableColElement|HTMLTableDataCellElement|HTMLTableHeaderCellElement|HTMLTitleElement|HTMLTrackElement|HTMLUListElement|HTMLUnknownElement;HTMLElement"},
 
 AnchorElement: {"": "HtmlElement;hostname=,href},port=,protocol=,type}",
   toString$0: function(receiver) {
@@ -5824,6 +5935,16 @@ Element: {"": "Node;className%",
     document.adoptNode(fragment);
     return fragment;
   },
+  createFragment$2$treeSanitizer: function($receiver, html, treeSanitizer) {
+    return this.createFragment$3$treeSanitizer$validator($receiver, html, treeSanitizer, null);
+  },
+  setInnerHtml$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
+    receiver.textContent = null;
+    receiver.appendChild(this.createFragment$3$treeSanitizer$validator(receiver, html, treeSanitizer, validator));
+  },
+  setInnerHtml$1: function($receiver, html) {
+    return this.setInnerHtml$3$treeSanitizer$validator($receiver, html, null, null);
+  },
   $isElement: true,
   "%": ";Element"
 },
@@ -5904,6 +6025,9 @@ MidiPort: {"": "EventTarget;", "%": "MIDIInput;MIDIPort"},
 MouseEvent: {"": "UIEvent;", "%": "DragEvent|MSPointerEvent|MouseEvent|MouseScrollEvent|MouseWheelEvent|PointerEvent|WheelEvent"},
 
 Node: {"": "EventTarget;lastChild=,nodeType=",
+  get$nodes: function(receiver) {
+    return new W._ChildNodeListLazy(receiver);
+  },
   remove$0: function(receiver) {
     var t1 = receiver.parentNode;
     if (t1 != null)
@@ -5967,7 +6091,7 @@ Range: {"": "Interceptor;",
   "%": "Range"
 },
 
-ScriptElement: {"": "HtmlElement;type}", "%": "HTMLScriptElement"},
+ScriptElement0: {"": "HtmlElement;type}", "%": "HTMLScriptElement"},
 
 SelectElement: {"": "HtmlElement;length=,name=,value=", "%": "HTMLSelectElement"},
 
@@ -5977,7 +6101,75 @@ SpeechRecognitionError: {"": "Event;error=", "%": "SpeechRecognitionError"},
 
 StyleElement: {"": "HtmlElement;type}", "%": "HTMLStyleElement"},
 
-TemplateElement: {"": "HtmlElement;", $isTemplateElement: true, "%": "HTMLTemplateElement"},
+TableElement: {"": "HtmlElement;",
+  createFragment$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
+    var table, fragment, t1;
+    if ("createContextualFragment" in window.Range.prototype)
+      return W.Element.prototype.createFragment$3$treeSanitizer$validator.call(this, receiver, html, treeSanitizer, validator);
+    table = W.Element_Element$html("<table>" + H.S(html) + "</table>", treeSanitizer, validator);
+    fragment = document.createDocumentFragment();
+    fragment.toString;
+    t1 = new W._ChildNodeListLazy(fragment);
+    t1.addAll$1(t1, J.get$nodes$x(table));
+    return fragment;
+  },
+  "%": "HTMLTableElement"
+},
+
+TableRowElement: {"": "HtmlElement;",
+  createFragment$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
+    var fragment, t1, section, row;
+    if ("createContextualFragment" in window.Range.prototype)
+      return W.Element.prototype.createFragment$3$treeSanitizer$validator.call(this, receiver, html, treeSanitizer, validator);
+    fragment = document.createDocumentFragment();
+    t1 = J.createFragment$3$treeSanitizer$validator$x(document.createElement("table", null), html, treeSanitizer, validator);
+    t1.toString;
+    t1 = new W._ChildNodeListLazy(t1);
+    section = t1.get$single(t1);
+    section.toString;
+    t1 = new W._ChildNodeListLazy(section);
+    row = t1.get$single(t1);
+    fragment.toString;
+    t1 = new W._ChildNodeListLazy(fragment);
+    row.toString;
+    t1.addAll$1(t1, new W._ChildNodeListLazy(row));
+    return fragment;
+  },
+  "%": "HTMLTableRowElement"
+},
+
+TableSectionElement: {"": "HtmlElement;",
+  createFragment$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
+    var fragment, t1, section;
+    if ("createContextualFragment" in window.Range.prototype)
+      return W.Element.prototype.createFragment$3$treeSanitizer$validator.call(this, receiver, html, treeSanitizer, validator);
+    fragment = document.createDocumentFragment();
+    t1 = J.createFragment$3$treeSanitizer$validator$x(document.createElement("table", null), html, treeSanitizer, validator);
+    t1.toString;
+    t1 = new W._ChildNodeListLazy(t1);
+    section = t1.get$single(t1);
+    fragment.toString;
+    t1 = new W._ChildNodeListLazy(fragment);
+    section.toString;
+    t1.addAll$1(t1, new W._ChildNodeListLazy(section));
+    return fragment;
+  },
+  "%": "HTMLTableSectionElement"
+},
+
+TemplateElement: {"": "HtmlElement;",
+  setInnerHtml$3$treeSanitizer$validator: function(receiver, html, treeSanitizer, validator) {
+    var fragment;
+    receiver.textContent = null;
+    fragment = this.createFragment$3$treeSanitizer$validator(receiver, html, treeSanitizer, validator);
+    receiver.content.appendChild(fragment);
+  },
+  setInnerHtml$1: function($receiver, html) {
+    return this.setInnerHtml$3$treeSanitizer$validator($receiver, html, null, null);
+  },
+  $isTemplateElement: true,
+  "%": "HTMLTemplateElement"
+},
 
 TextAreaElement: {"": "HtmlElement;name=,value=", "%": "HTMLTextAreaElement"},
 
@@ -6085,6 +6277,14 @@ _FrozenElementList$_wrap_closure: {"": "Closure;",
   $is_args1: true
 },
 
+Element_Element$html_closure: {"": "Closure;",
+  call$1: function(e) {
+    var t1 = J.getInterceptor(e);
+    return typeof e === "object" && e !== null && !!t1.$isElement;
+  },
+  $is_args1: true
+},
+
 HttpRequest_request_closure0: {"": "Closure;xhr_0",
   call$2: function(header, value) {
     this.xhr_0.setRequestHeader(header, value);
@@ -6113,6 +6313,16 @@ HttpRequest_request_closure: {"": "Closure;completer_1,xhr_2",
 },
 
 _ChildNodeListLazy: {"": "ListBase;_this",
+  get$single: function(_) {
+    var t1, l;
+    t1 = this._this;
+    l = t1.childNodes.length;
+    if (l === 0)
+      throw H.wrapException(P.StateError$("No elements"));
+    if (l > 1)
+      throw H.wrapException(P.StateError$("More than one element"));
+    return t1.firstChild;
+  },
   add$1: function(_, value) {
     this._this.appendChild(value);
   },
@@ -6171,7 +6381,7 @@ _AttributeMap: {"": "Object;",
   forEach$1: function(_, f) {
     var t1, key;
     for (t1 = this.get$keys(), t1 = new H.ListIterator(t1, t1.length, 0, null); t1.moveNext$0();) {
-      key = t1._current;
+      key = t1._dev$_current;
       f.call$2(key, this.$index(this, key));
     }
   },
@@ -6229,7 +6439,7 @@ _ElementCssClassSet: {"": "CssClassSetImpl;_element",
     var s, t1, trimmed;
     s = P.LinkedHashSet_LinkedHashSet(null, null, null, J.JSString);
     for (t1 = J.get$className$x(this._element).split(" "), t1 = new H.ListIterator(t1, t1.length, 0, null); t1.moveNext$0();) {
-      trimmed = J.trim$0$s(t1._current);
+      trimmed = J.trim$0$s(t1._dev$_current);
       if (trimmed.length !== 0)
         s.add$1(s, trimmed);
     }
@@ -6299,12 +6509,12 @@ _Html5NodeValidator: {"": "Object;uriPolicy<",
     t1 = $.get$_Html5NodeValidator__attributeValidators();
     if (t1.get$isEmpty(t1)) {
       for (t1 = new H.ListIterator(C.List_1GN, 261, 0, null); t1.moveNext$0();) {
-        attr = t1._current;
+        attr = t1._dev$_current;
         t2 = $.get$_Html5NodeValidator__attributeValidators();
         t2.$indexSet(t2, attr, W._Html5NodeValidator__standardAttributeValidator$closure);
       }
       for (t1 = new H.ListIterator(C.List_yrN, 12, 0, null); t1.moveNext$0();) {
-        attr = t1._current;
+        attr = t1._dev$_current;
         t2 = $.get$_Html5NodeValidator__attributeValidators();
         t2.$indexSet(t2, attr, W._Html5NodeValidator__uriAttributeValidator$closure);
       }
@@ -6437,22 +6647,38 @@ _TemplatingNodeValidator_closure: {"": "Closure;",
   $is_args1: true
 },
 
-FixedSizeListIterator: {"": "Object;_array,_html$_length,_html$_position,_html$_current",
+_SvgNodeValidator: {"": "Object;",
+  allowsElement$1: function(element) {
+    var t1 = J.getInterceptor(element);
+    if (!!t1.$isScriptElement)
+      return false;
+    if (!!t1.$isSvgElement)
+      return true;
+    return false;
+  },
+  allowsAttribute$3: function(element, attributeName, value) {
+    if (attributeName === "is" || C.JSString_methods.startsWith$1(attributeName, "on"))
+      return false;
+    return this.allowsElement$1(element);
+  }
+},
+
+FixedSizeListIterator: {"": "Object;_array,_length,_position,_current",
   moveNext$0: function() {
     var nextPosition, t1;
-    nextPosition = this._html$_position + 1;
-    t1 = this._html$_length;
+    nextPosition = this._position + 1;
+    t1 = this._length;
     if (nextPosition < t1) {
-      this._html$_current = J.$index$asx(this._array, nextPosition);
-      this._html$_position = nextPosition;
+      this._current = J.$index$asx(this._array, nextPosition);
+      this._position = nextPosition;
       return true;
     }
-    this._html$_current = null;
-    this._html$_position = t1;
+    this._current = null;
+    this._position = t1;
     return false;
   },
   get$current: function() {
-    return this._html$_current;
+    return this._current;
   },
   static: {
 FixedSizeListIterator$: function(array) {
@@ -6586,7 +6812,7 @@ _ValidatingTreeSanitizer_sanitizeTree_walk: {"": "Closure;this_0",
   $is_args1: true
 }}],
 ["dart.dom.svg", "dart:svg", , P, {
-ScriptElement0: {"": "SvgElement;type}", "%": "SVGScriptElement"},
+ScriptElement: {"": "SvgElement;type}", $isScriptElement: true, "%": "SVGScriptElement"},
 
 StyleElement0: {"": "SvgElement;type}", "%": "SVGStyleElement"},
 
@@ -6596,9 +6822,30 @@ SvgElement: {"": "Element;",
       receiver._cssClassSet = new P._AttributeClassSet(receiver);
     return receiver._cssClassSet;
   },
+  createFragment$3$treeSanitizer$validator: function(receiver, svg, treeSanitizer, validator) {
+    var t1, html, fragment, svgFragment, root;
+    t1 = [];
+    H.setRuntimeTypeInfo(t1, [W.NodeValidator]);
+    validator = new W.NodeValidatorBuilder(t1);
+    t1 = validator._validators;
+    t1.push(W._Html5NodeValidator$(null));
+    t1.push(W._TemplatingNodeValidator$());
+    t1.push(new W._SvgNodeValidator());
+    treeSanitizer = new W._ValidatingTreeSanitizer(validator);
+    html = "<svg version=\"1.1\">" + H.S(svg) + "</svg>";
+    fragment = J.createFragment$2$treeSanitizer$x(document.body, html, treeSanitizer);
+    svgFragment = document.createDocumentFragment();
+    fragment.toString;
+    t1 = new W._ChildNodeListLazy(fragment);
+    root = t1.get$single(t1);
+    for (; t1 = root.firstChild, t1 != null;)
+      svgFragment.appendChild(t1);
+    return svgFragment;
+  },
   insertAdjacentHtml$2: function(receiver, where, text) {
     throw H.wrapException(P.UnsupportedError$("Cannot invoke insertAdjacentHtml on SVG."));
   },
+  $isSvgElement: true,
   "%": "SVGAElement|SVGAltGlyphDefElement|SVGAltGlyphElement|SVGAltGlyphItemElement|SVGAnimateColorElement|SVGAnimateElement|SVGAnimateMotionElement|SVGAnimateTransformElement|SVGAnimationElement|SVGCircleElement|SVGClipPathElement|SVGComponentTransferFunctionElement|SVGCursorElement|SVGDefsElement|SVGDescElement|SVGEllipseElement|SVGFEBlendElement|SVGFEColorMatrixElement|SVGFEComponentTransferElement|SVGFECompositeElement|SVGFEConvolveMatrixElement|SVGFEDiffuseLightingElement|SVGFEDisplacementMapElement|SVGFEDistantLightElement|SVGFEDropShadowElement|SVGFEFloodElement|SVGFEFuncAElement|SVGFEFuncBElement|SVGFEFuncGElement|SVGFEFuncRElement|SVGFEGaussianBlurElement|SVGFEImageElement|SVGFEMergeElement|SVGFEMergeNodeElement|SVGFEMorphologyElement|SVGFEOffsetElement|SVGFEPointLightElement|SVGFESpecularLightingElement|SVGFESpotLightElement|SVGFETileElement|SVGFETurbulenceElement|SVGFilterElement|SVGFontElement|SVGFontFaceElement|SVGFontFaceFormatElement|SVGFontFaceNameElement|SVGFontFaceSrcElement|SVGFontFaceUriElement|SVGForeignObjectElement|SVGGElement|SVGGlyphElement|SVGGlyphRefElement|SVGGradientElement|SVGGraphicsElement|SVGHKernElement|SVGImageElement|SVGLineElement|SVGLinearGradientElement|SVGMPathElement|SVGMarkerElement|SVGMaskElement|SVGMetadataElement|SVGMissingGlyphElement|SVGPathElement|SVGPatternElement|SVGPolygonElement|SVGPolylineElement|SVGRadialGradientElement|SVGRectElement|SVGSVGElement|SVGSetElement|SVGStopElement|SVGSwitchElement|SVGSymbolElement|SVGTSpanElement|SVGTextContentElement|SVGTextElement|SVGTextPathElement|SVGTextPositioningElement|SVGTitleElement|SVGUseElement|SVGVKernElement|SVGViewElement;SVGElement"
 },
 
@@ -6610,7 +6857,7 @@ _AttributeClassSet: {"": "CssClassSetImpl;_svg$_element",
     if (classname == null)
       return s;
     for (t1 = classname.split(" "), t1 = new H.ListIterator(t1, t1.length, 0, null); t1.moveNext$0();) {
-      trimmed = J.trim$0$s(t1._current);
+      trimmed = J.trim$0$s(t1._dev$_current);
       if (trimmed.length !== 0)
         s.add$1(s, trimmed);
     }
@@ -6629,7 +6876,7 @@ TypedData: {"": "Interceptor;",
     if (t1.$lt(index, 0) || t1.$ge(index, $length))
       throw H.wrapException(P.RangeError$range(index, 0, $length));
     else
-      throw H.wrapException(new P.ArgumentError("Invalid list index " + H.S(index)));
+      throw H.wrapException(P.ArgumentError$("Invalid list index " + H.S(index)));
   },
   "%": ";ArrayBufferView;TypedData_ListMixin|TypedData_ListMixin_FixedLengthListMixin"
 },
@@ -6730,7 +6977,7 @@ CssClassSetImpl_addAll_closure: {"": "Closure;iterable_0",
 }}],
 ["", "markdown.dart", , T, {
 main: function() {
-  P.print(T.MarkdownHTMLConverter$(".markdowntextfield", ".markdown-render")._textInput.textContent);
+  P.print(J.get$value$x(T.MarkdownHTMLConverter$(".markdowntextfield", ".markdown-render")._textInput));
 },
 
 MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,_refreshButton,_csrfToken",
@@ -6743,16 +6990,15 @@ MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,
     return new H.BoundClosure$1(this, T.MarkdownHTMLConverter.prototype._refreshButtonClick$1, null, "_refreshButtonClick$1");
   },
   refreshMarkdownContent$0: function() {
-    P.print("Going to refresh!");
-    H.fillLiteralMap(["markdown", "# some title", "csrfmiddlewaretoken", this._csrfToken], P.LinkedHashMap_LinkedHashMap(null, null, null, null, null));
     var requestData = W.FormData_FormData(null);
-    requestData.append("markdown", this._textInput.textContent);
+    requestData.append("markdown", J.get$value$x(this._textInput));
     requestData.append("csrfmiddlewaretoken", this._csrfToken);
     W.HttpRequest_request("/helper/markdown/", "POST", null, null, null, null, requestData, null).then$1(this.get$_htmlContentReceived());
   },
   _htmlContentReceived$1: function(request) {
-    var t1;
-    P.print(J.get$responseText$x(request));
+    var responseData, t1;
+    responseData = C.C_JsonCodec.decode$1(J.get$responseText$x(request));
+    J.setInnerHtml$1$x(this._renderedField, J.$index$asx(responseData, "html"));
     t1 = J.get$classes$x(this._refreshButton);
     t1.remove$1(t1, "disabled");
   },
@@ -6831,14 +7077,15 @@ J.JSString.$isString = true;
 J.JSString.$isObject = true;
 J.JSNumber.$isObject = true;
 P.Duration.$isObject = true;
+P.Object.$isObject = true;
 W.MouseEvent.$isEvent = true;
 W.MouseEvent.$isObject = true;
+W.NodeValidator.$isNodeValidator = true;
+W.NodeValidator.$isObject = true;
 W.HttpRequest.$isHttpRequest = true;
 W.HttpRequest.$isObject = true;
 W.ProgressEvent.$isEvent = true;
 W.ProgressEvent.$isObject = true;
-W.NodeValidator.$isNodeValidator = true;
-W.NodeValidator.$isObject = true;
 P.ReceivePort.$isStream = true;
 P.ReceivePort.$asStream = [null];
 P.ReceivePort.$isObject = true;
@@ -6849,7 +7096,6 @@ P.Symbol.$isSymbol = true;
 P.Symbol.$isObject = true;
 P.StackTrace.$isStackTrace = true;
 P.StackTrace.$isObject = true;
-P.Object.$isObject = true;
 P.Function.$isFunction = true;
 P.Function.$isObject = true;
 J.JSBool.$isbool = true;
@@ -6944,6 +7190,7 @@ J.getInterceptor$x = function(receiver) {
     return receiver;
   return J.getNativeInterceptor(receiver);
 };
+C.C_JsonCodec = new P.JsonCodec();
 C.C__DelayedDone = new P._DelayedDone();
 C.C__RootZone = new P._RootZone();
 C.Duration_0 = new P.Duration(0);
@@ -7073,6 +7320,7 @@ C.JS_CONST_rD3 = function(hooks) {
   hooks.getTag = getTagIE;
   hooks.prototypeForTag = prototypeForTagIE;
 };
+C.JsonDecoder_null = new P.JsonDecoder(null);
 Isolate.makeConstantList = function(list) {
   list.immutable$list = true;
   list.fixed$length = true;
@@ -7140,6 +7388,9 @@ J.addEventListener$3$x = function(receiver, a0, a1, a2) {
 J.appendHtml$1$x = function(receiver, a0) {
   return J.getInterceptor$x(receiver).appendHtml$1(receiver, a0);
 };
+J.createFragment$2$treeSanitizer$x = function(receiver, a0, a1) {
+  return J.getInterceptor$x(receiver).createFragment$2$treeSanitizer(receiver, a0, a1);
+};
 J.createFragment$3$treeSanitizer$validator$x = function(receiver, a0, a1, a2) {
   return J.getInterceptor$x(receiver).createFragment$3$treeSanitizer$validator(receiver, a0, a1, a2);
 };
@@ -7173,6 +7424,9 @@ J.get$length$asx = function(receiver) {
 J.get$name$x = function(receiver) {
   return J.getInterceptor$x(receiver).get$name(receiver);
 };
+J.get$nodes$x = function(receiver) {
+  return J.getInterceptor$x(receiver).get$nodes(receiver);
+};
 J.get$responseText$x = function(receiver) {
   return J.getInterceptor$x(receiver).get$responseText(receiver);
 };
@@ -7196,6 +7450,9 @@ J.set$href$x = function(receiver, value) {
 };
 J.set$type$x = function(receiver, value) {
   return J.getInterceptor$x(receiver).set$type(receiver, value);
+};
+J.setInnerHtml$1$x = function(receiver, a0) {
+  return J.getInterceptor$x(receiver).setInnerHtml$1(receiver, a0);
 };
 J.toList$0$ax = function(receiver) {
   return J.getInterceptor$ax(receiver).toList$0(receiver);

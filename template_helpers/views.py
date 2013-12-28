@@ -1,5 +1,5 @@
 from django.views.generic import View
-from braces.views import JSONResponseMixin, CsrfExemptMixin
+from braces.views import JSONResponseMixin
 from template_helpers.converters import markdown_converter
 
 
