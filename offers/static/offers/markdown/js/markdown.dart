@@ -3,7 +3,6 @@ import 'dart:convert';
 
 void main(){  
   MarkdownHTMLConverter converter = new MarkdownHTMLConverter(".markdowntextfield", ".markdown-render");
-  print(converter.getMarkdownContent());
 }
 
 class MarkdownHTMLConverter {

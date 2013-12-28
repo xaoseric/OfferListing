@@ -295,7 +295,7 @@ JSArray: {"": "List/Interceptor;",
   addAll$1: function(receiver, collection) {
     var t1;
     for (t1 = new H.ListIterator(collection, collection.length, 0, null); t1.moveNext$0();)
-      this.add$1(receiver, t1._dev$_current);
+      this.add$1(receiver, t1._current);
   },
   forEach$1: function(receiver, f) {
     return H.IterableMixinWorkaround_forEach(receiver, f);
@@ -392,7 +392,7 @@ JSNumber: {"": "num/Interceptor;",
   },
   $shr: function(receiver, other) {
     if (other < 0)
-      throw H.wrapException(P.ArgumentError$(other));
+      throw H.wrapException(new P.ArgumentError(other));
     if (receiver > 0) {
       if (other > 31)
         return 0;
@@ -404,7 +404,7 @@ JSNumber: {"": "num/Interceptor;",
   },
   $lt: function(receiver, other) {
     if (typeof other !== "number")
-      throw H.wrapException(P.ArgumentError$(other));
+      throw H.wrapException(new P.ArgumentError(other));
     return receiver < other;
   },
   $gt: function(receiver, other) {
@@ -414,7 +414,7 @@ JSNumber: {"": "num/Interceptor;",
   },
   $ge: function(receiver, other) {
     if (typeof other !== "number")
-      throw H.wrapException(P.ArgumentError$(other));
+      throw H.wrapException(new P.ArgumentError(other));
     return receiver >= other;
   },
   $isnum: true,
@@ -1526,16 +1526,16 @@ Primitives_stringFromCodePoints: function(codePoints) {
   a = [];
   a.$builtinTypeInfo = [J.JSInt];
   for (t1 = new H.ListIterator(codePoints, codePoints.length, 0, null); t1.moveNext$0();) {
-    i = t1._dev$_current;
+    i = t1._current;
     if (typeof i !== "number" || Math.floor(i) !== i)
-      throw H.wrapException(P.ArgumentError$(i));
+      throw H.wrapException(new P.ArgumentError(i));
     if (i <= 65535)
       a.push(i);
     else if (i <= 1114111) {
       a.push(55296 + (C.JSInt_methods.$shr(i - 65536, 10) & 1023));
       a.push(56320 + (i & 1023));
     } else
-      throw H.wrapException(P.ArgumentError$(i));
+      throw H.wrapException(new P.ArgumentError(i));
   }
   return H.Primitives__fromCharCodeApply(a);
 },
@@ -1543,11 +1543,11 @@ Primitives_stringFromCodePoints: function(codePoints) {
 Primitives_stringFromCharCodes: function(charCodes) {
   var t1, i;
   for (t1 = new H.ListIterator(charCodes, charCodes.length, 0, null); t1.moveNext$0();) {
-    i = t1._dev$_current;
+    i = t1._current;
     if (typeof i !== "number" || Math.floor(i) !== i)
-      throw H.wrapException(P.ArgumentError$(i));
+      throw H.wrapException(new P.ArgumentError(i));
     if (i < 0)
-      throw H.wrapException(P.ArgumentError$(i));
+      throw H.wrapException(new P.ArgumentError(i));
     if (i > 65535)
       return H.Primitives_stringFromCodePoints(charCodes);
   }
@@ -2251,13 +2251,13 @@ Arrays_copy: function(src, srcStart, dst, dstStart, count) {
 IterableMixinWorkaround_forEach: function(iterable, f) {
   var t1;
   for (t1 = new H.ListIterator(iterable, iterable.length, 0, null); t1.moveNext$0();)
-    f.call$1(t1._dev$_current);
+    f.call$1(t1._current);
 },
 
 IterableMixinWorkaround_any: function(iterable, f) {
   var t1;
   for (t1 = new H.ListIterator(iterable, iterable.length, 0, null); t1.moveNext$0();)
-    if (f.call$1(t1._dev$_current) === true)
+    if (f.call$1(t1._current) === true)
       return true;
   return false;
 },
@@ -2345,23 +2345,23 @@ ListIterable: {"": "IterableBase;",
   $isEfficientLength: true
 },
 
-ListIterator: {"": "Object;_iterable,_dev$_length,_index,_dev$_current",
+ListIterator: {"": "Object;_iterable,_length,_index,_current",
   get$current: function() {
-    return this._dev$_current;
+    return this._current;
   },
   moveNext$0: function() {
     var t1, t2, $length, t3;
     t1 = this._iterable;
     t2 = J.getInterceptor$asx(t1);
     $length = t2.get$length(t1);
-    if (this._dev$_length !== $length)
+    if (this._length !== $length)
       throw H.wrapException(P.ConcurrentModificationError$(t1));
     t3 = this._index;
     if (t3 >= $length) {
-      this._dev$_current = null;
+      this._current = null;
       return false;
     }
-    this._dev$_current = t2.elementAt$1(t1, t3);
+    this._current = t2.elementAt$1(t1, t3);
     this._index = this._index + 1;
     return true;
   }
@@ -2399,21 +2399,21 @@ MappedIterable_MappedIterable: function(iterable, $function, $S, $T) {
 
 EfficientLengthMappedIterable: {"": "MappedIterable;_iterable,_f", $asMappedIterable: null, $isEfficientLength: true},
 
-MappedIterator: {"": "Iterator;_dev$_current,_iterator,_f",
+MappedIterator: {"": "Iterator;_current,_iterator,_f",
   _f$1: function(arg0) {
     return this._f.call$1(arg0);
   },
   moveNext$0: function() {
     var t1 = this._iterator;
     if (t1.moveNext$0()) {
-      this._dev$_current = this._f$1(t1.get$current());
+      this._current = this._f$1(t1.get$current());
       return true;
     }
-    this._dev$_current = null;
+    this._current = null;
     return false;
   },
   get$current: function() {
-    return this._dev$_current;
+    return this._current;
   },
   $asIterator: function($S, $T) {
     return [$T];
@@ -2499,7 +2499,7 @@ Future_wait: function(futures) {
   t2 = new P.Future_wait_handleError(t1);
   t1.remaining_2 = 0;
   for (t3 = new H.ListIterator(futures, futures.length, 0, null); t3.moveNext$0();) {
-    future = t3._dev$_current;
+    future = t3._current;
     pos = t1.remaining_2;
     t1.remaining_2 = pos + 1;
     t4 = future.catchError$1(t2);
@@ -4597,7 +4597,7 @@ _HashSet: {"": "_HashSetBase;",
   addAll$1: function(_, objects) {
     var t1;
     for (t1 = new H.ListIterator(objects, objects.length, 0, null); t1.moveNext$0();)
-      this.add$1(this, t1._dev$_current);
+      this.add$1(this, t1._current);
   },
   remove$1: function(_, object) {
     var rest, bucket, index;
@@ -5037,7 +5037,7 @@ ListMixin: {"": "Object;",
   addAll$1: function(receiver, iterable) {
     var t1, element, t2;
     for (t1 = new H.ListIterator(iterable, iterable.length, 0, null); t1.moveNext$0();) {
-      element = t1._dev$_current;
+      element = t1._current;
       t2 = this.get$length(receiver);
       this.set$length(receiver, t2 + 1);
       this.$indexSet(receiver, t2, element);
@@ -5230,7 +5230,7 @@ ListQueue__nextPowerOf2: function(number) {
 
 },
 
-_ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_collection$_position,_collection$_current",
+_ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_position,_collection$_current",
   get$current: function() {
     return this._collection$_current;
   },
@@ -5239,7 +5239,7 @@ _ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_collection$_pos
     t1 = this._queue;
     if (this._modificationCount !== t1._modificationCount)
       H.throwExpression(P.ConcurrentModificationError$(t1));
-    t2 = this._collection$_position;
+    t2 = this._position;
     if (t2 === this._end) {
       this._collection$_current = null;
       return false;
@@ -5248,7 +5248,7 @@ _ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_collection$_pos
     if (t2 < 0 || t2 >= t3.length)
       throw H.ioore(t3, t2);
     this._collection$_current = t3[t2];
-    this._collection$_position = (this._collection$_position + 1 & t1._table.length - 1) >>> 0;
+    this._position = (this._position + 1 & t1._table.length - 1) >>> 0;
     return true;
   },
   static: {
@@ -5394,14 +5394,14 @@ List_List: function($length, $E) {
   if ($length == null)
     return new Array(0);
   if (typeof $length !== "number" || Math.floor($length) !== $length || $length < 0)
-    throw H.wrapException(P.ArgumentError$("Length must be a positive integer: " + H.S($length) + "."));
+    throw H.wrapException(new P.ArgumentError("Length must be a positive integer: " + H.S($length) + "."));
   return H.Primitives_newFixedList($length);
 },
 
 List_List$filled: function($length, fill, $E) {
   var result, t1, i;
   if ($length < 0)
-    throw H.wrapException(P.ArgumentError$("Length must be a positive integer: " + $length + "."));
+    throw H.wrapException(new P.ArgumentError("Length must be a positive integer: " + $length + "."));
   result = H.Primitives_newFixedList($length);
   if ($length !== 0 && true)
     for (t1 = result.length, i = 0; i < t1; ++i)
@@ -6381,7 +6381,7 @@ _AttributeMap: {"": "Object;",
   forEach$1: function(_, f) {
     var t1, key;
     for (t1 = this.get$keys(), t1 = new H.ListIterator(t1, t1.length, 0, null); t1.moveNext$0();) {
-      key = t1._dev$_current;
+      key = t1._current;
       f.call$2(key, this.$index(this, key));
     }
   },
@@ -6439,7 +6439,7 @@ _ElementCssClassSet: {"": "CssClassSetImpl;_element",
     var s, t1, trimmed;
     s = P.LinkedHashSet_LinkedHashSet(null, null, null, J.JSString);
     for (t1 = J.get$className$x(this._element).split(" "), t1 = new H.ListIterator(t1, t1.length, 0, null); t1.moveNext$0();) {
-      trimmed = J.trim$0$s(t1._dev$_current);
+      trimmed = J.trim$0$s(t1._current);
       if (trimmed.length !== 0)
         s.add$1(s, trimmed);
     }
@@ -6509,12 +6509,12 @@ _Html5NodeValidator: {"": "Object;uriPolicy<",
     t1 = $.get$_Html5NodeValidator__attributeValidators();
     if (t1.get$isEmpty(t1)) {
       for (t1 = new H.ListIterator(C.List_1GN, 261, 0, null); t1.moveNext$0();) {
-        attr = t1._dev$_current;
+        attr = t1._current;
         t2 = $.get$_Html5NodeValidator__attributeValidators();
         t2.$indexSet(t2, attr, W._Html5NodeValidator__standardAttributeValidator$closure);
       }
       for (t1 = new H.ListIterator(C.List_yrN, 12, 0, null); t1.moveNext$0();) {
-        attr = t1._dev$_current;
+        attr = t1._current;
         t2 = $.get$_Html5NodeValidator__attributeValidators();
         t2.$indexSet(t2, attr, W._Html5NodeValidator__uriAttributeValidator$closure);
       }
@@ -6663,22 +6663,22 @@ _SvgNodeValidator: {"": "Object;",
   }
 },
 
-FixedSizeListIterator: {"": "Object;_array,_length,_position,_current",
+FixedSizeListIterator: {"": "Object;_array,_html$_length,_html$_position,_html$_current",
   moveNext$0: function() {
     var nextPosition, t1;
-    nextPosition = this._position + 1;
-    t1 = this._length;
+    nextPosition = this._html$_position + 1;
+    t1 = this._html$_length;
     if (nextPosition < t1) {
-      this._current = J.$index$asx(this._array, nextPosition);
-      this._position = nextPosition;
+      this._html$_current = J.$index$asx(this._array, nextPosition);
+      this._html$_position = nextPosition;
       return true;
     }
-    this._current = null;
-    this._position = t1;
+    this._html$_current = null;
+    this._html$_position = t1;
     return false;
   },
   get$current: function() {
-    return this._current;
+    return this._html$_current;
   },
   static: {
 FixedSizeListIterator$: function(array) {
@@ -6857,7 +6857,7 @@ _AttributeClassSet: {"": "CssClassSetImpl;_svg$_element",
     if (classname == null)
       return s;
     for (t1 = classname.split(" "), t1 = new H.ListIterator(t1, t1.length, 0, null); t1.moveNext$0();) {
-      trimmed = J.trim$0$s(t1._dev$_current);
+      trimmed = J.trim$0$s(t1._current);
       if (trimmed.length !== 0)
         s.add$1(s, trimmed);
     }
@@ -6876,7 +6876,7 @@ TypedData: {"": "Interceptor;",
     if (t1.$lt(index, 0) || t1.$ge(index, $length))
       throw H.wrapException(P.RangeError$range(index, 0, $length));
     else
-      throw H.wrapException(P.ArgumentError$("Invalid list index " + H.S(index)));
+      throw H.wrapException(new P.ArgumentError("Invalid list index " + H.S(index)));
   },
   "%": ";ArrayBufferView;TypedData_ListMixin|TypedData_ListMixin_FixedLengthListMixin"
 },
@@ -6977,7 +6977,7 @@ CssClassSetImpl_addAll_closure: {"": "Closure;iterable_0",
 }}],
 ["", "markdown.dart", , T, {
 main: function() {
-  P.print(J.get$value$x(T.MarkdownHTMLConverter$(".markdowntextfield", ".markdown-render")._textInput));
+  T.MarkdownHTMLConverter$(".markdowntextfield", ".markdown-render");
 },
 
 MarkdownHTMLConverter: {"": "Object;_textInput,_htmlOutputMaster,_renderedField,_refreshButton,_csrfToken",
