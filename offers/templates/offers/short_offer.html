@@ -10,7 +10,7 @@
   <div class="panel-body">
     <div class="row">
       <div class="col-lg-10 col-sm-9">
-        {{ offer.content|truncatewords_html:200|safe }}
+        {{ offer.html_content|truncatewords_html:200|safe }}
       </div>
       <div class="col-lg-2 col-sm-3 text-center">
         {% with offer.provider.get_small_profile_image as im %}

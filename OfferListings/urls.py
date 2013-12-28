@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^offers/', include('offers.urls', namespace='offer')),
     url(r'^find/data/', include(main_api.urls)),
     url(r'^find/$', 'offers.views.plan_finder', name='find_a_plan'),
+    url(r'^helper/', include('template_helpers.urls', namespace='helper')),
 
     url(r'^accounts/', include('accounts.urls')),
     url(r'^captcha/', include('captcha.urls')),

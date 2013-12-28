@@ -1,21 +1,21 @@
 from django.db import models
-from django.db.models import Q
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.core.validators import URLValidator
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.cache import cache
 import os
 import uuid
 from django.utils import timezone
 from django.utils.text import slugify
-from template_helpers.cleaners import clean, super_clean
 from django_countries.fields import CountryField
 import json
 import bbcode
 import html2text
 from decimal import Decimal
 from sorl.thumbnail import get_thumbnail
+from template_helpers.converters import markdown_converter
 
 ############
 # Managers #
@@ -385,6 +385,26 @@ class Offer(models.Model):
             })
         return min_maxes
 
+    def get_cache_key(self):
+        if self.pk is None:
+            return None
+        return "offer-{}-html-content".format(self.pk)
+
+    def delete_html_cache(self):
+        if self.pk is None:
+            return
+        cache.delete(self.get_cache_key())
+
+    def html_content(self):
+        cache_key = self.get_cache_key()
+        html_content = cache.get(cache_key)
+        if html_content is None:
+            html_content = markdown_converter.convert(self.content)
+
+            # Set the cache for 12 hours
+            cache.set(cache_key, html_content, 60*60*12)
+        return html_content
+
     class Meta:
         ordering = ['-published_at']
 
@@ -406,12 +426,13 @@ def offer_update_published(sender, instance, raw, **kwargs):
                 instance.readied_at = timezone.now()
 
 
-def clean_offer_on_save(sender, instance, raw, **kwargs):
-    instance.content = clean(instance.content)
+def offer_clear_cache(sender, instance, raw, **kwargs):
+    instance.delete_html_cache()
+    instance.html_content()
 
 
-pre_save.connect(clean_offer_on_save, sender=Offer)
 pre_save.connect(offer_update_published, sender=Offer)
+post_save.connect(offer_clear_cache, sender=Offer)
 
 
 class Plan(models.Model):

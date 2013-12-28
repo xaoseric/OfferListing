@@ -1,5 +1,6 @@
 from django import forms
 from offers.models import Comment, Offer, Plan, Provider, Location, TestIP, TestDownload
+from offers.widgets import MarkdownTextField
 from django.forms.models import formset_factory, modelformset_factory, inlineformset_factory
 
 from crispy_forms.helper import FormHelper
@@ -65,6 +66,15 @@ class OfferForm(forms.ModelForm):
         super(OfferForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
+
+        self.fields["content"].widget = MarkdownTextField()
+        self.fields["content"].help_text = "All content is written in " + \
+                                           "<a href='http://daringfireball.net/projects/markdown/syntax'>" + \
+                                           "markdown syntax" + \
+                                           "</a> " + \
+                                           "You can preview the markdown live above. " + \
+                                           "The text will update as you type. Optionally, you can force refresh the " \
+                                           "preview by clicking the refresh button."
 
     class Meta:
         model = Offer

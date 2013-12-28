@@ -6,7 +6,6 @@ django-gravatar2
 pillow
 fabric
 raven
-bleach
 django-countries
 django-simple-captcha
 beautifulsoup4
@@ -23,3 +22,6 @@ html2text
 django-grappelli
 sorl-thumbnail
 psycopg2
+markdown
+pygments
+django-braces
