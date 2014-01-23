@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load bootstrap_pagination %}
+
+{% block page_title %}Search{% endblock %}
+{% block title %}Search{% endblock %}
+
+{% block content %}
+  {%  crispy form %}
+
+  {% if query %}
+    <h3>Results</h3>
+
+    {% for result in page.object_list %}
+      {% include 'offers/short_offer.html' with offer=result.object %}
+    {% empty %}
+      <p>No results found.</p>
+    {% endfor %}
+
+    <div class="text-center">
+      {% bootstrap_paginate page range=1 %}
+    </div>
+  {% else %}
+
+    <div class="text-center">
+      You can search anything above. You can also mix different parameters (such as datacenters, providers etc.).
+      <br>
+      <strong>Try it out! Search your favourite provider above.</strong>
+    </div>
+
+  {% endif %}
+
+{% endblock %}

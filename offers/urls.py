@@ -1,11 +1,22 @@
 from django.conf.urls import patterns, url, include
+from haystack.views import search_view_factory, SearchView
 from offers.feeds import OfferFeed, OfferAtomFeed
+from offers.forms import OfferSearchForm
 
 
 urlpatterns = patterns('offers.views',
     url(r'^view/(?P<offer_pk>\d+)/$', 'view_offer', name='view'),
     url(r'^view/(?P<offer_pk>\d+)-(?P<slug>[-\w]+)/$', 'view_offer', name='view_slug'),
     url(r'^comment/like/(?P<comment_pk>\d+)/', 'like_comment', name="like"),
+
+    url(r'^search/$', search_view_factory(
+            view_class=SearchView,
+            form_class=OfferSearchForm,
+            template='offers/search.html',
+            results_per_page=8,
+        ),
+        name='search',
+    ),
 
     url(r'^feed/', OfferFeed(), name='rss'),
     url(r'^atom/', OfferAtomFeed(), name='atom'),

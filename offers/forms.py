@@ -5,7 +5,8 @@ from django.forms.models import formset_factory, modelformset_factory, inlinefor
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Div, Fieldset, HTML
-from crispy_forms.bootstrap import AppendedText, PrependedAppendedText
+from crispy_forms.bootstrap import AppendedText, PrependedAppendedText, StrictButton, FieldWithButtons
+from haystack.forms import SearchForm
 
 
 class ProviderForm(forms.ModelForm):
@@ -196,3 +197,15 @@ class TestDownloadFormset(TestDownloadFormsetBase):
 
         for form in self:
             form.fields["size"].label = 'Size (MB)'
+
+
+class OfferSearchForm(SearchForm):
+    def __init__(self, *args, **kwargs):
+        super(OfferSearchForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FieldWithButtons('q', Submit("search", "Search!")),
+        )
+        self.helper.form_method = "GET"
+        self.helper.form_show_labels = False
