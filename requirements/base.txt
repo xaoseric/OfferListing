@@ -25,3 +25,8 @@ psycopg2
 markdown
 pygments
 django-braces
+
+# Searching with elastic
+django-haystack==2.1.0
+requests==2.2.0
+pyelasticsearch==0.6.1
