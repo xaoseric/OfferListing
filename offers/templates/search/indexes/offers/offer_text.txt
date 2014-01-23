@@ -1,0 +1,13 @@
+{{ object.name }}
+
+{{ object.provider.name }}
+{{ object.provider.website }}
+
+{{ object.content }}
+
+{% for location in object.get_plan_locations %}
+{{ location.city }}
+{{ location.country }}
+{{ location.datacenter.name }}
+{{ location.datacenter.website }}
+{% endfor %}
