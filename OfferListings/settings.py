@@ -184,6 +184,7 @@ INSTALLED_APPS = (
     'django_jenkins',
     'django_extensions',
     'sorl.thumbnail',
+    'bootstrap_pagination',
     'haystack',
 
     # Custom applications

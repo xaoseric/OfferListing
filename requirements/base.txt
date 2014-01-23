@@ -25,6 +25,7 @@ psycopg2
 markdown
 pygments
 django-braces
+django-bootstrap-pagination==1.5.0
 
 # Searching with elastic
 django-haystack==2.1.0
