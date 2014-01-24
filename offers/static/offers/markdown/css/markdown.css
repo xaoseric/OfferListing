@@ -15,6 +15,9 @@
     -o-border-radius: 2px;
     border-radius: 2px; }
 
+.markdowntextfield {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace; }
+
 .codehilite .hll {
   background-color: #ffffcc; }
 
