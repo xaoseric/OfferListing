@@ -23,14 +23,14 @@ class UserEditForm(forms.Form):
         self.helper = FormHelper()
         self.helper.add_input(Submit('update', 'Update Account'))
 
-class UserPassResetForm(forms.Form):
+class UserResetPassRequestForm(forms.Form):
     username = forms.CharField(max_length=254)
     email = forms.EmailField(max_length=75)
 
     def __init__(self, *args, **kwargs):
-        super(UserPassResetForm, self).__init__(*args, **kwargs)
+        super(UserPassResetRequestForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.add_input(Submit('initpwreset', 'Get Password Reset Link'))
+        self.helper.add_input(Submit('initpwreset', 'Request Password Reset'))
 
 
 class UserConfirmDeletionForm(forms.Form):
