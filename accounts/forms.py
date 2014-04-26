@@ -24,7 +24,7 @@ class UserEditForm(forms.Form):
         self.helper.add_input(Submit('update', 'Update Account'))
 
 class UserPassResetForm(forms.Form):
-    username = forms.CharField(max_length=30)
+    username = forms.CharField(max_length=254)
     email = forms.EmailField(max_length=75)
 
     def __init__(self, *args, **kwargs):
