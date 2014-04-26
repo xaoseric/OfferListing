@@ -3,7 +3,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, get_object_or_404
-from accounts.forms import UserEditForm, UserConfirmDeletionForm, UserRegisterForm
+from accounts.forms import UserEditForm, UserConfirmDeletionForm, UserRegisterForm, UserPassResetForm
 from django.contrib import messages
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
@@ -157,3 +157,9 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, 'accounts/register.html', {"form": form})
+
+def passreset(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('home'))
+    if request.method == "POST":
+        return HttpResponseRedirect(reverse('home'))
