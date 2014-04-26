@@ -11,6 +11,7 @@ urlpatterns = patterns('accounts.views',
     url(r'^update/$', 'edit_account', name='edit_account'),
     url(r'^update/password/$', 'change_password', name='change_password'),
     url(r'^deactivate/$', 'deactivate_account', name='deactivate_account'),
+    url(r'^auth/$', 'request_pwreset', name='request_passreset'),
 )
 
 urlpatterns += patterns('django.contrib.auth.views',
