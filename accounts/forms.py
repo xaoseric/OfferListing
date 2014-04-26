@@ -32,6 +32,24 @@ class UserResetPassRequestForm(forms.Form):
         self.helper = FormHelper()
         self.helper.add_input(Submit('initpwreset', 'Request Password Reset'))
 
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        try:
+            User.objects.get(username__iexact=username)
+        except User.DoesNotExist:
+           raise forms.ValidationError(self.error_messages['username_notfound'])
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        try:
+            User.objects.get(email_iexact=email)
+        except User.DoesNotExist:
+            raise forms.ValidationError(self.error_messages['email_notfound'])
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
 
 class UserConfirmDeletionForm(forms.Form):
 
